@@ -1,7 +1,7 @@
 {
-  "id": "RISK-2",
+  "id": "THREAT-4",
   "title": "Permission Escalation: Unauthorized Form Editing Access",
-  "description": "Risk that a user without proper admin role (global_admin or organisation_admin) gains access to the form editor, or that a user edits forms/sections/questions outside their organisation's scope due to insufficient permission checks.",
+  "description": "A user without proper admin role (global_admin or organisation_admin) could gain access to the form editor, or a user could edit forms/sections/questions outside their organisation's scope due to insufficient permission checks.",
   "status": "Draft",
   "creationDate": "2026-06-11T12:51:18.192Z",
   "updateDate": "2026-06-11T12:54:28.118Z",
@@ -38,14 +38,6 @@
       "item": "FEAT-2"
     },
     {
-      "field": "severity",
-      "oldValue": 1,
-      "newValue": 4,
-      "changedBy": "planner-agent",
-      "changedAt": "2026-06-11T12:52:00.223Z",
-      "mode": "set"
-    },
-    {
       "field": "probabilityBefore",
       "oldValue": 1,
       "newValue": 2,
@@ -62,16 +54,27 @@
       "mode": "set"
     },
     {
-      "field": "hazardousSituation",
-      "oldValue": "",
-      "newValue": "A user without admin privileges modifies form definitions or an organisation_admin accidentally modifies forms belonging to another organisation, leading to cross-organisation data contamination or unauthorized form deployment.",
-      "changedBy": "planner-agent",
-      "changedAt": "2026-06-11T12:54:28.118Z",
+      "field": "type",
+      "oldValue": "risk",
+      "newValue": "threat",
+      "changedBy": "code-reviewer",
+      "changedAt": "2026-06-11T16:30:00.000Z",
+      "mode": "set"
+    },
+    {
+      "field": "strideClassifications",
+      "oldValue": [],
+      "newValue": [
+        "Elevation of Privilege"
+      ],
+      "changedBy": "code-reviewer",
+      "changedAt": "2026-06-11T16:30:00.000Z",
       "mode": "set"
     }
   ],
-  "hazardousSituation": "A user without admin privileges modifies form definitions or an organisation_admin accidentally modifies forms belonging to another organisation, leading to cross-organisation data contamination or unauthorized form deployment.",
-  "severity": 4,
+  "strideClassifications": [
+    "Elevation of Privilege"
+  ],
   "probabilityBefore": 2,
   "probabilityAfter": 1,
   "linkedFeatures": [

@@ -52,9 +52,21 @@
       "changedBy": "planner-agent",
       "changedAt": "2026-06-11T12:52:01.343Z",
       "mode": "set"
+    },
+    {
+      "field": "strideClassifications",
+      "oldValue": [],
+      "newValue": [
+        "Tampering"
+      ],
+      "changedBy": "code-reviewer",
+      "changedAt": "2026-06-11T16:30:00.000Z",
+      "mode": "set"
     }
   ],
-  "strideClassifications": [],
+  "strideClassifications": [
+    "Tampering"
+  ],
   "probabilityBefore": 3,
   "probabilityAfter": 2,
   "linkedFeatures": [

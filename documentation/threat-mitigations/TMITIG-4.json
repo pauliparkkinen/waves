@@ -1,5 +1,5 @@
 {
-  "id": "RMITIG-2",
+  "id": "TMITIG-4",
   "title": "Role-Based Access Control with Organisation Scoping",
   "description": "All admin API endpoints enforce role checks (global_admin, organisation_admin) and organisation-level scoping. Collection permissions are validated independently. JWT middleware verifies token claims on every request. Audit logging tracks all admin actions.",
   "status": "Draft",
@@ -22,7 +22,24 @@
       "changedBy": "planner-agent",
       "changedAt": "2026-06-11T12:52:29.302Z",
       "mode": "set"
+    },
+    {
+      "field": "linkedThreat",
+      "oldValue": "",
+      "newValue": "THREAT-4",
+      "changedBy": "code-reviewer",
+      "changedAt": "2026-06-11T16:30:00.000Z",
+      "mode": "set"
+    },
+    {
+      "field": "linkedRisk",
+      "oldValue": "RISK-2",
+      "newValue": "",
+      "changedBy": "code-reviewer",
+      "changedAt": "2026-06-11T16:30:00.000Z",
+      "mode": "remove",
+      "item": "RISK-2"
     }
   ],
-  "linkedRisk": "RISK-2"
+  "linkedThreat": "THREAT-4"
 }
