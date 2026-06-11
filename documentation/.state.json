@@ -1,0 +1,19 @@
+{
+  "counters": {
+    "FEAT": 1,
+    "REQ": 1,
+    "TEST": 1,
+    "TASK": 2,
+    "RISK": 1,
+    "THREAT": 1,
+    "RMITIG": 1,
+    "TMITIG": 1
+  },
+  "deviceVersion": {
+    "npi": 0,
+    "major": 0,
+    "minor": 0,
+    "patch": 0,
+    "lastRecalculatedFromTask": null
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "TASK-1",
+  "title": "Rename documentation-folder to design",
+  "description": "Rename the documentation-folder to design to separate between the computer generated documentation files and the human-made design.",
+  "status": "Draft",
+  "creationDate": "2026-06-11",
+  "updateDate": "2026-06-11",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T09:19:22.134Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "significance": "patch"
+}
