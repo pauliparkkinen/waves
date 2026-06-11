@@ -1,0 +1,45 @@
+{
+  "id": "TASK-7",
+  "title": "Backend: Formula CRUD and Validation Endpoints",
+  "description": "Implement REST API endpoints for formulas: POST/GET/PUT/DELETE /admin/formulas. Formula includes JSON AST expression, output_type, symbol, formula_references. Backend validates the formula AST structure, output_type compatibility, and that all referenced variables/objects exist in the collection.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:53:08.040Z",
+  "updateDate": "2026-06-11T12:53:52.758Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:53:08.040Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:43.297Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:52.757Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "significance": "patch",
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

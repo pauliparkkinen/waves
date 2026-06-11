@@ -1,0 +1,45 @@
+{
+  "id": "TASK-8",
+  "title": "Backend: Admin Auth and Permission Middleware",
+  "description": "Implement middleware that checks JWT tokens for global_admin or organisation_admin roles on all admin endpoints. Enforce organisation-level scoping: an organisation_admin can only access forms/questions/sections within their organisation's collections. Extend the existing AUTH_JWKS_URI mechanism. Include fallback for mock auth in development.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:53:09.130Z",
+  "updateDate": "2026-06-11T12:53:53.229Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:53:09.130Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:43.725Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:53.229Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "significance": "patch",
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

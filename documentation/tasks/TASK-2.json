@@ -1,0 +1,45 @@
+{
+  "id": "TASK-2",
+  "title": "Backend: Admin Module Scaffolding",
+  "description": "Create the backend admin module under modules/admin/ following the module system conventions (index.ts, controllers/, services/, repositories/, types/). Wire up routes at /admin prefix. Register module in waves.config.json. Create database schemas for collections, questions, sections, forms, formulas, translations.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:53:02.527Z",
+  "updateDate": "2026-06-11T12:53:50.607Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:53:02.528Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:41.107Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:50.607Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "significance": "patch",
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

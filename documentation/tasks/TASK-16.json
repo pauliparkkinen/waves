@@ -1,0 +1,45 @@
+{
+  "id": "TASK-16",
+  "title": "Frontend: Translation Editor Popup Component",
+  "description": "Build a popup translation editor for managing multi-locale translations of form content. Display available locales. Create/edit translation entries with translation_key and locale_code. Draft/publish per translation. Version tracking. Integration points in question, section, and form editors.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:53:18.870Z",
+  "updateDate": "2026-06-11T12:53:56.700Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:53:18.870Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:47.200Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:56.699Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "significance": "patch",
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

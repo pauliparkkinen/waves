@@ -1,0 +1,63 @@
+{
+  "id": "THREAT-3",
+  "title": "Elevation of Privilege: Admin API Access",
+  "description": "A regular user or external attacker could exploit vulnerabilities in the admin API auth middleware to elevate their privileges to global_admin or organisation_admin, gaining unauthorized access to the form editor.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:51:25.507Z",
+  "updateDate": "2026-06-11T12:52:03.006Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:51:25.507Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:51:53.373Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:51:53.804Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    },
+    {
+      "field": "probabilityBefore",
+      "oldValue": 1,
+      "newValue": 3,
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:52:02.583Z",
+      "mode": "set"
+    },
+    {
+      "field": "probabilityAfter",
+      "oldValue": 1,
+      "newValue": 1,
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:52:03.005Z",
+      "mode": "set"
+    }
+  ],
+  "strideClassifications": [],
+  "probabilityBefore": 3,
+  "probabilityAfter": 1,
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

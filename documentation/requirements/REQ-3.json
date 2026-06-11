@@ -1,0 +1,44 @@
+{
+  "id": "REQ-3",
+  "title": "Formula Editor Popup",
+  "description": "Administrator can create and edit formulas via a popup editor. Formulas use JSON AST but are rendered in human-readable syntax. Variables from the current collection (question values, formula results) can be inserted and connected with operators (+, -, *, /, &&, ||). If-else uses ternary syntax: condition ? when-true : otherwise. Output type is number or boolean. Malformed formulas or conflicting output types produce validation errors.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:49:37.812Z",
+  "updateDate": "2026-06-11T12:50:50.994Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:49:37.812Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:50.532Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:50.994Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

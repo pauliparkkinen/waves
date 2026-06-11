@@ -1,0 +1,80 @@
+{
+  "id": "RISK-1",
+  "title": "Data Integrity: Incorrect or Malformed Form Definitions",
+  "description": "Risk that form, section, or question definitions become corrupted or malformed due to concurrent edits, incomplete saves, or invalid data passing frontend validation and reaching the backend. This could lead to incorrect patient forms being deployed.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:51:15.413Z",
+  "updateDate": "2026-06-11T12:54:27.094Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:51:15.413Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:51:49.142Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:51:49.552Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    },
+    {
+      "field": "severity",
+      "oldValue": 1,
+      "newValue": 3,
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:51:58.924Z",
+      "mode": "set"
+    },
+    {
+      "field": "probabilityBefore",
+      "oldValue": 1,
+      "newValue": 3,
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:51:59.374Z",
+      "mode": "set"
+    },
+    {
+      "field": "probabilityAfter",
+      "oldValue": 1,
+      "newValue": 1,
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:51:59.799Z",
+      "mode": "set"
+    },
+    {
+      "field": "hazardousSituation",
+      "oldValue": "",
+      "newValue": "A hospital deploys a form with corrupted section definitions or invalid formula references, causing incorrect questions to be displayed to patients or wrong scores to be calculated from responses.",
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:54:27.094Z",
+      "mode": "set"
+    }
+  ],
+  "hazardousSituation": "A hospital deploys a form with corrupted section definitions or invalid formula references, causing incorrect questions to be displayed to patients or wrong scores to be calculated from responses.",
+  "severity": 3,
+  "probabilityBefore": 3,
+  "probabilityAfter": 1,
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

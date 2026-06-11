@@ -1,0 +1,44 @@
+{
+  "id": "REQ-2",
+  "title": "Section CRUD with Question Attachment",
+  "description": "Administrator can define, read, update, and delete sections. Existing questions can be attached to a section ordered by collections then alphabetically by question symbol. Sections have title, description, visibility condition via formula reference, and draft/publish workflow. Translations are managed via translation editor popup. Questions within a section can be reordered.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:49:35.294Z",
+  "updateDate": "2026-06-11T12:50:50.116Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:49:35.294Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:49.704Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:50.116Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "TMITIG-1",
+  "title": "HTTPS Enforcement and Payload Integrity Verification",
+  "description": "All API communication between frontend and backend uses HTTPS. Backend validates request payload integrity using checksums and schema validation. Database access is restricted to the backend service account. Audit logs capture all modification events with before/after values.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:52:30.951Z",
+  "updateDate": "2026-06-11T12:52:38.467Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:52:30.951Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedThreat",
+      "oldValue": "",
+      "newValue": "THREAT-1",
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:52:38.467Z",
+      "mode": "set"
+    }
+  ],
+  "linkedThreat": "THREAT-1"
+}

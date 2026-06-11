@@ -1,0 +1,44 @@
+{
+  "id": "REQ-7",
+  "title": "Visibility Conditions for Questions and Sections",
+  "description": "Questions and sections can have conditional visibility based on formula results. The condition is stored as a formula reference (condition_formula_id). User can select an existing visibility condition from a selection list or create a new one via the formula editor popup. The condition determines whether a question or section is displayed when filling the form.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:49:42.733Z",
+  "updateDate": "2026-06-11T12:50:54.431Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:49:42.733Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:54.016Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:54.431Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

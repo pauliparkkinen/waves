@@ -1,0 +1,44 @@
+{
+  "id": "REQ-10",
+  "title": "Backend Admin Module API",
+  "description": "A backend admin module under /admin provides REST API endpoints for CRUD operations on collections, questions, sections, forms, formulas, and translations. The module validates all data independently of the frontend. API endpoints enforce organization-level and collection-level permissions. Only users with global_admin or organisation_admin roles can access admin endpoints.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:49:47.387Z",
+  "updateDate": "2026-06-11T12:50:57.068Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:49:47.387Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:56.652Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:57.068Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

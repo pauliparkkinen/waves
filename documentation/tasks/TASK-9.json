@@ -1,0 +1,45 @@
+{
+  "id": "TASK-9",
+  "title": "Backend: Test Mode Sandbox Endpoint",
+  "description": "Implement a sandbox endpoint POST /admin/forms/:id/test that accepts test form data, runs formula evaluations and visibility condition checks, and returns the results without persisting any data. The sandbox validates the form structure using the same logic as production but operates on ephemeral data.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:53:10.167Z",
+  "updateDate": "2026-06-11T12:53:53.667Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:53:10.167Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:44.175Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:53.667Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "significance": "patch",
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

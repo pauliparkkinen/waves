@@ -1,0 +1,63 @@
+{
+  "id": "THREAT-2",
+  "title": "Information Disclosure: Form Structure Leakage",
+  "description": "An attacker could enumerate form structures, question types, and scoring formulas across organisations. This reveals clinical decision-making logic and data collection strategies, which could be used to gain competitive intelligence.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:51:22.046Z",
+  "updateDate": "2026-06-11T12:52:02.159Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:51:22.046Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:51:52.540Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:51:52.959Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    },
+    {
+      "field": "probabilityBefore",
+      "oldValue": 1,
+      "newValue": 4,
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:52:01.757Z",
+      "mode": "set"
+    },
+    {
+      "field": "probabilityAfter",
+      "oldValue": 1,
+      "newValue": 2,
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:52:02.158Z",
+      "mode": "set"
+    }
+  ],
+  "strideClassifications": [],
+  "probabilityBefore": 4,
+  "probabilityAfter": 2,
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

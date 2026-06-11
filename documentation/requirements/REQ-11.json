@@ -1,0 +1,44 @@
+{
+  "id": "REQ-11",
+  "title": "Type-Specific Question Parameters",
+  "description": "Each question type (multi-select, select-one, free-text, range) has type-specific configuration parameters stored as JSON. Before the type is selected, only common parameters (symbol, collection, translations) are shown. When the user selects a type, the type-specific properties become visible and editable. Question options (label, value, order_index) are managed for select-type questions.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:49:48.629Z",
+  "updateDate": "2026-06-11T12:50:57.933Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:49:48.629Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:57.500Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:57.933Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

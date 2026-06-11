@@ -1,0 +1,45 @@
+{
+  "id": "TASK-17",
+  "title": "Frontend: Drag-and-Drop Reordering and Test Mode",
+  "description": "Implement drag-and-drop reordering for sections within forms and questions within sections. Use HTML5 drag API or a lightweight library. Implement test mode: validate form structure client-side, then call sandbox backend endpoint. Display test results (visible sections/questions, formula outputs) without persisting.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:53:20.041Z",
+  "updateDate": "2026-06-11T12:53:57.150Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:53:20.041Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:47.625Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:57.150Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "significance": "patch",
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

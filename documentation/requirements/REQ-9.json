@@ -1,0 +1,44 @@
+{
+  "id": "REQ-9",
+  "title": "Test Mode Form Filling",
+  "description": "When no validation errors exist, the administrator can open the form for test-mode filling. Test mode calls a sandbox backend endpoint (no persistence) to validate the form structure, visibility conditions, and formulas are working correctly. Test data is ephemeral and not stored.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:49:46.783Z",
+  "updateDate": "2026-06-11T12:50:56.235Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:49:46.783Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:55.788Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:56.235Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

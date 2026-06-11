@@ -1,0 +1,45 @@
+{
+  "id": "TASK-5",
+  "title": "Backend: Section CRUD Endpoints",
+  "description": "Implement REST API endpoints for sections: POST/GET/PUT/DELETE /admin/sections. Section includes section_questions array (question_symbol, version_number, order_number, required), condition_formula_id, status draft/published, translations. Validate question references exist.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:53:05.690Z",
+  "updateDate": "2026-06-11T12:53:51.921Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:53:05.690Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:42.418Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:51.921Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "significance": "patch",
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

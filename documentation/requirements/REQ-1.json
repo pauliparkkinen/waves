@@ -1,0 +1,44 @@
+{
+  "id": "REQ-1",
+  "title": "Question CRUD",
+  "description": "Administrator can define, read, update, and delete questions. Common parameters are visible before type selection; type-specific properties appear after selection. Questions can be of types: multi-select, select-one, free-text, range. Visibility conditions can be assigned via formula reference. Translations are managed via translation editor popup.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:49:32.169Z",
+  "updateDate": "2026-06-11T12:50:49.273Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:49:32.169Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:48.836Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:49.273Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}
