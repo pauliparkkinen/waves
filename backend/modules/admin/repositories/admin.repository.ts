@@ -1,31 +1,11 @@
 import type {
-  Collection,
-  CollectionPermission,
   Question,
-  QuestionType,
   Section,
-  SectionQuestion,
   Form,
-  FormSection,
-  FormOrganisation,
   Formula,
-  FormulaReference,
-  Translation,
-  TranslationRef,
-  PublishStatus,
 } from '../types/admin.types.js';
 
 export interface IAdminRepository {
-  // Collections
-  listCollections(): Collection[];
-  getCollection(id: string): Collection | undefined;
-  createCollection(data: Omit<Collection, 'collection_id'>): Collection;
-  updateCollection(
-    id: string,
-    data: Partial<Omit<Collection, 'collection_id'>>
-  ): Collection | undefined;
-  deleteCollection(id: string): boolean;
-
   // Questions
   listQuestions(collectionId?: string): Question[];
   getQuestion(id: string): Question | undefined;
@@ -59,7 +39,6 @@ export interface IAdminRepository {
 }
 
 export class InMemoryAdminRepository implements IAdminRepository {
-  private collections: Collection[] = [];
   private questions: Question[] = [];
   private sections: Section[] = [];
   private forms: Form[] = [];
@@ -68,41 +47,6 @@ export class InMemoryAdminRepository implements IAdminRepository {
 
   private generateId(): string {
     return `admin-${this.nextId++}`;
-  }
-
-  // Collections
-  listCollections(): Collection[] {
-    return [...this.collections];
-  }
-
-  getCollection(id: string): Collection | undefined {
-    return this.collections.find((c) => c.collection_id === id);
-  }
-
-  createCollection(data: Omit<Collection, 'collection_id'>): Collection {
-    const collection: Collection = {
-      collection_id: this.generateId(),
-      ...data,
-    };
-    this.collections.push(collection);
-    return collection;
-  }
-
-  updateCollection(
-    id: string,
-    data: Partial<Omit<Collection, 'collection_id'>>
-  ): Collection | undefined {
-    const idx = this.collections.findIndex((c) => c.collection_id === id);
-    if (idx === -1) return undefined;
-    this.collections[idx] = { ...this.collections[idx], ...data };
-    return this.collections[idx];
-  }
-
-  deleteCollection(id: string): boolean {
-    const idx = this.collections.findIndex((c) => c.collection_id === id);
-    if (idx === -1) return false;
-    this.collections.splice(idx, 1);
-    return true;
   }
 
   // Questions
