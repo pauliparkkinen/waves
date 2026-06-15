@@ -1,15 +1,8 @@
-import type { Form, Formula } from '../types/admin.types.js';
+import type { Formula } from '../types/admin.types.js';
 import type { IAdminRepository } from '../repositories/admin.repository.js';
 
 export interface IAdminService {
   getStatus(): { status: string; module: string };
-
-  // Forms
-  listForms(): Form[];
-  getForm(id: string): Form | undefined;
-  createForm(data: Omit<Form, 'form_id'>): Form;
-  updateForm(id: string, data: Partial<Omit<Form, 'form_id'>>): Form | undefined;
-  deleteForm(id: string): boolean;
 
   // Formulas
   listFormulas(): Formula[];
@@ -24,26 +17,6 @@ export class AdminService implements IAdminService {
 
   getStatus(): { status: string; module: string } {
     return { status: 'ok', module: 'admin' };
-  }
-
-  listForms(): Form[] {
-    return this.repository.listForms();
-  }
-
-  getForm(id: string): Form | undefined {
-    return this.repository.getForm(id);
-  }
-
-  createForm(data: Omit<Form, 'form_id'>): Form {
-    return this.repository.createForm(data);
-  }
-
-  updateForm(id: string, data: Partial<Omit<Form, 'form_id'>>): Form | undefined {
-    return this.repository.updateForm(id, data);
-  }
-
-  deleteForm(id: string): boolean {
-    return this.repository.deleteForm(id);
   }
 
   listFormulas(): Formula[] {
