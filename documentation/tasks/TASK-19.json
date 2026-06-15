@@ -2,9 +2,9 @@
   "id": "TASK-19",
   "title": "Create QMS documents for UI accessibility (WCAG 2.2)",
   "description": "Create formal QMS documentation (requirements, risks, threats, test cases) for WCAG 2.2 accessibility compliance across all three user interfaces (admin, hcp, patient). This includes documenting accessibility requirements, identifying risks related to non-compliance, threat modeling for accessibility-related security concerns, and creating test cases for verification.",
-  "status": "Ready-to-review",
+  "status": "Approved",
   "creationDate": "2026-06-15T13:34:40.330Z",
-  "updateDate": "2026-06-15T13:36:32.709Z",
+  "updateDate": "2026-06-15T15:00:11.853Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -26,6 +26,14 @@
       "changedBy": "discovery-agent",
       "changedAt": "2026-06-15T13:36:32.709Z",
       "comment": "All QMS documentation has been created: FEAT-3 (User Interfaces feature), REQ-13 (WCAG 2.2 Conformance), REQ-14 (Keyboard Navigation), REQ-15 (Non-Text Content Alternatives), REQ-16 (Color and Contrast), REQ-17 (Focus Indication and Navigation). Ready for human review."
+    },
+    {
+      "fromStatus": "Ready-to-review",
+      "toStatus": "Approved",
+      "changedBy": "Pauli Parkkinen",
+      "changedAt": "2026-06-15T15:00:11.853Z",
+      "approvedBy": "Pauli Parkkinen",
+      "approvedAt": "2026-06-15T15:00:11.853Z"
     }
   ],
   "changeHistory": [
