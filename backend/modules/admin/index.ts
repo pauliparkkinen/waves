@@ -11,6 +11,9 @@ import { InMemoryQuestionRepository } from './repositories/question.repository.j
 import { createSectionRouter } from './controllers/section.controller.js';
 import { SectionService } from './services/section.service.js';
 import { InMemorySectionRepository } from './repositories/section.repository.js';
+import { createFormRouter } from './controllers/form.controller.js';
+import { FormService } from './services/form.service.js';
+import { InMemoryFormRepository } from './repositories/form.repository.js';
 
 const adminRepository = new InMemoryAdminRepository();
 const adminService = new AdminService(adminRepository);
@@ -20,10 +23,13 @@ const questionRepository = new InMemoryQuestionRepository();
 const questionService = new QuestionService(questionRepository);
 const sectionRepository = new InMemorySectionRepository();
 const sectionService = new SectionService(sectionRepository, questionRepository);
+const formRepository = new InMemoryFormRepository();
+const formService = new FormService(formRepository, sectionRepository);
 
 const router = new Hono();
 router.route('/', createAdminRouter(adminService));
 router.route('/collections', createCollectionRouter(collectionService));
 router.route('/questions', createQuestionRouter(questionService));
 router.route('/sections', createSectionRouter(sectionService));
+router.route('/forms', createFormRouter(formService));
 export default router;

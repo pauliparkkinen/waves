@@ -10,47 +10,6 @@ export function createAdminRouter(service: IAdminService): Hono {
     return c.json(service.getStatus());
   });
 
-  // Forms
-  router.get('/forms', requirePermissions(['admin:manage']), (c) => {
-    return c.json(service.listForms());
-  });
-
-  router.post('/forms', requirePermissions(['admin:manage']), async (c) => {
-    try {
-      const body = await c.req.json();
-      const form = service.createForm(body);
-      return c.json(form, 201);
-    } catch (e) {
-      return c.json({ error: 'Failed to create form' }, 500);
-    }
-  });
-
-  router.get('/forms/:id', requirePermissions(['admin:manage']), (c) => {
-    const id = c.req.param('id');
-    const form = service.getForm(id);
-    if (!form) return c.json({ error: 'Not found' }, 404);
-    return c.json(form);
-  });
-
-  router.put('/forms/:id', requirePermissions(['admin:manage']), async (c) => {
-    try {
-      const id = c.req.param('id');
-      const body = await c.req.json();
-      const form = service.updateForm(id, body);
-      if (!form) return c.json({ error: 'Not found' }, 404);
-      return c.json(form);
-    } catch (e) {
-      return c.json({ error: 'Failed to update form' }, 500);
-    }
-  });
-
-  router.delete('/forms/:id', requirePermissions(['admin:manage']), (c) => {
-    const id = c.req.param('id');
-    const deleted = service.deleteForm(id);
-    if (!deleted) return c.json({ error: 'Not found' }, 404);
-    return c.json({ success: true });
-  });
-
   // Formulas
   router.get('/formulas', requirePermissions(['admin:manage']), (c) => {
     return c.json(service.listFormulas());
