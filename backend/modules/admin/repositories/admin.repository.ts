@@ -1,0 +1,249 @@
+import type {
+  Collection,
+  CollectionPermission,
+  Question,
+  QuestionType,
+  Section,
+  SectionQuestion,
+  Form,
+  FormSection,
+  FormOrganisation,
+  Formula,
+  FormulaReference,
+  Translation,
+  TranslationRef,
+  PublishStatus,
+} from '../types/admin.types.js';
+
+export interface IAdminRepository {
+  // Collections
+  listCollections(): Collection[];
+  getCollection(id: string): Collection | undefined;
+  createCollection(data: Omit<Collection, 'collection_id'>): Collection;
+  updateCollection(
+    id: string,
+    data: Partial<Omit<Collection, 'collection_id'>>
+  ): Collection | undefined;
+  deleteCollection(id: string): boolean;
+
+  // Questions
+  listQuestions(collectionId?: string): Question[];
+  getQuestion(id: string): Question | undefined;
+  createQuestion(data: Omit<Question, 'question_id' | 'created_at' | 'updated_at'>): Question;
+  updateQuestion(
+    id: string,
+    data: Partial<Omit<Question, 'question_id' | 'created_at' | 'updated_at'>>
+  ): Question | undefined;
+  deleteQuestion(id: string): boolean;
+
+  // Sections
+  listSections(): Section[];
+  getSection(id: string): Section | undefined;
+  createSection(data: Omit<Section, 'section_id'>): Section;
+  updateSection(id: string, data: Partial<Omit<Section, 'section_id'>>): Section | undefined;
+  deleteSection(id: string): boolean;
+
+  // Forms
+  listForms(): Form[];
+  getForm(id: string): Form | undefined;
+  createForm(data: Omit<Form, 'form_id'>): Form;
+  updateForm(id: string, data: Partial<Omit<Form, 'form_id'>>): Form | undefined;
+  deleteForm(id: string): boolean;
+
+  // Formulas
+  listFormulas(): Formula[];
+  getFormula(id: string): Formula | undefined;
+  createFormula(data: Omit<Formula, 'formula_id'>): Formula;
+  updateFormula(id: string, data: Partial<Omit<Formula, 'formula_id'>>): Formula | undefined;
+  deleteFormula(id: string): boolean;
+}
+
+export class InMemoryAdminRepository implements IAdminRepository {
+  private collections: Collection[] = [];
+  private questions: Question[] = [];
+  private sections: Section[] = [];
+  private forms: Form[] = [];
+  private formulas: Formula[] = [];
+  private nextId = 1;
+
+  private generateId(): string {
+    return `admin-${this.nextId++}`;
+  }
+
+  // Collections
+  listCollections(): Collection[] {
+    return [...this.collections];
+  }
+
+  getCollection(id: string): Collection | undefined {
+    return this.collections.find((c) => c.collection_id === id);
+  }
+
+  createCollection(data: Omit<Collection, 'collection_id'>): Collection {
+    const collection: Collection = {
+      collection_id: this.generateId(),
+      ...data,
+    };
+    this.collections.push(collection);
+    return collection;
+  }
+
+  updateCollection(
+    id: string,
+    data: Partial<Omit<Collection, 'collection_id'>>
+  ): Collection | undefined {
+    const idx = this.collections.findIndex((c) => c.collection_id === id);
+    if (idx === -1) return undefined;
+    this.collections[idx] = { ...this.collections[idx], ...data };
+    return this.collections[idx];
+  }
+
+  deleteCollection(id: string): boolean {
+    const idx = this.collections.findIndex((c) => c.collection_id === id);
+    if (idx === -1) return false;
+    this.collections.splice(idx, 1);
+    return true;
+  }
+
+  // Questions
+  listQuestions(collectionId?: string): Question[] {
+    let result = [...this.questions];
+    if (collectionId) {
+      result = result.filter((q) => q.collection_id === collectionId);
+    }
+    return result;
+  }
+
+  getQuestion(id: string): Question | undefined {
+    return this.questions.find((q) => q.question_id === id);
+  }
+
+  createQuestion(data: Omit<Question, 'question_id' | 'created_at' | 'updated_at'>): Question {
+    const now = new Date().toISOString();
+    const question: Question = {
+      question_id: this.generateId(),
+      ...data,
+      created_at: now,
+      updated_at: now,
+    };
+    this.questions.push(question);
+    return question;
+  }
+
+  updateQuestion(
+    id: string,
+    data: Partial<Omit<Question, 'question_id' | 'created_at' | 'updated_at'>>
+  ): Question | undefined {
+    const idx = this.questions.findIndex((q) => q.question_id === id);
+    if (idx === -1) return undefined;
+    this.questions[idx] = {
+      ...this.questions[idx],
+      ...data,
+      updated_at: new Date().toISOString(),
+    };
+    return this.questions[idx];
+  }
+
+  deleteQuestion(id: string): boolean {
+    const idx = this.questions.findIndex((q) => q.question_id === id);
+    if (idx === -1) return false;
+    this.questions.splice(idx, 1);
+    return true;
+  }
+
+  // Sections
+  listSections(): Section[] {
+    return [...this.sections];
+  }
+
+  getSection(id: string): Section | undefined {
+    return this.sections.find((s) => s.section_id === id);
+  }
+
+  createSection(data: Omit<Section, 'section_id'>): Section {
+    const section: Section = {
+      section_id: this.generateId(),
+      ...data,
+    };
+    this.sections.push(section);
+    return section;
+  }
+
+  updateSection(id: string, data: Partial<Omit<Section, 'section_id'>>): Section | undefined {
+    const idx = this.sections.findIndex((s) => s.section_id === id);
+    if (idx === -1) return undefined;
+    this.sections[idx] = { ...this.sections[idx], ...data };
+    return this.sections[idx];
+  }
+
+  deleteSection(id: string): boolean {
+    const idx = this.sections.findIndex((s) => s.section_id === id);
+    if (idx === -1) return false;
+    this.sections.splice(idx, 1);
+    return true;
+  }
+
+  // Forms
+  listForms(): Form[] {
+    return [...this.forms];
+  }
+
+  getForm(id: string): Form | undefined {
+    return this.forms.find((f) => f.form_id === id);
+  }
+
+  createForm(data: Omit<Form, 'form_id'>): Form {
+    const form: Form = {
+      form_id: this.generateId(),
+      ...data,
+    };
+    this.forms.push(form);
+    return form;
+  }
+
+  updateForm(id: string, data: Partial<Omit<Form, 'form_id'>>): Form | undefined {
+    const idx = this.forms.findIndex((f) => f.form_id === id);
+    if (idx === -1) return undefined;
+    this.forms[idx] = { ...this.forms[idx], ...data };
+    return this.forms[idx];
+  }
+
+  deleteForm(id: string): boolean {
+    const idx = this.forms.findIndex((f) => f.form_id === id);
+    if (idx === -1) return false;
+    this.forms.splice(idx, 1);
+    return true;
+  }
+
+  // Formulas
+  listFormulas(): Formula[] {
+    return [...this.formulas];
+  }
+
+  getFormula(id: string): Formula | undefined {
+    return this.formulas.find((f) => f.formula_id === id);
+  }
+
+  createFormula(data: Omit<Formula, 'formula_id'>): Formula {
+    const formula: Formula = {
+      formula_id: this.generateId(),
+      ...data,
+    };
+    this.formulas.push(formula);
+    return formula;
+  }
+
+  updateFormula(id: string, data: Partial<Omit<Formula, 'formula_id'>>): Formula | undefined {
+    const idx = this.formulas.findIndex((f) => f.formula_id === id);
+    if (idx === -1) return undefined;
+    this.formulas[idx] = { ...this.formulas[idx], ...data };
+    return this.formulas[idx];
+  }
+
+  deleteFormula(id: string): boolean {
+    const idx = this.formulas.findIndex((f) => f.formula_id === id);
+    if (idx === -1) return false;
+    this.formulas.splice(idx, 1);
+    return true;
+  }
+}

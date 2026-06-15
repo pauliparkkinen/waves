@@ -1,0 +1,4 @@
+{
+  "reader": ["records:read"],
+  "admin": ["admin:manage"]
+}
