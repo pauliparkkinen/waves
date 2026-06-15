@@ -4,21 +4,6 @@ import type { IAdminRepository } from '../../repositories/admin.repository.js';
 
 function makeRepository(overrides: Partial<IAdminRepository> = {}): IAdminRepository {
   return {
-    listQuestions: vi.fn().mockReturnValue([]),
-    getQuestion: vi.fn().mockReturnValue(undefined),
-    createQuestion: vi.fn().mockReturnValue({
-      question_id: 'admin-1',
-      collection_id: 'col-1',
-      question_symbol: 'q1',
-      type: 'free-text',
-      version: 1,
-      parameters: {},
-      created_at: '',
-      updated_at: '',
-      translations: [],
-    }),
-    updateQuestion: vi.fn().mockReturnValue(undefined),
-    deleteQuestion: vi.fn().mockReturnValue(false),
     listSections: vi.fn().mockReturnValue([]),
     getSection: vi.fn().mockReturnValue(undefined),
     createSection: vi.fn().mockReturnValue({
@@ -72,50 +57,6 @@ describe('AdminService', () => {
 
         expect(result).toEqual({ status: 'ok', module: 'admin' });
       });
-    });
-  });
-
-  describe('Questions', () => {
-    it('when listQuestions is called, then it delegates to the repository', () => {
-      const questions = [
-        {
-          question_id: 'q-1',
-          collection_id: 'col-1',
-          question_symbol: 'q1',
-          type: 'free-text' as const,
-          version: 1,
-          parameters: {},
-          created_at: '',
-          updated_at: '',
-          translations: [],
-        },
-      ];
-      const repo = makeRepository({ listQuestions: vi.fn().mockReturnValue(questions) });
-      const service = new AdminService(repo);
-
-      const result = service.listQuestions('col-1');
-
-      expect(result).toEqual(questions);
-      expect(repo.listQuestions).toHaveBeenCalledWith('col-1');
-    });
-
-    it('when createQuestion is called, then it delegates to the repository', () => {
-      const data = {
-        collection_id: 'col-1',
-        question_symbol: 'q1',
-        type: 'free-text' as const,
-        version: 1,
-        parameters: {},
-        translations: [],
-      };
-      const created = { question_id: 'q-1', ...data, created_at: '', updated_at: '' };
-      const repo = makeRepository({ createQuestion: vi.fn().mockReturnValue(created) });
-      const service = new AdminService(repo);
-
-      const result = service.createQuestion(data);
-
-      expect(result).toEqual(created);
-      expect(repo.createQuestion).toHaveBeenCalledWith(data);
     });
   });
 
