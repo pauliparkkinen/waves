@@ -2,9 +2,9 @@
   "id": "TASK-3",
   "title": "Backend: Collection CRUD Endpoints",
   "description": "Implement REST API endpoints for collections: POST/GET/PUT/DELETE /admin/collections. Collection includes ID, permissions, and membership. Backend validates collection-level permissions for all operations.",
-  "status": "Ready-to-review",
+  "status": "Approved",
   "creationDate": "2026-06-11T12:53:03.454Z",
-  "updateDate": "2026-06-15T10:41:51.935Z",
+  "updateDate": "2026-06-15T10:50:25.394Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -26,6 +26,14 @@
       "changedBy": "agent",
       "changedAt": "2026-06-15T10:41:51.935Z",
       "comment": "Implementation complete. Collection CRUD endpoints with permission validation. AuthUser extended with organisation_id. AdminService split into domain-specific services. 177 tests passing."
+    },
+    {
+      "fromStatus": "Ready-to-review",
+      "toStatus": "Approved",
+      "changedBy": "Pauli Parkkinen",
+      "changedAt": "2026-06-15T10:50:25.394Z",
+      "approvedBy": "Pauli Parkkinen",
+      "approvedAt": "2026-06-15T10:50:25.394Z"
     }
   ],
   "changeHistory": [
