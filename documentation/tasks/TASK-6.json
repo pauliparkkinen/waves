@@ -2,9 +2,9 @@
   "id": "TASK-6",
   "title": "Backend: Form CRUD Endpoints with Versioning",
   "description": "Implement REST API endpoints for forms: POST/GET/PUT/DELETE /admin/forms. Form includes form_sections array (section_symbol, version_number, order_number), formulas list, status, form_organisations permissions, translations. Version management: editing a published form creates a new version. Only attach published sections to published forms.",
-  "status": "Plan-ready",
+  "status": "Approved",
   "creationDate": "2026-06-11T12:53:06.851Z",
-  "updateDate": "2026-06-15T12:32:22.827Z",
+  "updateDate": "2026-06-15T13:03:24.547Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -19,6 +19,14 @@
       "changedBy": "planner-agent",
       "changedAt": "2026-06-15T12:32:22.827Z",
       "comment": "Planning implementation of Form CRUD endpoints with versioning based on form-editor-planning-summary.md"
+    },
+    {
+      "fromStatus": "Plan-ready",
+      "toStatus": "Approved",
+      "changedBy": "Pauli Parkkinen",
+      "changedAt": "2026-06-15T13:03:24.547Z",
+      "approvedBy": "Pauli Parkkinen",
+      "approvedAt": "2026-06-15T13:03:24.547Z"
     }
   ],
   "changeHistory": [
