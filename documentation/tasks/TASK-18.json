@@ -2,9 +2,9 @@
   "id": "TASK-18",
   "title": "Create qms-documents and tasks for form-editor",
   "description": "Create tasks, risks, requirements and other documents for the form-editor.",
-  "status": "Ready-to-review",
+  "status": "Approved",
   "creationDate": "2026-06-11T13:19:15.352Z",
-  "updateDate": "2026-06-11T13:22:11.672Z",
+  "updateDate": "2026-06-15T07:36:34.953Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -24,6 +24,14 @@
       "toStatus": "Ready-to-review",
       "changedBy": "Pauli Parkkinen",
       "changedAt": "2026-06-11T13:22:11.672Z"
+    },
+    {
+      "fromStatus": "Ready-to-review",
+      "toStatus": "Approved",
+      "changedBy": "Pauli Parkkinen",
+      "changedAt": "2026-06-15T07:36:34.953Z",
+      "approvedBy": "Pauli Parkkinen",
+      "approvedAt": "2026-06-15T07:36:34.953Z"
     }
   ],
   "changeHistory": [],
