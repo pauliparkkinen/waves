@@ -1,49 +1,13 @@
-// Backend API client — for server-side use (API routes, server components).
-// Client components should use the /api/* proxy routes instead.
-// The access token from the auth session is forwarded as a Bearer token,
-// which the backend validates against the provider's JWKS endpoint.
+/**
+ * Admin module API — mirrors backend modules/admin/ endpoints.
+ * For server-side use only. Client components should use /api/admin/* proxy routes.
+ */
 
-const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:3000";
+import { BACKEND_URL, authHeaders } from "./client";
 
-export type TestGreeting = {
-  message: string;
-};
+// ── Types ────────────────────────────────────────────────────────────────────
 
-export type TestRecord = {
-  id: string;
-  name: string;
-};
-
-export function authHeaders(accessToken?: string): HeadersInit {
-  return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
-}
-
-export async function getTestStatus(
-  accessToken?: string
-): Promise<TestGreeting> {
-  const res = await fetch(`${BACKEND_URL}/test`, {
-    headers: authHeaders(accessToken),
-    // Disable Next.js data cache for always-fresh data
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error(`Backend /test returned ${res.status}`);
-  return res.json() as Promise<TestGreeting>;
-}
-
-export async function getTestRecords(
-  accessToken: string
-): Promise<TestRecord[]> {
-  const res = await fetch(`${BACKEND_URL}/test/records`, {
-    headers: authHeaders(accessToken),
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error(`Backend /test/records returned ${res.status}`);
-  return res.json() as Promise<TestRecord[]>;
-}
-
-// ── Admin types (mirror backend modules/admin/types/) ────────────────────────
-
-export type PublishStatus = 'draft' | 'published';
+export type PublishStatus = "draft" | "published";
 
 export type TranslationRef = {
   translation_symbol: string;
@@ -106,7 +70,12 @@ export type AdminSection = {
   translations: TranslationRef[];
 };
 
-export type QuestionType = 'multiselect' | 'select' | 'radio' | 'free-text' | 'range';
+export type QuestionType =
+  | "multiselect"
+  | "select"
+  | "radio"
+  | "free-text"
+  | "range";
 
 export type QuestionParameters = Record<string, unknown>;
 
@@ -123,31 +92,36 @@ export type AdminQuestion = {
   translations: TranslationRef[];
 };
 
-// ── Admin API functions ──────────────────────────────────────────────────────
+// ── Collections ──────────────────────────────────────────────────────────────
 
-// Collections
-
-export async function listCollections(accessToken?: string): Promise<AdminCollection[]> {
+export async function listCollections(
+  accessToken?: string
+): Promise<AdminCollection[]> {
   const res = await fetch(`${BACKEND_URL}/admin/collections`, {
     headers: authHeaders(accessToken),
     cache: "no-store",
   });
-  if (!res.ok) throw new Error(`Backend /admin/collections returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Backend /admin/collections returned ${res.status}`);
   return res.json() as Promise<AdminCollection[]>;
 }
 
-export async function getCollection(id: string, accessToken?: string): Promise<AdminCollection | null> {
+export async function getCollection(
+  id: string,
+  accessToken?: string
+): Promise<AdminCollection | null> {
   const res = await fetch(`${BACKEND_URL}/admin/collections/${id}`, {
     headers: authHeaders(accessToken),
     cache: "no-store",
   });
   if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`Backend /admin/collections/${id} returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Backend /admin/collections/${id} returned ${res.status}`);
   return res.json() as Promise<AdminCollection>;
 }
 
 export async function createCollection(
-  data: Omit<AdminCollection, 'collection_id'>,
+  data: Omit<AdminCollection, "collection_id">,
   accessToken?: string
 ): Promise<AdminCollection> {
   const res = await fetch(`${BACKEND_URL}/admin/collections`, {
@@ -156,13 +130,14 @@ export async function createCollection(
     body: JSON.stringify(data),
     cache: "no-store",
   });
-  if (!res.ok) throw new Error(`Backend POST /admin/collections returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Backend POST /admin/collections returned ${res.status}`);
   return res.json() as Promise<AdminCollection>;
 }
 
 export async function updateCollection(
   id: string,
-  data: Partial<Omit<AdminCollection, 'collection_id'>>,
+  data: Partial<Omit<AdminCollection, "collection_id">>,
   accessToken?: string
 ): Promise<AdminCollection | null> {
   const res = await fetch(`${BACKEND_URL}/admin/collections/${id}`, {
@@ -172,44 +147,58 @@ export async function updateCollection(
     cache: "no-store",
   });
   if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`Backend PUT /admin/collections/${id} returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Backend PUT /admin/collections/${id} returned ${res.status}`);
   return res.json() as Promise<AdminCollection>;
 }
 
-export async function deleteCollection(id: string, accessToken?: string): Promise<boolean> {
+export async function deleteCollection(
+  id: string,
+  accessToken?: string
+): Promise<boolean> {
   const res = await fetch(`${BACKEND_URL}/admin/collections/${id}`, {
     method: "DELETE",
     headers: authHeaders(accessToken),
     cache: "no-store",
   });
   if (res.status === 404) return false;
-  if (!res.ok) throw new Error(`Backend DELETE /admin/collections/${id} returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(
+      `Backend DELETE /admin/collections/${id} returned ${res.status}`
+    );
   return true;
 }
 
-// Forms
+// ── Forms ────────────────────────────────────────────────────────────────────
 
-export async function listForms(accessToken?: string): Promise<AdminForm[]> {
+export async function listForms(
+  accessToken?: string
+): Promise<AdminForm[]> {
   const res = await fetch(`${BACKEND_URL}/admin/forms`, {
     headers: authHeaders(accessToken),
     cache: "no-store",
   });
-  if (!res.ok) throw new Error(`Backend /admin/forms returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Backend /admin/forms returned ${res.status}`);
   return res.json() as Promise<AdminForm[]>;
 }
 
-export async function getForm(id: string, accessToken?: string): Promise<AdminForm | null> {
+export async function getForm(
+  id: string,
+  accessToken?: string
+): Promise<AdminForm | null> {
   const res = await fetch(`${BACKEND_URL}/admin/forms/${id}`, {
     headers: authHeaders(accessToken),
     cache: "no-store",
   });
   if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`Backend /admin/forms/${id} returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Backend /admin/forms/${id} returned ${res.status}`);
   return res.json() as Promise<AdminForm>;
 }
 
 export async function createForm(
-  data: Omit<AdminForm, 'form_id'>,
+  data: Omit<AdminForm, "form_id">,
   accessToken?: string
 ): Promise<AdminForm> {
   const res = await fetch(`${BACKEND_URL}/admin/forms`, {
@@ -218,13 +207,14 @@ export async function createForm(
     body: JSON.stringify(data),
     cache: "no-store",
   });
-  if (!res.ok) throw new Error(`Backend POST /admin/forms returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Backend POST /admin/forms returned ${res.status}`);
   return res.json() as Promise<AdminForm>;
 }
 
 export async function updateForm(
   id: string,
-  data: Partial<Omit<AdminForm, 'form_id'>>,
+  data: Partial<Omit<AdminForm, "form_id">>,
   accessToken?: string
 ): Promise<AdminForm | null> {
   const res = await fetch(`${BACKEND_URL}/admin/forms/${id}`, {
@@ -234,44 +224,56 @@ export async function updateForm(
     cache: "no-store",
   });
   if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`Backend PUT /admin/forms/${id} returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Backend PUT /admin/forms/${id} returned ${res.status}`);
   return res.json() as Promise<AdminForm>;
 }
 
-export async function deleteForm(id: string, accessToken?: string): Promise<boolean> {
+export async function deleteForm(
+  id: string,
+  accessToken?: string
+): Promise<boolean> {
   const res = await fetch(`${BACKEND_URL}/admin/forms/${id}`, {
     method: "DELETE",
     headers: authHeaders(accessToken),
     cache: "no-store",
   });
   if (res.status === 404) return false;
-  if (!res.ok) throw new Error(`Backend DELETE /admin/forms/${id} returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Backend DELETE /admin/forms/${id} returned ${res.status}`);
   return true;
 }
 
-// Sections
+// ── Sections ─────────────────────────────────────────────────────────────────
 
-export async function listSections(accessToken?: string): Promise<AdminSection[]> {
+export async function listSections(
+  accessToken?: string
+): Promise<AdminSection[]> {
   const res = await fetch(`${BACKEND_URL}/admin/sections`, {
     headers: authHeaders(accessToken),
     cache: "no-store",
   });
-  if (!res.ok) throw new Error(`Backend /admin/sections returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Backend /admin/sections returned ${res.status}`);
   return res.json() as Promise<AdminSection[]>;
 }
 
-export async function getSection(id: string, accessToken?: string): Promise<AdminSection | null> {
+export async function getSection(
+  id: string,
+  accessToken?: string
+): Promise<AdminSection | null> {
   const res = await fetch(`${BACKEND_URL}/admin/sections/${id}`, {
     headers: authHeaders(accessToken),
     cache: "no-store",
   });
   if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`Backend /admin/sections/${id} returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Backend /admin/sections/${id} returned ${res.status}`);
   return res.json() as Promise<AdminSection>;
 }
 
 export async function createSection(
-  data: Omit<AdminSection, 'section_id'>,
+  data: Omit<AdminSection, "section_id">,
   accessToken?: string
 ): Promise<AdminSection> {
   const res = await fetch(`${BACKEND_URL}/admin/sections`, {
@@ -280,13 +282,14 @@ export async function createSection(
     body: JSON.stringify(data),
     cache: "no-store",
   });
-  if (!res.ok) throw new Error(`Backend POST /admin/sections returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Backend POST /admin/sections returned ${res.status}`);
   return res.json() as Promise<AdminSection>;
 }
 
 export async function updateSection(
   id: string,
-  data: Partial<Omit<AdminSection, 'section_id'>>,
+  data: Partial<Omit<AdminSection, "section_id">>,
   accessToken?: string
 ): Promise<AdminSection | null> {
   const res = await fetch(`${BACKEND_URL}/admin/sections/${id}`, {
@@ -296,22 +299,29 @@ export async function updateSection(
     cache: "no-store",
   });
   if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`Backend PUT /admin/sections/${id} returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Backend PUT /admin/sections/${id} returned ${res.status}`);
   return res.json() as Promise<AdminSection>;
 }
 
-export async function deleteSection(id: string, accessToken?: string): Promise<boolean> {
+export async function deleteSection(
+  id: string,
+  accessToken?: string
+): Promise<boolean> {
   const res = await fetch(`${BACKEND_URL}/admin/sections/${id}`, {
     method: "DELETE",
     headers: authHeaders(accessToken),
     cache: "no-store",
   });
   if (res.status === 404) return false;
-  if (!res.ok) throw new Error(`Backend DELETE /admin/sections/${id} returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(
+      `Backend DELETE /admin/sections/${id} returned ${res.status}`
+    );
   return true;
 }
 
-// Questions
+// ── Questions ────────────────────────────────────────────────────────────────
 
 export async function listQuestions(
   collectionId?: string,
@@ -324,22 +334,27 @@ export async function listQuestions(
     headers: authHeaders(accessToken),
     cache: "no-store",
   });
-  if (!res.ok) throw new Error(`Backend /admin/questions returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Backend /admin/questions returned ${res.status}`);
   return res.json() as Promise<AdminQuestion[]>;
 }
 
-export async function getQuestion(id: string, accessToken?: string): Promise<AdminQuestion | null> {
+export async function getQuestion(
+  id: string,
+  accessToken?: string
+): Promise<AdminQuestion | null> {
   const res = await fetch(`${BACKEND_URL}/admin/questions/${id}`, {
     headers: authHeaders(accessToken),
     cache: "no-store",
   });
   if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`Backend /admin/questions/${id} returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Backend /admin/questions/${id} returned ${res.status}`);
   return res.json() as Promise<AdminQuestion>;
 }
 
 export async function createQuestion(
-  data: Omit<AdminQuestion, 'question_id' | 'created_at' | 'updated_at'>,
+  data: Omit<AdminQuestion, "question_id" | "created_at" | "updated_at">,
   accessToken?: string
 ): Promise<AdminQuestion> {
   const res = await fetch(`${BACKEND_URL}/admin/questions`, {
@@ -348,13 +363,16 @@ export async function createQuestion(
     body: JSON.stringify(data),
     cache: "no-store",
   });
-  if (!res.ok) throw new Error(`Backend POST /admin/questions returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(`Backend POST /admin/questions returned ${res.status}`);
   return res.json() as Promise<AdminQuestion>;
 }
 
 export async function updateQuestion(
   id: string,
-  data: Partial<Omit<AdminQuestion, 'question_id' | 'created_at' | 'updated_at'>>,
+  data: Partial<
+    Omit<AdminQuestion, "question_id" | "created_at" | "updated_at">
+  >,
   accessToken?: string
 ): Promise<AdminQuestion | null> {
   const res = await fetch(`${BACKEND_URL}/admin/questions/${id}`, {
@@ -364,18 +382,26 @@ export async function updateQuestion(
     cache: "no-store",
   });
   if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`Backend PUT /admin/questions/${id} returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(
+      `Backend PUT /admin/questions/${id} returned ${res.status}`
+    );
   return res.json() as Promise<AdminQuestion>;
 }
 
-export async function deleteQuestion(id: string, accessToken?: string): Promise<boolean> {
+export async function deleteQuestion(
+  id: string,
+  accessToken?: string
+): Promise<boolean> {
   const res = await fetch(`${BACKEND_URL}/admin/questions/${id}`, {
     method: "DELETE",
     headers: authHeaders(accessToken),
     cache: "no-store",
   });
   if (res.status === 404) return false;
-  if (!res.ok) throw new Error(`Backend DELETE /admin/questions/${id} returned ${res.status}`);
+  if (!res.ok)
+    throw new Error(
+      `Backend DELETE /admin/questions/${id} returned ${res.status}`
+    );
   return true;
 }
-
