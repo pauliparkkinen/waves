@@ -1,0 +1,44 @@
+{
+  "id": "REQ-8",
+  "title": "Drag-and-Drop Reordering",
+  "description": "Administrator can reorder sections within a form and questions within a section by dragging from a drag icon. The order is persisted as order_number in the section_questions and form_sections arrays.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:49:45.773Z",
+  "updateDate": "2026-06-11T12:50:55.380Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:49:45.773Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:54.869Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:55.380Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

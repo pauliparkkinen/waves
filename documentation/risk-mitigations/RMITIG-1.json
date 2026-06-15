@@ -1,0 +1,28 @@
+{
+  "id": "RMITIG-1",
+  "title": "Backend Validation and Version Control for Form Definitions",
+  "description": "All form definitions must pass backend-side validation before saving. Version control prevents overwriting published forms without creating a new version. Concurrent edit conflicts are detected and flagged. Input sanitization and schema validation at the API layer prevents malformed data from being persisted.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:52:21.531Z",
+  "updateDate": "2026-06-11T12:52:28.725Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:52:21.531Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedRisk",
+      "oldValue": "",
+      "newValue": "RISK-1",
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:52:28.725Z",
+      "mode": "set"
+    }
+  ],
+  "linkedRisk": "RISK-1"
+}

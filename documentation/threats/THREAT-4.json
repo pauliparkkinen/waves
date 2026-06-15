@@ -1,0 +1,83 @@
+{
+  "id": "THREAT-4",
+  "title": "Permission Escalation: Unauthorized Form Editing Access",
+  "description": "A user without proper admin role (global_admin or organisation_admin) could gain access to the form editor, or a user could edit forms/sections/questions outside their organisation's scope due to insufficient permission checks.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:51:18.192Z",
+  "updateDate": "2026-06-11T12:54:28.118Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:51:18.192Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:51:49.962Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:51:50.394Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    },
+    {
+      "field": "probabilityBefore",
+      "oldValue": 1,
+      "newValue": 2,
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:52:00.644Z",
+      "mode": "set"
+    },
+    {
+      "field": "probabilityAfter",
+      "oldValue": 1,
+      "newValue": 1,
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:52:01.053Z",
+      "mode": "set"
+    },
+    {
+      "field": "type",
+      "oldValue": "risk",
+      "newValue": "threat",
+      "changedBy": "code-reviewer",
+      "changedAt": "2026-06-11T16:30:00.000Z",
+      "mode": "set"
+    },
+    {
+      "field": "strideClassifications",
+      "oldValue": [],
+      "newValue": [
+        "ElevationOfPrivilege"
+      ],
+      "changedBy": "code-reviewer",
+      "changedAt": "2026-06-11T16:30:00.000Z",
+      "mode": "set"
+    }
+  ],
+  "strideClassifications": [
+    "ElevationOfPrivilege"
+  ],
+  "probabilityBefore": 2,
+  "probabilityAfter": 1,
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

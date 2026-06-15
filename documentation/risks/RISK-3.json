@@ -1,0 +1,80 @@
+{
+  "id": "RISK-3",
+  "title": "Formula Evaluation: Incorrect Clinical Scoring",
+  "description": "Risk that incorrectly defined formulas (visibility conditions, score calculations, urgency indicators) produce wrong outputs, potentially leading to incorrect clinical decisions or misdirected healthcare resources.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:51:21.122Z",
+  "updateDate": "2026-06-11T12:54:29.161Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:51:21.122Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:51:50.828Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:51:51.266Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    },
+    {
+      "field": "severity",
+      "oldValue": 1,
+      "newValue": 3,
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:52:01.486Z",
+      "mode": "set"
+    },
+    {
+      "field": "probabilityBefore",
+      "oldValue": 1,
+      "newValue": 3,
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:52:01.887Z",
+      "mode": "set"
+    },
+    {
+      "field": "probabilityAfter",
+      "oldValue": 1,
+      "newValue": 2,
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:52:02.313Z",
+      "mode": "set"
+    },
+    {
+      "field": "hazardousSituation",
+      "oldValue": "",
+      "newValue": "An incorrectly defined formula for urgency calculation or symptom scoring produces false-positive or false-negative results, leading to misdirected healthcare resources or delayed treatment for high-urgency patients.",
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:54:29.161Z",
+      "mode": "set"
+    }
+  ],
+  "hazardousSituation": "An incorrectly defined formula for urgency calculation or symptom scoring produces false-positive or false-negative results, leading to misdirected healthcare resources or delayed treatment for high-urgency patients.",
+  "severity": 3,
+  "probabilityBefore": 3,
+  "probabilityAfter": 2,
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

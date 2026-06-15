@@ -1,0 +1,45 @@
+{
+  "id": "TASK-15",
+  "title": "Frontend: Formula Editor Popup Component",
+  "description": "Build a popup formula editor with human-readable expression input. Variable insertion from current collection (question values, formula results). Operator buttons (+, -, *, /, &&, ||, ?: ternary). Real-time syntax validation with error display. Output type display. JSON AST generation on save.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:53:17.838Z",
+  "updateDate": "2026-06-11T12:53:56.289Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:53:17.838Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:46.781Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:56.289Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "significance": "patch",
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

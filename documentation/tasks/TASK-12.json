@@ -1,0 +1,45 @@
+{
+  "id": "TASK-12",
+  "title": "Frontend: Question Editor Component",
+  "description": "Build question editor component. Before type selection, show common parameters (symbol, collection selector, translations button). After type selection, show type-specific parameters. Question type selector with multi-select, select-one, free-text, range options. Visibility condition selector with link to formula editor popup. Options management for select-type questions. Translation editor integration.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:53:14.645Z",
+  "updateDate": "2026-06-11T12:53:54.974Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:53:14.645Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:45.465Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:54.974Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "significance": "patch",
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

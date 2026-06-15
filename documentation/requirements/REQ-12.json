@@ -1,0 +1,44 @@
+{
+  "id": "REQ-12",
+  "title": "Draft/Publish Workflow for Sections and Forms",
+  "description": "Sections and forms support draft and published statuses. Sections can be saved as draft and published separately. Forms can be saved as draft and published. Publishing a modified published form creates a new version. Only published sections can be attached to a published form.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:49:49.056Z",
+  "updateDate": "2026-06-11T12:50:58.801Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:49:49.056Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:58.372Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:58.801Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

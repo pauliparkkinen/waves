@@ -1,0 +1,44 @@
+{
+  "id": "REQ-5",
+  "title": "Translation Editor Popup",
+  "description": "Administrator can create and edit translations for form content via a popup editor. Translations are keyed by translation_key and locale_code within a collection. Each translation has version and status (draft/published). The editor appears as a popup in all relevant editing contexts (questions, sections, forms).",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:49:42.089Z",
+  "updateDate": "2026-06-11T12:50:52.695Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:49:42.090Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:52.257Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:52.695Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

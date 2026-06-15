@@ -1,0 +1,19 @@
+{
+  "id": "FEAT-2",
+  "title": "Form Editor",
+  "description": "The administrator users are able to create and edit forms, sections, questions, and collections in a unified view. The form editor contains three integrated sub-editors: form editor, section editor, and question editor. It also provides pop-up editors for formulas and translations, drag-and-drop reordering, draft/publish workflow, visibility conditions, and test-mode form filling.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:49:16.477Z",
+  "updateDate": "2026-06-11T12:49:16.477Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:49:16.477Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [],
+  "riskLevel": "0"
+}

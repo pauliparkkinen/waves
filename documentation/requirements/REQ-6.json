@@ -1,0 +1,44 @@
+{
+  "id": "REQ-6",
+  "title": "Collection Management with Permissions",
+  "description": "Administrator can define collections to group content objects (forms, formulas, questions, sections). Each collection has configurable permissions: read, use, edit, owner per organisation. All content objects belong to a collection. User can select which collection content belongs to and can hide/show objects within a collection.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:49:42.138Z",
+  "updateDate": "2026-06-11T12:50:53.576Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:49:42.138Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:53.117Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:53.575Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

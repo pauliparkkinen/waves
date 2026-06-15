@@ -1,0 +1,45 @@
+{
+  "id": "TASK-14",
+  "title": "Frontend: Form Editor Component",
+  "description": "Build form editor component. Section attachment with selection list ordered by collections then alphabetically by section symbol. Drag-and-drop reordering of sections. Formula list for indicators/urgencies. Draft/publish toggle. Test mode launch button (enabled when no validation errors). Translation editor integration.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:53:17.074Z",
+  "updateDate": "2026-06-11T12:53:55.859Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:53:17.074Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:46.372Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:55.859Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "significance": "patch",
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

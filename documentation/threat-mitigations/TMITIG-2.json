@@ -1,0 +1,28 @@
+{
+  "id": "TMITIG-2",
+  "title": "Organisation-Isolated Data Access and Rate Limiting",
+  "description": "API endpoints enforce organisation-level data isolation so that one organisation cannot access another organisation's form definitions. Rate limiting prevents mass enumeration of form structures. Non-admin API responses exclude internal schema metadata.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:52:31.970Z",
+  "updateDate": "2026-06-11T12:52:39.279Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:52:31.970Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedThreat",
+      "oldValue": "",
+      "newValue": "THREAT-2",
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:52:39.279Z",
+      "mode": "set"
+    }
+  ],
+  "linkedThreat": "THREAT-2"
+}

@@ -1,0 +1,45 @@
+{
+  "id": "TASK-13",
+  "title": "Frontend: Section Editor Component",
+  "description": "Build section editor component. Title and description fields. Question attachment with selection list ordered by collections then alphabetically by question symbol. Drag-and-drop reordering of questions. Visibility condition selector with formula editor link. Draft/publish toggle. Translation editor integration.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:53:15.656Z",
+  "updateDate": "2026-06-11T12:53:55.416Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:53:15.656Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:45.914Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:53:55.416Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "significance": "patch",
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

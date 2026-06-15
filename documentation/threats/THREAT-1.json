@@ -1,0 +1,75 @@
+{
+  "id": "THREAT-1",
+  "title": "Tampering: Form Definition Manipulation",
+  "description": "An attacker could tamper with form definitions (questions, sections, formulas) during transit between frontend and backend, or directly in the database, modifying clinical scoring logic or visibility conditions.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:51:18.924Z",
+  "updateDate": "2026-06-11T12:52:01.343Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:51:18.924Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:51:51.706Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:51:52.139Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    },
+    {
+      "field": "probabilityBefore",
+      "oldValue": 1,
+      "newValue": 3,
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:52:00.924Z",
+      "mode": "set"
+    },
+    {
+      "field": "probabilityAfter",
+      "oldValue": 1,
+      "newValue": 2,
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:52:01.343Z",
+      "mode": "set"
+    },
+    {
+      "field": "strideClassifications",
+      "oldValue": [],
+      "newValue": [
+        "Tampering"
+      ],
+      "changedBy": "code-reviewer",
+      "changedAt": "2026-06-11T16:30:00.000Z",
+      "mode": "set"
+    }
+  ],
+  "strideClassifications": [
+    "Tampering"
+  ],
+  "probabilityBefore": 3,
+  "probabilityAfter": 2,
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

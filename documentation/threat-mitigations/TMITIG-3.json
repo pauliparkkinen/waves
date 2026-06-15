@@ -1,0 +1,28 @@
+{
+  "id": "TMITIG-3",
+  "title": "JWT Auth Middleware with Role Validation",
+  "description": "All admin endpoints are protected by JWT middleware activated via AUTH_JWKS_URI env var. Token claims are validated on every request including role (global_admin, organisation_admin) and organisation membership. Mock auth falls back safely for development. Admin API is separated from patient/HCP API routes.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:52:33.296Z",
+  "updateDate": "2026-06-11T12:52:40.091Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:52:33.296Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedThreat",
+      "oldValue": "",
+      "newValue": "THREAT-3",
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:52:40.091Z",
+      "mode": "set"
+    }
+  ],
+  "linkedThreat": "THREAT-3"
+}

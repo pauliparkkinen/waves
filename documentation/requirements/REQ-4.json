@@ -1,0 +1,44 @@
+{
+  "id": "REQ-4",
+  "title": "Form CRUD with Section Attachment",
+  "description": "Administrator can define, read, update, and delete forms. Existing sections can be attached to a form ordered by collections then alphabetically by section symbol. Sections within a form can be reordered. Forms support draft/publish workflow. Publishing creates a new version if modifications were made. Formulas for indicators and urgencies can be linked to a form.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:49:38.745Z",
+  "updateDate": "2026-06-11T12:50:51.839Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:49:38.745Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:51.424Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-2"
+      ],
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:50:51.839Z",
+      "mode": "add",
+      "item": "FEAT-2"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-2"
+  ]
+}

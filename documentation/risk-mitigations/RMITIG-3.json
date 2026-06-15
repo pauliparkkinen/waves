@@ -1,0 +1,28 @@
+{
+  "id": "RMITIG-3",
+  "title": "Formula Syntax Validation and Sandbox Testing",
+  "description": "The formula editor provides real-time syntax validation and error feedback. Formula AST is validated structurally on the backend before saving. Test-mode form filling allows administrators to verify formula behavior with sample data before publishing. Formula evaluation uses a sandboxed execution environment.",
+  "status": "Draft",
+  "creationDate": "2026-06-11T12:52:23.376Z",
+  "updateDate": "2026-06-11T12:52:29.918Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-11T12:52:23.376Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedRisk",
+      "oldValue": "",
+      "newValue": "RISK-3",
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-11T12:52:29.918Z",
+      "mode": "set"
+    }
+  ],
+  "linkedRisk": "RISK-3"
+}
