@@ -6,6 +6,7 @@ import CollectionList from "./CollectionList";
 export default async function CollectionsPage() {
   const session = await auth();
   const accessToken = session?.accessToken ?? "";
+  const userOrgId = session?.organisationId;
 
   let collections: AdminCollection[];
   let error: string | null = null;
@@ -24,6 +25,7 @@ export default async function CollectionsPage() {
       <CollectionList
         initialCollections={collections}
         accessToken={accessToken}
+        userOrgId={userOrgId}
       />
     </div>
   );

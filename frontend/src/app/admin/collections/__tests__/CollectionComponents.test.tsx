@@ -109,6 +109,29 @@ describe("PermissionEditor", () => {
       expect(newPerms).toHaveLength(2);
       expect(newPerms[1].organisation_id).toBe("");
     });
+
+    it("when owner is checked on one org, then owner is removed from others", () => {
+      const perms: CollectionPermission[] = [
+        { organisation_id: "org1", read: true, use: true, edit: true, owner: true },
+        { organisation_id: "org2", read: false, use: false, edit: false, owner: false },
+      ];
+      const onChange = vi.fn();
+      render(<PermissionEditor permissions={perms} onChange={onChange} />);
+
+      // Click owner checkbox on org2 (the 4th checkbox in the 2nd row = index 7 overall)
+      const allCheckboxes = screen.getAllByRole("checkbox");
+      const org2OwnerCheckbox = allCheckboxes[7];
+      fireEvent.click(org2OwnerCheckbox);
+
+      const newPerms = onChange.mock.calls[0][0] as CollectionPermission[];
+      // org1 should now have owner=false
+      expect(newPerms[0].owner).toBe(false);
+      // org2 should now have owner=true (and all hierarchy perms)
+      expect(newPerms[1].owner).toBe(true);
+      expect(newPerms[1].edit).toBe(true);
+      expect(newPerms[1].use).toBe(true);
+      expect(newPerms[1].read).toBe(true);
+    });
   });
 });
 
@@ -294,7 +317,7 @@ describe("CollectionForm", () => {
       json: async () => ({
         collection_id: "c-new",
         collection_symbol: "valid_symbol",
-        collection_permissions: [],
+        collection_permissions: [{ organisation_id: "org1", read: true, use: true, edit: true, owner: true }],
       }),
     });
 
@@ -309,6 +332,15 @@ describe("CollectionForm", () => {
 
     const input = screen.getByLabelText("Collection Symbol");
     fireEvent.change(input, { target: { value: "valid_symbol" } });
+
+    // Add an organisation with owner rights
+    const addBtn = screen.getByRole("button", { name: /Add Organisation/i });
+    fireEvent.click(addBtn);
+    const orgInput = screen.getByLabelText("Organisation ID");
+    fireEvent.change(orgInput, { target: { value: "org1" } });
+    const ownerCheckbox = screen.getAllByRole("checkbox")[3];
+    fireEvent.click(ownerCheckbox);
+
     const createButton = screen.getByRole("button", { name: /Create/i });
     fireEvent.click(createButton);
 
@@ -327,14 +359,14 @@ describe("CollectionForm", () => {
       json: async () => ({
         collection_id: "c1",
         collection_symbol: "updated_symbol",
-        collection_permissions: [],
+        collection_permissions: [{ organisation_id: "org1", read: true, use: true, edit: true, owner: true }],
       }),
     });
 
     const collection: AdminCollection = {
       collection_id: "c1",
       collection_symbol: "original",
-      collection_permissions: [],
+      collection_permissions: [{ organisation_id: "org1", read: true, use: true, edit: true, owner: true }],
     };
 
     const onSave = vi.fn();
@@ -377,10 +409,92 @@ describe("CollectionForm", () => {
 
     const input = screen.getByLabelText("Collection Symbol");
     fireEvent.change(input, { target: { value: "valid_symbol" } });
+
+    // Add an organisation with owner rights
+    const addBtn = screen.getByRole("button", { name: /Add Organisation/i });
+    fireEvent.click(addBtn);
+    const orgInput = screen.getByLabelText("Organisation ID");
+    fireEvent.change(orgInput, { target: { value: "org1" } });
+    const ownerCheckbox = screen.getAllByRole("checkbox")[3];
+    fireEvent.click(ownerCheckbox);
+
     const createButton = screen.getByRole("button", { name: /Create/i });
     fireEvent.click(createButton);
 
     expect(await screen.findByText("Network error")).toBeInTheDocument();
+  });
+
+  it("shows validation error when no organisation has owner rights", async () => {
+    render(
+      <CollectionForm
+        accessToken="test-token"
+        onSave={vi.fn()}
+        onCancel={vi.fn()}
+      />
+    );
+
+    const input = screen.getByLabelText("Collection Symbol");
+    fireEvent.change(input, { target: { value: "valid_symbol" } });
+
+    // Add a permission org without owner
+    const addBtn = screen.getByRole("button", { name: /Add Organisation/i });
+    fireEvent.click(addBtn);
+
+    const orgInputs = screen.getAllByLabelText("Organisation ID");
+    fireEvent.change(orgInputs[0], { target: { value: "org1" } });
+
+    const createButton = screen.getByRole("button", { name: /Create/i });
+    fireEvent.click(createButton);
+
+    expect(
+      await screen.findByText(/exactly one organisation with owner rights/)
+    ).toBeInTheDocument();
+  });
+
+  it("shows validation error when multiple organisations have owner rights", async () => {
+    // Pre-populate with two owners (simulates legacy data or direct API edits)
+    const collectionWithTwoOwners: AdminCollection = {
+      collection_id: "c1",
+      collection_symbol: "multi_owner",
+      collection_permissions: [
+        { organisation_id: "org1", read: true, use: true, edit: true, owner: true },
+        { organisation_id: "org2", read: true, use: true, edit: true, owner: true },
+      ],
+    };
+
+    render(
+      <CollectionForm
+        collection={collectionWithTwoOwners}
+        accessToken="test-token"
+        onSave={vi.fn()}
+        onCancel={vi.fn()}
+      />
+    );
+
+    const updateButton = screen.getByRole("button", { name: /Update/i });
+    fireEvent.click(updateButton);
+
+    expect(
+      await screen.findByText(/exactly one organisation with owner rights/)
+    ).toBeInTheDocument();
+  });
+
+  it("pre-fills user organisation as owner when userOrgId is provided on create", () => {
+    render(
+      <CollectionForm
+        accessToken="test-token"
+        userOrgId="my-org"
+        onSave={vi.fn()}
+        onCancel={vi.fn()}
+      />
+    );
+
+    const orgInput = screen.getByLabelText("Organisation ID") as HTMLInputElement;
+    expect(orgInput.value).toBe("my-org");
+
+    // Owner checkbox should be checked
+    const ownerCheckbox = screen.getAllByRole("checkbox")[3] as HTMLInputElement;
+    expect(ownerCheckbox.checked).toBe(true);
   });
 });
 

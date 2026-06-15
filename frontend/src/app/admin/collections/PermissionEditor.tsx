@@ -36,6 +36,18 @@ export default function PermissionEditor({
     field: keyof CollectionPermission,
     value: boolean
   ) {
+    if (field === "owner" && value) {
+      // Enforce exactly one owner — uncheck owner on all other rows
+      const updated = permissions.map((p, i) => {
+        if (i === index) {
+          return enforceHierarchy({ ...p, owner: true });
+        }
+        return { ...p, owner: false };
+      });
+      onChange(updated);
+      return;
+    }
+
     const updated = permissions.map((p, i) => {
       if (i !== index) return p;
       let next = { ...p, [field]: value };

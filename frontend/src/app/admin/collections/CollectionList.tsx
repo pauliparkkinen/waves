@@ -7,6 +7,7 @@ import CollectionForm from "./CollectionForm";
 type CollectionListProps = {
   initialCollections: AdminCollection[];
   accessToken: string;
+  userOrgId?: string;
 };
 
 function permissionsSummary(perms: AdminCollection["collection_permissions"]): string {
@@ -18,6 +19,7 @@ function permissionsSummary(perms: AdminCollection["collection_permissions"]): s
 export default function CollectionList({
   initialCollections,
   accessToken,
+  userOrgId,
 }: CollectionListProps) {
   const [collections, setCollections] = useState(initialCollections);
   const [loading, setLoading] = useState(false);
@@ -86,6 +88,7 @@ export default function CollectionList({
       {showCreate && (
         <CollectionForm
           accessToken={accessToken}
+          userOrgId={userOrgId}
           onSave={() => {
             setShowCreate(false);
             fetchCollections();

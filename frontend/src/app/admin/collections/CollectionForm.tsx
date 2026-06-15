@@ -7,6 +7,7 @@ import PermissionEditor from "./PermissionEditor";
 type CollectionFormProps = {
   collection?: AdminCollection;
   accessToken: string;
+  userOrgId?: string;
   onSave: () => void;
   onCancel: () => void;
 };
@@ -14,14 +15,24 @@ type CollectionFormProps = {
 export default function CollectionForm({
   collection,
   accessToken,
+  userOrgId,
   onSave,
   onCancel,
 }: CollectionFormProps) {
   const isEdit = !!collection;
   const [symbol, setSymbol] = useState(collection?.collection_symbol ?? "");
-  const [permissions, setPermissions] = useState<CollectionPermission[]>(
-    collection?.collection_permissions ?? []
-  );
+
+  // Pre-fill permissions: on create, include user's org as owner if provided
+  const initialPerms = (): CollectionPermission[] => {
+    if (collection?.collection_permissions && collection.collection_permissions.length > 0) {
+      return collection.collection_permissions;
+    }
+    if (!isEdit && userOrgId) {
+      return [{ organisation_id: userOrgId, read: true, use: true, edit: true, owner: true }];
+    }
+    return [];
+  };
+  const [permissions, setPermissions] = useState<CollectionPermission[]>(initialPerms);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -41,6 +52,11 @@ export default function CollectionForm({
     const invalidPerms = permissions.filter((p) => !p.organisation_id.trim());
     if (invalidPerms.length > 0) {
       errors.permissions = "All permission rows must have an organisation ID";
+    }
+    const ownerCount = permissions.filter((p) => p.owner).length;
+    if (ownerCount !== 1) {
+      errors.permissions = (errors.permissions ? errors.permissions + " " : "") +
+        "A collection must have exactly one organisation with owner rights";
     }
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
