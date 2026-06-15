@@ -18,7 +18,7 @@ function makeService(overrides: Partial<ICollectionService> = {}): ICollectionSe
     getCollection: vi.fn().mockReturnValue(undefined),
     createCollection: vi
       .fn()
-      .mockReturnValue({ collection_id: 'c-1', collection_permissions: [] }),
+      .mockReturnValue({ collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [] }),
     updateCollection: vi.fn().mockReturnValue(undefined),
     deleteCollection: vi.fn().mockReturnValue(false),
     ...overrides,
@@ -75,7 +75,7 @@ describe('createCollectionRouter', () => {
           '../../controllers/collection.controller.js'
         );
         const user: AuthUser = { sub: 'u-1', permissions: ['admin:manage'] };
-        const collections = [{ collection_id: 'c-1', collection_permissions: [] }];
+        const collections = [{ collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [] }];
         const service = makeService({ listCollections: vi.fn().mockReturnValue(collections) });
         const app = appWithUser(user).route('/', createCollectionRouter(service));
 
@@ -95,7 +95,7 @@ describe('createCollectionRouter', () => {
           '../../controllers/collection.controller.js'
         );
         const user: AuthUser = { sub: 'u-1', permissions: ['admin:manage'] };
-        const created = { collection_id: 'c-1', collection_permissions: [] };
+        const created = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [] };
         const service = makeService({ createCollection: vi.fn().mockReturnValue(created) });
         const app = appWithUser(user).route('/', createCollectionRouter(service));
 
@@ -119,7 +119,7 @@ describe('createCollectionRouter', () => {
           '../../controllers/collection.controller.js'
         );
         const user: AuthUser = { sub: 'u-1', permissions: ['admin:manage'] };
-        const collection = { collection_id: 'c-1', collection_permissions: [] };
+        const collection = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [] };
         const service = makeService({ getCollection: vi.fn().mockReturnValue(collection) });
         const app = appWithUser(user).route('/', createCollectionRouter(service));
 
@@ -152,7 +152,7 @@ describe('createCollectionRouter', () => {
           '../../controllers/collection.controller.js'
         );
         const user: AuthUser = { sub: 'u-1', permissions: ['admin:manage'] };
-        const updated = { collection_id: 'c-1', collection_permissions: [] };
+        const updated = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [] };
         const service = makeService({ updateCollection: vi.fn().mockReturnValue(updated) });
         const app = appWithUser(user).route('/', createCollectionRouter(service));
 

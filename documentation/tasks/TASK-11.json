@@ -2,9 +2,9 @@
   "id": "TASK-11",
   "title": "Frontend: Collection Management UI",
   "description": "Build UI for CRUD operations on collections. Collection list view with name, permissions display. Create/edit form with permission configuration (read, use, edit, owner per organisation). Collection selector component used by other editors to assign content to a collection.",
-  "status": "Draft",
+  "status": "Ready-to-review",
   "creationDate": "2026-06-11T12:53:13.456Z",
-  "updateDate": "2026-06-11T12:53:54.530Z",
+  "updateDate": "2026-06-15T15:58:22.697Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -12,6 +12,20 @@
       "changedBy": "unknown",
       "changedAt": "2026-06-11T12:53:13.456Z",
       "comment": "Initial creation"
+    },
+    {
+      "fromStatus": "Draft",
+      "toStatus": "Plan-ready",
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-15T15:49:50.860Z",
+      "comment": "Planning collection management UI implementation"
+    },
+    {
+      "fromStatus": "Plan-ready",
+      "toStatus": "Ready-to-review",
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-15T15:58:22.697Z",
+      "comment": "Implementation complete. All tests pass (backend: 452, frontend: 49), build compiles cleanly, code review issues resolved."
     }
   ],
   "changeHistory": [
