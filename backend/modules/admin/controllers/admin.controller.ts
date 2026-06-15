@@ -10,47 +10,6 @@ export function createAdminRouter(service: IAdminService): Hono {
     return c.json(service.getStatus());
   });
 
-  // Collections
-  router.get('/collections', requirePermissions(['admin:manage']), (c) => {
-    return c.json(service.listCollections());
-  });
-
-  router.post('/collections', requirePermissions(['admin:manage']), async (c) => {
-    try {
-      const body = await c.req.json();
-      const collection = service.createCollection(body);
-      return c.json(collection, 201);
-    } catch (e) {
-      return c.json({ error: 'Failed to create collection' }, 500);
-    }
-  });
-
-  router.get('/collections/:id', requirePermissions(['admin:manage']), (c) => {
-    const id = c.req.param('id');
-    const collection = service.getCollection(id);
-    if (!collection) return c.json({ error: 'Not found' }, 404);
-    return c.json(collection);
-  });
-
-  router.put('/collections/:id', requirePermissions(['admin:manage']), async (c) => {
-    try {
-      const id = c.req.param('id');
-      const body = await c.req.json();
-      const collection = service.updateCollection(id, body);
-      if (!collection) return c.json({ error: 'Not found' }, 404);
-      return c.json(collection);
-    } catch (e) {
-      return c.json({ error: 'Failed to update collection' }, 500);
-    }
-  });
-
-  router.delete('/collections/:id', requirePermissions(['admin:manage']), (c) => {
-    const id = c.req.param('id');
-    const deleted = service.deleteCollection(id);
-    if (!deleted) return c.json({ error: 'Not found' }, 404);
-    return c.json({ success: true });
-  });
-
   // Questions
   router.get('/questions', requirePermissions(['admin:manage']), (c) => {
     const collectionId = c.req.query('collectionId');

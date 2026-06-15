@@ -4,13 +4,6 @@ import type { IAdminRepository } from '../../repositories/admin.repository.js';
 
 function makeRepository(overrides: Partial<IAdminRepository> = {}): IAdminRepository {
   return {
-    listCollections: vi.fn().mockReturnValue([]),
-    getCollection: vi.fn().mockReturnValue(undefined),
-    createCollection: vi
-      .fn()
-      .mockReturnValue({ collection_id: 'admin-1', collection_permissions: [] }),
-    updateCollection: vi.fn().mockReturnValue(undefined),
-    deleteCollection: vi.fn().mockReturnValue(false),
     listQuestions: vi.fn().mockReturnValue([]),
     getQuestion: vi.fn().mockReturnValue(undefined),
     createQuestion: vi.fn().mockReturnValue({
@@ -78,76 +71,6 @@ describe('AdminService', () => {
         const result = service.getStatus();
 
         expect(result).toEqual({ status: 'ok', module: 'admin' });
-      });
-    });
-  });
-
-  describe('Collections', () => {
-    describe('given a repository with collections', () => {
-      it('when listCollections is called, then it delegates to the repository', () => {
-        const collections = [{ collection_id: 'c-1', collection_permissions: [] }];
-        const repo = makeRepository({ listCollections: vi.fn().mockReturnValue(collections) });
-        const service = new AdminService(repo);
-
-        const result = service.listCollections();
-
-        expect(result).toEqual(collections);
-        expect(repo.listCollections).toHaveBeenCalled();
-      });
-    });
-
-    describe('given a repository', () => {
-      it('when createCollection is called, then it delegates to the repository', () => {
-        const data = { collection_permissions: [] };
-        const created = { collection_id: 'c-1', collection_permissions: [] };
-        const repo = makeRepository({ createCollection: vi.fn().mockReturnValue(created) });
-        const service = new AdminService(repo);
-
-        const result = service.createCollection(data);
-
-        expect(result).toEqual(created);
-        expect(repo.createCollection).toHaveBeenCalledWith(data);
-      });
-
-      it('when getCollection is called, then it delegates to the repository', () => {
-        const collection = { collection_id: 'c-1', collection_permissions: [] };
-        const repo = makeRepository({ getCollection: vi.fn().mockReturnValue(collection) });
-        const service = new AdminService(repo);
-
-        const result = service.getCollection('c-1');
-
-        expect(result).toEqual(collection);
-        expect(repo.getCollection).toHaveBeenCalledWith('c-1');
-      });
-
-      it('when updateCollection is called, then it delegates to the repository', () => {
-        const updated = {
-          collection_id: 'c-1',
-          collection_permissions: [
-            { organisation_id: 'org-1', read: true, use: false, edit: false, owner: false },
-          ],
-        };
-        const repo = makeRepository({ updateCollection: vi.fn().mockReturnValue(updated) });
-        const service = new AdminService(repo);
-
-        const result = service.updateCollection('c-1', {
-          collection_permissions: updated.collection_permissions,
-        });
-
-        expect(result).toEqual(updated);
-        expect(repo.updateCollection).toHaveBeenCalledWith('c-1', {
-          collection_permissions: updated.collection_permissions,
-        });
-      });
-
-      it('when deleteCollection is called, then it delegates to the repository', () => {
-        const repo = makeRepository({ deleteCollection: vi.fn().mockReturnValue(true) });
-        const service = new AdminService(repo);
-
-        const result = service.deleteCollection('c-1');
-
-        expect(result).toBe(true);
-        expect(repo.deleteCollection).toHaveBeenCalledWith('c-1');
       });
     });
   });

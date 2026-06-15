@@ -1,18 +1,8 @@
-import type { Collection, Question, Section, Form, Formula } from '../types/admin.types.js';
+import type { Question, Section, Form, Formula } from '../types/admin.types.js';
 import type { IAdminRepository } from '../repositories/admin.repository.js';
 
 export interface IAdminService {
   getStatus(): { status: string; module: string };
-
-  // Collections
-  listCollections(): Collection[];
-  getCollection(id: string): Collection | undefined;
-  createCollection(data: Omit<Collection, 'collection_id'>): Collection;
-  updateCollection(
-    id: string,
-    data: Partial<Omit<Collection, 'collection_id'>>
-  ): Collection | undefined;
-  deleteCollection(id: string): boolean;
 
   // Questions
   listQuestions(collectionId?: string): Question[];
@@ -51,29 +41,6 @@ export class AdminService implements IAdminService {
 
   getStatus(): { status: string; module: string } {
     return { status: 'ok', module: 'admin' };
-  }
-
-  listCollections(): Collection[] {
-    return this.repository.listCollections();
-  }
-
-  getCollection(id: string): Collection | undefined {
-    return this.repository.getCollection(id);
-  }
-
-  createCollection(data: Omit<Collection, 'collection_id'>): Collection {
-    return this.repository.createCollection(data);
-  }
-
-  updateCollection(
-    id: string,
-    data: Partial<Omit<Collection, 'collection_id'>>
-  ): Collection | undefined {
-    return this.repository.updateCollection(id, data);
-  }
-
-  deleteCollection(id: string): boolean {
-    return this.repository.deleteCollection(id);
   }
 
   listQuestions(collectionId?: string): Question[] {
