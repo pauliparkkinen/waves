@@ -2,9 +2,9 @@
   "id": "TASK-2",
   "title": "Backend: Admin Module Scaffolding",
   "description": "Create the backend admin module under modules/admin/ following the module system conventions (index.ts, controllers/, services/, repositories/, types/). Wire up routes at /admin prefix. Register module in waves.config.json. Create database schemas for collections, questions, sections, forms, formulas, translations.",
-  "status": "Draft",
+  "status": "Approved",
   "creationDate": "2026-06-11T12:53:02.527Z",
-  "updateDate": "2026-06-11T12:53:50.607Z",
+  "updateDate": "2026-06-15T08:21:45.024Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -12,6 +12,28 @@
       "changedBy": "unknown",
       "changedAt": "2026-06-11T12:53:02.528Z",
       "comment": "Initial creation"
+    },
+    {
+      "fromStatus": "Draft",
+      "toStatus": "Plan-ready",
+      "changedBy": "agent",
+      "changedAt": "2026-06-15T08:11:42.552Z",
+      "comment": "Scaffolding implemented: module structure, domain types, in-memory repositories, CRUD services, REST controllers, and full test suite (151 tests passing)"
+    },
+    {
+      "fromStatus": "Plan-ready",
+      "toStatus": "Ready-to-review",
+      "changedBy": "agent",
+      "changedAt": "2026-06-15T08:13:55.812Z",
+      "comment": "Branch TASK-2-admin-module-scaffolding created, committed, and pushed. Scaffolding implementation complete with 151 passing tests. Ready for human review."
+    },
+    {
+      "fromStatus": "Ready-to-review",
+      "toStatus": "Approved",
+      "changedBy": "Pauli Parkkinen",
+      "changedAt": "2026-06-15T08:21:45.024Z",
+      "approvedBy": "Pauli Parkkinen",
+      "approvedAt": "2026-06-15T08:21:45.024Z"
     }
   ],
   "changeHistory": [
