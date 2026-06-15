@@ -65,7 +65,7 @@
       "field": "strideClassifications",
       "oldValue": [],
       "newValue": [
-        "Elevation of Privilege"
+        "ElevationOfPrivilege"
       ],
       "changedBy": "code-reviewer",
       "changedAt": "2026-06-11T16:30:00.000Z",
@@ -73,7 +73,7 @@
     }
   ],
   "strideClassifications": [
-    "Elevation of Privilege"
+    "ElevationOfPrivilege"
   ],
   "probabilityBefore": 2,
   "probabilityAfter": 1,

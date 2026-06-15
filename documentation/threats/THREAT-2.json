@@ -57,7 +57,7 @@
       "field": "strideClassifications",
       "oldValue": [],
       "newValue": [
-        "Information Disclosure"
+        "InformationDisclosure"
       ],
       "changedBy": "code-reviewer",
       "changedAt": "2026-06-11T16:30:00.000Z",
@@ -65,7 +65,7 @@
     }
   ],
   "strideClassifications": [
-    "Information Disclosure"
+    "InformationDisclosure"
   ],
   "probabilityBefore": 4,
   "probabilityAfter": 2,

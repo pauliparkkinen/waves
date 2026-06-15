@@ -3,8 +3,8 @@
   "title": "Rename documentation-folder to design",
   "description": "Rename the documentation-folder to design to separate between the computer generated documentation files and the human-made design.",
   "status": "Draft",
-  "creationDate": "2026-06-11",
-  "updateDate": "2026-06-11",
+  "creationDate": "2026-06-11T09:19:22.134Z",
+  "updateDate": "2026-06-11T10:25:51.295Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -14,5 +14,6 @@
       "comment": "Initial creation"
     }
   ],
-  "significance": "patch"
+  "significance": "patch",
+  "linkedFeatures": ["FEAT-1"]
 }
