@@ -1,0 +1,44 @@
+{
+  "id": "REQ-15",
+  "title": "Non-Text Content Alternatives",
+  "description": "All non-text content presented to users must have text alternatives that serve the equivalent purpose, in accordance with WCAG 2.2 Guideline 1.1 (Text Alternatives). This ensures screen reader and assistive technology compatibility.",
+  "status": "Draft",
+  "creationDate": "2026-06-15T13:35:32.214Z",
+  "updateDate": "2026-06-15T13:35:51.710Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-15T13:35:32.214Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-15T13:35:51.114Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-3"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-15T13:35:51.710Z",
+      "mode": "add",
+      "item": "FEAT-3"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-3"
+  ]
+}

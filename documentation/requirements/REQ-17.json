@@ -1,0 +1,44 @@
+{
+  "id": "REQ-17",
+  "title": "Focus Indication and Navigation",
+  "description": "All user interfaces must provide visible focus indicators for keyboard focus (WCAG 2.2 2.4.7 Focus Visible) and must support multiple ways to navigate and locate content (WCAG 2.2 2.4.5 Multiple Ways). Focus order must preserve meaning and operability (WCAG 2.2 2.4.3 Focus Order).",
+  "status": "Draft",
+  "creationDate": "2026-06-15T13:35:37.877Z",
+  "updateDate": "2026-06-15T13:35:54.040Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-15T13:35:37.877Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-15T13:35:53.459Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-3"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-15T13:35:54.040Z",
+      "mode": "add",
+      "item": "FEAT-3"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-3"
+  ]
+}

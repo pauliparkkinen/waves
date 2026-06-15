@@ -1,0 +1,59 @@
+{
+  "id": "TASK-19",
+  "title": "Create QMS documents for UI accessibility (WCAG 2.2)",
+  "description": "Create formal QMS documentation (requirements, risks, threats, test cases) for WCAG 2.2 accessibility compliance across all three user interfaces (admin, hcp, patient). This includes documenting accessibility requirements, identifying risks related to non-compliance, threat modeling for accessibility-related security concerns, and creating test cases for verification.",
+  "status": "Ready-to-review",
+  "creationDate": "2026-06-15T13:34:40.330Z",
+  "updateDate": "2026-06-15T13:36:32.709Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-15T13:34:40.330Z",
+      "comment": "Initial creation"
+    },
+    {
+      "fromStatus": "Draft",
+      "toStatus": "Plan-ready",
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-15T13:36:29.903Z",
+      "comment": "Planning complete: feature FEAT-3 and requirements REQ-13 through REQ-17 have been created. Branch TASK-19-ui-accessibility-docs is ready for development."
+    },
+    {
+      "fromStatus": "Plan-ready",
+      "toStatus": "Ready-to-review",
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-15T13:36:32.709Z",
+      "comment": "All QMS documentation has been created: FEAT-3 (User Interfaces feature), REQ-13 (WCAG 2.2 Conformance), REQ-14 (Keyboard Navigation), REQ-15 (Non-Text Content Alternatives), REQ-16 (Color and Contrast), REQ-17 (Focus Indication and Navigation). Ready for human review."
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-15T13:34:51.528Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-3"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-15T13:34:53.967Z",
+      "mode": "add",
+      "item": "FEAT-3"
+    }
+  ],
+  "significance": "patch",
+  "linkedFeatures": [
+    "FEAT-3"
+  ]
+}

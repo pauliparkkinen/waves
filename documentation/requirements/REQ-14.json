@@ -1,0 +1,44 @@
+{
+  "id": "REQ-14",
+  "title": "Accessible Keyboard Navigation",
+  "description": "All functionality of the user interfaces must be operable through a keyboard interface without requiring specific timings for individual keystrokes, in accordance with WCAG 2.2 Guideline 2.1 (Keyboard Accessible).",
+  "status": "Draft",
+  "creationDate": "2026-06-15T13:35:29.532Z",
+  "updateDate": "2026-06-15T13:35:50.538Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-15T13:35:29.532Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-15T13:35:50.042Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-3"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-15T13:35:50.538Z",
+      "mode": "add",
+      "item": "FEAT-3"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-3"
+  ]
+}

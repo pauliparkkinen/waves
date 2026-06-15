@@ -1,0 +1,26 @@
+{
+  "id": "FEAT-3",
+  "title": "User Interfaces",
+  "description": "Three separate user interfaces in the application: admin (for administrative users), hcp (for healthcare professionals), and patient (for patients). Shared features are defined in the common folder. All interfaces must follow WCAG 2.2 accessibility standards.",
+  "status": "Plan-ready",
+  "creationDate": "2026-06-15T13:34:18.782Z",
+  "updateDate": "2026-06-15T13:36:44.595Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-15T13:34:18.782Z",
+      "comment": "Initial creation"
+    },
+    {
+      "fromStatus": "Draft",
+      "toStatus": "Plan-ready",
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-15T13:36:44.595Z",
+      "comment": "Feature defined with WCAG 2.2 accessibility scope. Requirements REQ-13 through REQ-17 have been created and linked."
+    }
+  ],
+  "changeHistory": [],
+  "riskLevel": "0"
+}
