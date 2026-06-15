@@ -41,69 +41,6 @@ export async function getTestRecords(
   return res.json() as Promise<TestRecord[]>;
 }
 
-// ── Orchestrator types (mirror backend modules/orchestrator/types/) ─────────
-
-export type CircleShape = {
-  type: "circle";
-  radius: number;
-};
-
-/** Shape discriminated union. Currently only circle; hexagon etc. planned. */
-export type Shape = CircleShape;
-
-export type Position = {
-  x: number;
-  y: number;
-  angle: number;
-};
-
-/** Input parameters for the Markov-chain simulation */
-export type SimulationInput = {
-  shape: Shape;
-  color: string;
-  position: Position;
-  rules: unknown[];
-  killCondition?: unknown;
-};
-
-/** A single object in the simulation output */
-export type SimulatedObject = {
-  shape: Shape;
-  color: string;
-  position: Position;
-};
-
-/** The simulation result */
-export type SimulationOutput = {
-  results: SimulatedObject[];
-};
-
-/**
- * Run a Markov-chain simulation.
- * POST /orchestrator/simulate
- */
-export async function runSimulation(
-  input: SimulationInput,
-  accessToken?: string
-): Promise<SimulationOutput> {
-  const res = await fetch(`${BACKEND_URL}/orchestrator/simulate`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeaders(accessToken),
-    },
-    body: JSON.stringify(input),
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(
-      (err as { error?: string }).error ?? `Simulation failed (${res.status})`
-    );
-  }
-  return res.json() as Promise<SimulationOutput>;
-}
-
 // ── Admin types (mirror backend modules/admin/types/) ────────────────────────
 
 export type PublishStatus = 'draft' | 'published';
