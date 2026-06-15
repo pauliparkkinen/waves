@@ -1,0 +1,44 @@
+{
+  "id": "REQ-16",
+  "title": "Color and Contrast Accessibility",
+  "description": "The visual presentation of text, icons, and interactive elements must meet minimum contrast ratios as specified by WCAG 2.2 Success Criterion 1.4.3 (Contrast Minimum) and 1.4.11 (Non-text Contrast). Color must not be used as the only visual means of conveying information.",
+  "status": "Draft",
+  "creationDate": "2026-06-15T13:35:34.944Z",
+  "updateDate": "2026-06-15T13:35:52.880Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-15T13:35:34.944Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-15T13:35:52.326Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-3"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-15T13:35:52.880Z",
+      "mode": "add",
+      "item": "FEAT-3"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-3"
+  ]
+}

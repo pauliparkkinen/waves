@@ -1,0 +1,44 @@
+{
+  "id": "REQ-13",
+  "title": "WCAG 2.2 Conformance",
+  "description": "All three user interfaces (admin, hcp, patient) must conform to the Web Content Accessibility Guidelines (WCAG) 2.2 standards as defined in https://www.w3.org/TR/WCAG22/. This includes all four principles: Perceivable, Operable, Understandable, and Robust.",
+  "status": "Draft",
+  "creationDate": "2026-06-15T13:35:11.272Z",
+  "updateDate": "2026-06-15T13:35:26.433Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-15T13:35:11.272Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-15T13:35:24.080Z",
+      "mode": "remove",
+      "item": "FEAT-1"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [],
+      "newValue": [
+        "FEAT-3"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-15T13:35:26.433Z",
+      "mode": "add",
+      "item": "FEAT-3"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-3"
+  ]
+}

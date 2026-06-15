@@ -1,9 +1,9 @@
 {
   "counters": {
-    "FEAT": 3,
-    "REQ": 13,
+    "FEAT": 4,
+    "REQ": 18,
     "TEST": 1,
-    "TASK": 19,
+    "TASK": 20,
     "RISK": 4,
     "THREAT": 5,
     "RMITIG": 4,
