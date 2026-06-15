@@ -2,9 +2,9 @@
   "id": "TASK-3",
   "title": "Backend: Collection CRUD Endpoints",
   "description": "Implement REST API endpoints for collections: POST/GET/PUT/DELETE /admin/collections. Collection includes ID, permissions, and membership. Backend validates collection-level permissions for all operations.",
-  "status": "Plan-ready",
+  "status": "Ready-to-review",
   "creationDate": "2026-06-11T12:53:03.454Z",
-  "updateDate": "2026-06-15T10:26:39.030Z",
+  "updateDate": "2026-06-15T10:41:51.935Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -19,6 +19,13 @@
       "changedBy": "agent",
       "changedAt": "2026-06-15T10:26:39.030Z",
       "comment": "Plan approved: split monolithic AdminService into domain-specific services starting with CollectionService. Create dedicated collection.controller.ts, collection.service.ts, and collection.repository.ts. Add organisation_id to AuthUser type. Implement collection-level permission validation. See full plan in conversation."
+    },
+    {
+      "fromStatus": "Plan-ready",
+      "toStatus": "Ready-to-review",
+      "changedBy": "agent",
+      "changedAt": "2026-06-15T10:41:51.935Z",
+      "comment": "Implementation complete. Collection CRUD endpoints with permission validation. AuthUser extended with organisation_id. AdminService split into domain-specific services. 177 tests passing."
     }
   ],
   "changeHistory": [
