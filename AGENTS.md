@@ -108,6 +108,7 @@ Source files use `.js` extensions in imports (required by Node.js ESM). The `vit
 ## Rules
 
 - Never edit files containing `.donotedit.` in the file name.
+- Always plan and review UI changes against accessibility requirements REQ-13 - REQ-17.
 
 # Documentation
 The documentation (i.e., tasks, requirements, features, risks, threats mitigations, etc) should be kept up to date with the 'process_guard' software which can be found in the command line. For further information on  how  the process_guard works, see ../process_guard_application. The documentation folder should not be touched manually.

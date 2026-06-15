@@ -2,9 +2,9 @@
   "id": "TASK-10",
   "title": "Frontend: Admin Layout and Routing",
   "description": "Create /admin route in the Next.js app with a dedicated layout. Admin layout provides navigation between form editor, section editor, question editor. Protected by middleware for global_admin/organisation_admin roles. The admin section should be architected to allow future separation into a standalone SPA if needed.",
-  "status": "Draft",
+  "status": "Plan-ready",
   "creationDate": "2026-06-11T12:53:12.447Z",
-  "updateDate": "2026-06-11T12:53:54.102Z",
+  "updateDate": "2026-06-15T15:07:37.418Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -12,6 +12,12 @@
       "changedBy": "unknown",
       "changedAt": "2026-06-11T12:53:12.447Z",
       "comment": "Initial creation"
+    },
+    {
+      "fromStatus": "Draft",
+      "toStatus": "Plan-ready",
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-15T15:07:37.417Z"
     }
   ],
   "changeHistory": [
