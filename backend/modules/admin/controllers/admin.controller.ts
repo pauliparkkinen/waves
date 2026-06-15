@@ -10,47 +10,6 @@ export function createAdminRouter(service: IAdminService): Hono {
     return c.json(service.getStatus());
   });
 
-  // Sections
-  router.get('/sections', requirePermissions(['admin:manage']), (c) => {
-    return c.json(service.listSections());
-  });
-
-  router.post('/sections', requirePermissions(['admin:manage']), async (c) => {
-    try {
-      const body = await c.req.json();
-      const section = service.createSection(body);
-      return c.json(section, 201);
-    } catch (e) {
-      return c.json({ error: 'Failed to create section' }, 500);
-    }
-  });
-
-  router.get('/sections/:id', requirePermissions(['admin:manage']), (c) => {
-    const id = c.req.param('id');
-    const section = service.getSection(id);
-    if (!section) return c.json({ error: 'Not found' }, 404);
-    return c.json(section);
-  });
-
-  router.put('/sections/:id', requirePermissions(['admin:manage']), async (c) => {
-    try {
-      const id = c.req.param('id');
-      const body = await c.req.json();
-      const section = service.updateSection(id, body);
-      if (!section) return c.json({ error: 'Not found' }, 404);
-      return c.json(section);
-    } catch (e) {
-      return c.json({ error: 'Failed to update section' }, 500);
-    }
-  });
-
-  router.delete('/sections/:id', requirePermissions(['admin:manage']), (c) => {
-    const id = c.req.param('id');
-    const deleted = service.deleteSection(id);
-    if (!deleted) return c.json({ error: 'Not found' }, 404);
-    return c.json({ success: true });
-  });
-
   // Forms
   router.get('/forms', requirePermissions(['admin:manage']), (c) => {
     return c.json(service.listForms());
