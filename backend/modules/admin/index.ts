@@ -8,6 +8,9 @@ import { InMemoryCollectionRepository } from './repositories/collection.reposito
 import { createQuestionRouter } from './controllers/question.controller.js';
 import { QuestionService } from './services/question.service.js';
 import { InMemoryQuestionRepository } from './repositories/question.repository.js';
+import { createSectionRouter } from './controllers/section.controller.js';
+import { SectionService } from './services/section.service.js';
+import { InMemorySectionRepository } from './repositories/section.repository.js';
 
 const adminRepository = new InMemoryAdminRepository();
 const adminService = new AdminService(adminRepository);
@@ -15,9 +18,12 @@ const collectionRepository = new InMemoryCollectionRepository();
 const collectionService = new CollectionService(collectionRepository);
 const questionRepository = new InMemoryQuestionRepository();
 const questionService = new QuestionService(questionRepository);
+const sectionRepository = new InMemorySectionRepository();
+const sectionService = new SectionService(sectionRepository, questionRepository);
 
 const router = new Hono();
 router.route('/', createAdminRouter(adminService));
 router.route('/collections', createCollectionRouter(collectionService));
 router.route('/questions', createQuestionRouter(questionService));
+router.route('/sections', createSectionRouter(sectionService));
 export default router;

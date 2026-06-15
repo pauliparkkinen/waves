@@ -4,18 +4,6 @@ import type { IAdminRepository } from '../../repositories/admin.repository.js';
 
 function makeRepository(overrides: Partial<IAdminRepository> = {}): IAdminRepository {
   return {
-    listSections: vi.fn().mockReturnValue([]),
-    getSection: vi.fn().mockReturnValue(undefined),
-    createSection: vi.fn().mockReturnValue({
-      section_id: 'admin-1',
-      section_symbol: 's1',
-      version: 1,
-      status: 'draft',
-      section_questions: [],
-      translations: [],
-    }),
-    updateSection: vi.fn().mockReturnValue(undefined),
-    deleteSection: vi.fn().mockReturnValue(false),
     listForms: vi.fn().mockReturnValue([]),
     getForm: vi.fn().mockReturnValue(undefined),
     createForm: vi.fn().mockReturnValue({
@@ -57,28 +45,6 @@ describe('AdminService', () => {
 
         expect(result).toEqual({ status: 'ok', module: 'admin' });
       });
-    });
-  });
-
-  describe('Sections', () => {
-    it('when listSections is called, then it delegates to the repository', () => {
-      const sections = [
-        {
-          section_id: 's-1',
-          section_symbol: 's1',
-          version: 1,
-          status: 'draft' as const,
-          section_questions: [],
-          translations: [],
-        },
-      ];
-      const repo = makeRepository({ listSections: vi.fn().mockReturnValue(sections) });
-      const service = new AdminService(repo);
-
-      const result = service.listSections();
-
-      expect(result).toEqual(sections);
-      expect(repo.listSections).toHaveBeenCalled();
     });
   });
 

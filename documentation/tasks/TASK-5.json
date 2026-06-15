@@ -2,9 +2,9 @@
   "id": "TASK-5",
   "title": "Backend: Section CRUD Endpoints",
   "description": "Implement REST API endpoints for sections: POST/GET/PUT/DELETE /admin/sections. Section includes section_questions array (question_symbol, version_number, order_number, required), condition_formula_id, status draft/published, translations. Validate question references exist.",
-  "status": "Draft",
+  "status": "Ready-to-review",
   "creationDate": "2026-06-11T12:53:05.690Z",
-  "updateDate": "2026-06-11T12:53:51.921Z",
+  "updateDate": "2026-06-15T12:14:29.335Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -12,6 +12,20 @@
       "changedBy": "unknown",
       "changedAt": "2026-06-11T12:53:05.690Z",
       "comment": "Initial creation"
+    },
+    {
+      "fromStatus": "Draft",
+      "toStatus": "Plan-ready",
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-15T12:06:59.597Z",
+      "comment": "Planning implementation of Section CRUD endpoints"
+    },
+    {
+      "fromStatus": "Plan-ready",
+      "toStatus": "Ready-to-review",
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-15T12:14:29.335Z",
+      "comment": "Implementation complete. Code review passed. 61 new tests, all 274 tests passing."
     }
   ],
   "changeHistory": [
