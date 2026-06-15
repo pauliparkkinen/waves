@@ -1,21 +1,10 @@
 import type {
-  Question,
   Section,
   Form,
   Formula,
 } from '../types/admin.types.js';
 
 export interface IAdminRepository {
-  // Questions
-  listQuestions(collectionId?: string): Question[];
-  getQuestion(id: string): Question | undefined;
-  createQuestion(data: Omit<Question, 'question_id' | 'created_at' | 'updated_at'>): Question;
-  updateQuestion(
-    id: string,
-    data: Partial<Omit<Question, 'question_id' | 'created_at' | 'updated_at'>>
-  ): Question | undefined;
-  deleteQuestion(id: string): boolean;
-
   // Sections
   listSections(): Section[];
   getSection(id: string): Section | undefined;
@@ -39,7 +28,6 @@ export interface IAdminRepository {
 }
 
 export class InMemoryAdminRepository implements IAdminRepository {
-  private questions: Question[] = [];
   private sections: Section[] = [];
   private forms: Form[] = [];
   private formulas: Formula[] = [];
@@ -47,52 +35,6 @@ export class InMemoryAdminRepository implements IAdminRepository {
 
   private generateId(): string {
     return `admin-${this.nextId++}`;
-  }
-
-  // Questions
-  listQuestions(collectionId?: string): Question[] {
-    let result = [...this.questions];
-    if (collectionId) {
-      result = result.filter((q) => q.collection_id === collectionId);
-    }
-    return result;
-  }
-
-  getQuestion(id: string): Question | undefined {
-    return this.questions.find((q) => q.question_id === id);
-  }
-
-  createQuestion(data: Omit<Question, 'question_id' | 'created_at' | 'updated_at'>): Question {
-    const now = new Date().toISOString();
-    const question: Question = {
-      question_id: this.generateId(),
-      ...data,
-      created_at: now,
-      updated_at: now,
-    };
-    this.questions.push(question);
-    return question;
-  }
-
-  updateQuestion(
-    id: string,
-    data: Partial<Omit<Question, 'question_id' | 'created_at' | 'updated_at'>>
-  ): Question | undefined {
-    const idx = this.questions.findIndex((q) => q.question_id === id);
-    if (idx === -1) return undefined;
-    this.questions[idx] = {
-      ...this.questions[idx],
-      ...data,
-      updated_at: new Date().toISOString(),
-    };
-    return this.questions[idx];
-  }
-
-  deleteQuestion(id: string): boolean {
-    const idx = this.questions.findIndex((q) => q.question_id === id);
-    if (idx === -1) return false;
-    this.questions.splice(idx, 1);
-    return true;
   }
 
   // Sections

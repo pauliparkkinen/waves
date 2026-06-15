@@ -2,9 +2,9 @@
   "id": "TASK-4",
   "title": "Backend: Question CRUD Endpoints",
   "description": "Implement REST API endpoints for questions: POST/GET/PUT/DELETE /admin/questions. Question includes collection_id, symbol, version, type, type-specific parameters JSON, condition_formula_id, translations. Backend validates type-specific parameter schemas.",
-  "status": "Draft",
+  "status": "Ready-to-review",
   "creationDate": "2026-06-11T12:53:04.539Z",
-  "updateDate": "2026-06-11T12:53:51.487Z",
+  "updateDate": "2026-06-15T11:00:00.000Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -12,6 +12,13 @@
       "changedBy": "unknown",
       "changedAt": "2026-06-11T12:53:04.539Z",
       "comment": "Initial creation"
+    },
+    {
+      "fromStatus": "Draft",
+      "toStatus": "Ready-to-review",
+      "changedBy": "orchestrator-agent",
+      "changedAt": "2026-06-15T11:00:00.000Z",
+      "comment": "Implementation complete — Question CRUD endpoints with type-specific parameter validation"
     }
   ],
   "changeHistory": [

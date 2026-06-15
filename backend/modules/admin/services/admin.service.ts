@@ -1,18 +1,8 @@
-import type { Question, Section, Form, Formula } from '../types/admin.types.js';
+import type { Section, Form, Formula } from '../types/admin.types.js';
 import type { IAdminRepository } from '../repositories/admin.repository.js';
 
 export interface IAdminService {
   getStatus(): { status: string; module: string };
-
-  // Questions
-  listQuestions(collectionId?: string): Question[];
-  getQuestion(id: string): Question | undefined;
-  createQuestion(data: Omit<Question, 'question_id' | 'created_at' | 'updated_at'>): Question;
-  updateQuestion(
-    id: string,
-    data: Partial<Omit<Question, 'question_id' | 'created_at' | 'updated_at'>>
-  ): Question | undefined;
-  deleteQuestion(id: string): boolean;
 
   // Sections
   listSections(): Section[];
@@ -41,29 +31,6 @@ export class AdminService implements IAdminService {
 
   getStatus(): { status: string; module: string } {
     return { status: 'ok', module: 'admin' };
-  }
-
-  listQuestions(collectionId?: string): Question[] {
-    return this.repository.listQuestions(collectionId);
-  }
-
-  getQuestion(id: string): Question | undefined {
-    return this.repository.getQuestion(id);
-  }
-
-  createQuestion(data: Omit<Question, 'question_id' | 'created_at' | 'updated_at'>): Question {
-    return this.repository.createQuestion(data);
-  }
-
-  updateQuestion(
-    id: string,
-    data: Partial<Omit<Question, 'question_id' | 'created_at' | 'updated_at'>>
-  ): Question | undefined {
-    return this.repository.updateQuestion(id, data);
-  }
-
-  deleteQuestion(id: string): boolean {
-    return this.repository.deleteQuestion(id);
   }
 
   listSections(): Section[] {

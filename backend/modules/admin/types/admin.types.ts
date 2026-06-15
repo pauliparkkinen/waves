@@ -1,3 +1,5 @@
+import type { TranslationRef } from './question.types.js';
+
 export type CollectionPermission = {
   organisation_id: string;
   read: boolean;
@@ -9,26 +11,6 @@ export type CollectionPermission = {
 export type Collection = {
   collection_id: string;
   collection_permissions: CollectionPermission[];
-};
-
-export type QuestionType = 'multiselect' | 'select' | 'radio' | 'free-text' | 'range';
-
-export type TranslationRef = {
-  translation_symbol: string;
-  symbol: string;
-};
-
-export type Question = {
-  collection_id: string;
-  question_id: string;
-  question_symbol: string;
-  condition_formula_id?: string;
-  type: QuestionType;
-  version: number;
-  parameters: Record<string, unknown>;
-  created_at: string;
-  updated_at: string;
-  translations: TranslationRef[];
 };
 
 export type SectionQuestion = {
