@@ -5,6 +5,10 @@ import type { CollectionPermission } from "@/lib/api";
 type PermissionEditorProps = {
   permissions: CollectionPermission[];
   onChange: (permissions: CollectionPermission[]) => void;
+  /** The user's own organisation ID — this row's org ID will be read-only */
+  userOrgId?: string;
+  /** When true, the owner checkbox is locked (not changeable) for the user's org */
+  ownerLocked?: boolean;
 };
 
 function enforceHierarchy(perm: CollectionPermission): CollectionPermission {
@@ -30,6 +34,8 @@ function onUncheckRead(perm: CollectionPermission): CollectionPermission {
 export default function PermissionEditor({
   permissions,
   onChange,
+  userOrgId,
+  ownerLocked,
 }: PermissionEditorProps) {
   function handleChange(
     index: number,
@@ -104,62 +110,76 @@ export default function PermissionEditor({
           </tr>
         </thead>
         <tbody>
-          {permissions.map((perm, i) => (
-            <tr key={i}>
-              <td>
-                <input
-                  type="text"
-                  className="permission-row-org"
-                  value={perm.organisation_id}
-                  onChange={(e) => handleOrgChange(i, e.target.value)}
-                  placeholder="org-id"
-                  aria-label="Organisation ID"
-                />
-              </td>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={perm.read}
-                  onChange={(e) => handleChange(i, "read", e.target.checked)}
-                  aria-label={`Read permission for ${perm.organisation_id || `organisation ${i + 1}`}`}
-                />
-              </td>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={perm.use}
-                  onChange={(e) => handleChange(i, "use", e.target.checked)}
-                  aria-label={`Use permission for ${perm.organisation_id || `organisation ${i + 1}`}`}
-                />
-              </td>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={perm.edit}
-                  onChange={(e) => handleChange(i, "edit", e.target.checked)}
-                  aria-label={`Edit permission for ${perm.organisation_id || `organisation ${i + 1}`}`}
-                />
-              </td>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={perm.owner}
-                  onChange={(e) => handleChange(i, "owner", e.target.checked)}
-                  aria-label={`Owner permission for ${perm.organisation_id || `organisation ${i + 1}`}`}
-                />
-              </td>
-              <td>
-                <button
-                  type="button"
-                  className="btn-danger btn-small"
-                  onClick={() => handleRemove(i)}
-                  aria-label={`Remove organisation ${perm.organisation_id || i + 1}`}
-                >
-                  Remove
-                </button>
-              </td>
-            </tr>
-          ))}
+          {permissions.map((perm, i) => {
+            const isUserOrg = userOrgId !== undefined && perm.organisation_id === userOrgId;
+            return (
+              <tr key={i}>
+                <td>
+                  <input
+                    type="text"
+                    className="permission-row-org"
+                    value={perm.organisation_id}
+                    onChange={(e) => handleOrgChange(i, e.target.value)}
+                    placeholder="org-id"
+                    aria-label="Organisation ID"
+                    readOnly={isUserOrg}
+                    style={isUserOrg ? { background: '#f3f4f6', cursor: 'not-allowed' } : undefined}
+                    title={isUserOrg ? 'Your organisation ID is fixed' : undefined}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={perm.read}
+                    onChange={(e) => handleChange(i, "read", e.target.checked)}
+                    aria-label={`Read permission for ${perm.organisation_id || `organisation ${i + 1}`}`}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={perm.use}
+                    onChange={(e) => handleChange(i, "use", e.target.checked)}
+                    aria-label={`Use permission for ${perm.organisation_id || `organisation ${i + 1}`}`}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={perm.edit}
+                    onChange={(e) => handleChange(i, "edit", e.target.checked)}
+                    aria-label={`Edit permission for ${perm.organisation_id || `organisation ${i + 1}`}`}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={perm.owner}
+                    onChange={(e) => {
+                      if (!(ownerLocked && isUserOrg)) {
+                        handleChange(i, "owner", e.target.checked);
+                      }
+                    }}
+                    aria-label={`Owner permission for ${perm.organisation_id || `organisation ${i + 1}`}`}
+                    disabled={ownerLocked && isUserOrg}
+                  />
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    className="btn-danger btn-small"
+                    onClick={() => handleRemove(i)}
+                    aria-label={`Remove organisation ${perm.organisation_id || i + 1}`}
+                    disabled={isUserOrg}
+                    style={isUserOrg ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
+                    title={isUserOrg ? 'Your organisation cannot be removed' : undefined}
+                  >
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       <div style={{ marginTop: "0.75rem" }}>

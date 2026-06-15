@@ -129,7 +129,12 @@ export default function CollectionForm({
 
       <div className="form-group">
         <label>Permissions</label>
-        <PermissionEditor permissions={permissions} onChange={setPermissions} />
+        <PermissionEditor
+          permissions={permissions}
+          onChange={setPermissions}
+          userOrgId={userOrgId}
+          ownerLocked={!isEdit}
+        />
         {fieldErrors.permissions && (
           <p className="inline-error" role="alert">
             {fieldErrors.permissions}

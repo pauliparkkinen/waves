@@ -317,7 +317,9 @@ describe("CollectionForm", () => {
       json: async () => ({
         collection_id: "c-new",
         collection_symbol: "valid_symbol",
-        collection_permissions: [{ organisation_id: "org1", read: true, use: true, edit: true, owner: true }],
+        collection_permissions: [
+          { organisation_id: "my-org", read: true, use: true, edit: true, owner: true },
+        ],
       }),
     });
 
@@ -325,21 +327,15 @@ describe("CollectionForm", () => {
     render(
       <CollectionForm
         accessToken="test-token"
+        userOrgId="my-org"
         onSave={onSave}
         onCancel={vi.fn()}
       />
     );
 
+    // User's org is pre-filled; just set the symbol
     const input = screen.getByLabelText("Collection Symbol");
     fireEvent.change(input, { target: { value: "valid_symbol" } });
-
-    // Add an organisation with owner rights
-    const addBtn = screen.getByRole("button", { name: /Add Organisation/i });
-    fireEvent.click(addBtn);
-    const orgInput = screen.getByLabelText("Organisation ID");
-    fireEvent.change(orgInput, { target: { value: "org1" } });
-    const ownerCheckbox = screen.getAllByRole("checkbox")[3];
-    fireEvent.click(ownerCheckbox);
 
     const createButton = screen.getByRole("button", { name: /Create/i });
     fireEvent.click(createButton);
@@ -495,6 +491,55 @@ describe("CollectionForm", () => {
     // Owner checkbox should be checked
     const ownerCheckbox = screen.getAllByRole("checkbox")[3] as HTMLInputElement;
     expect(ownerCheckbox.checked).toBe(true);
+  });
+
+  it("when userOrgId is provided on create, the org input is read-only and owner checkbox is disabled", () => {
+    render(
+      <CollectionForm
+        accessToken="test-token"
+        userOrgId="my-org"
+        onSave={vi.fn()}
+        onCancel={vi.fn()}
+      />
+    );
+
+    const orgInput = screen.getByLabelText("Organisation ID") as HTMLInputElement;
+    expect(orgInput.readOnly).toBe(true);
+
+    const ownerCheckbox = screen.getAllByRole("checkbox")[3] as HTMLInputElement;
+    expect(ownerCheckbox.disabled).toBe(true);
+
+    // Remove button for user's org should be disabled
+    const removeButton = screen.getByRole("button", {
+      name: /Remove organisation my-org/i,
+    }) as HTMLButtonElement;
+    expect(removeButton.disabled).toBe(true);
+  });
+
+  it("when userOrgId is provided on edit, the org input is still read-only but owner is not disabled", () => {
+    const collection: AdminCollection = {
+      collection_id: "c1",
+      collection_symbol: "Test",
+      collection_permissions: [
+        { organisation_id: "my-org", read: true, use: true, edit: true, owner: true },
+      ],
+    };
+
+    render(
+      <CollectionForm
+        collection={collection}
+        accessToken="test-token"
+        userOrgId="my-org"
+        onSave={vi.fn()}
+        onCancel={vi.fn()}
+      />
+    );
+
+    const orgInput = screen.getByLabelText("Organisation ID") as HTMLInputElement;
+    expect(orgInput.readOnly).toBe(true); // Still read-only (org ID is fixed)
+
+    const ownerCheckbox = screen.getAllByRole("checkbox")[3] as HTMLInputElement;
+    expect(ownerCheckbox.disabled).toBe(false); // Owner is changeable in edit mode
   });
 });
 
