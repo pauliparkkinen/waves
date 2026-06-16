@@ -26,22 +26,6 @@
       "changedBy": "developer",
       "changedAt": "2026-06-16T14:59:20.318Z",
       "comment": "Implementation complete. Question Editor component built with OptionsEditor, QuestionTypeSpecificParams, QuestionList, QuestionForm, InlineCollectionCreator. 98 tests passing. Code review findings addressed."
-    },
-    {
-      "fromStatus": "Ready-to-review",
-      "toStatus": "Approved",
-      "changedBy": "developer",
-      "changedAt": "2026-06-16T14:59:20.619Z",
-      "comment": "All review findings addressed. 98 tests pass, TypeScript clean, no nested form issues. Ready for merge.",
-      "approvedBy": "Pauli Parkkinen",
-      "approvedAt": "2026-06-16T14:59:20.619Z"
-    },
-    {
-      "fromStatus": "Approved",
-      "toStatus": "Ready-to-review",
-      "changedBy": "developer",
-      "changedAt": "2026-06-16T14:59:20.619Z",
-      "comment": "Moved back to Ready-to-review before push for final verification."
     }
   ],
   "changeHistory": [
