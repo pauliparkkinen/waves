@@ -622,8 +622,8 @@ describe('SectionList', () => {
         />,
       );
       expect(screen.getByText('Sections')).toBeInTheDocument();
-      expect(screen.getByText('financial_section (col-1)')).toBeInTheDocument();
-      expect(screen.getByText('clinical_section (col-2)')).toBeInTheDocument();
+      expect(screen.getByText('financial_section (financial)')).toBeInTheDocument();
+      expect(screen.getByText('clinical_section (clinical)')).toBeInTheDocument();
     });
   });
 
@@ -889,7 +889,7 @@ describe('SectionList', () => {
       const filterSelect = screen.getByLabelText('Filter by collection');
       fireEvent.change(filterSelect, { target: { value: 'col-1' } });
       expect(screen.getByText('financial_section')).toBeInTheDocument();
-      expect(screen.queryByText('financial_section (col-1)')).not.toBeInTheDocument();
+      expect(screen.queryByText('financial_section (financial)')).not.toBeInTheDocument();
     });
 
     it('when filter matches no sections, then shows empty state', () => {

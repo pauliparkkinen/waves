@@ -33,6 +33,14 @@ export default function SectionList({
   const [newVersioningId, setNewVersioningId] = useState<string | null>(null);
   const [collectionFilter, setCollectionFilter] = useState<string | undefined>(undefined);
 
+  const collectionMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const col of collections) {
+      map.set(col.collection_id, col.collection_symbol);
+    }
+    return map;
+  }, [collections]);
+
   const filteredSections = useMemo(() => {
     if (!collectionFilter) return sections;
     return sections.filter((sec) => sec.collection_id === collectionFilter);
@@ -243,7 +251,7 @@ export default function SectionList({
                       <tr key={group.key}>
                         <td>
                           <strong>{showSymbolWithCollection
-                            ? `${group.latest.section_symbol} (${group.latest.collection_id})`
+                            ? `${group.latest.section_symbol} (${collectionMap.get(group.latest.collection_id) ?? group.latest.collection_id})`
                             : group.latest.section_symbol}</strong>
                         </td>
                         <td>
