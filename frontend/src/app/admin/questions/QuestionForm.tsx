@@ -21,6 +21,7 @@ type QuestionFormProps = {
   userOrgId?: string;
   onSave: () => void;
   onCancel: () => void;
+  onCollectionCreated?: (collection: AdminCollection) => void;
 };
 
 export default function QuestionForm({
@@ -30,6 +31,7 @@ export default function QuestionForm({
   userOrgId,
   onSave,
   onCancel,
+  onCollectionCreated,
 }: QuestionFormProps) {
   const isEdit = !!question;
   const [symbol, setSymbol] = useState(question?.question_symbol ?? "");
@@ -155,6 +157,7 @@ export default function QuestionForm({
     setLocalCollections((prev) => [...prev, created]);
     setCollectionId(created.collection_id);
     setShowInlineCreator(false);
+    onCollectionCreated?.(created);
   }
 
   return (

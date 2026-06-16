@@ -14,11 +14,12 @@ type QuestionListProps = {
 
 export default function QuestionList({
   initialQuestions,
-  collections,
+  collections: initialCollections,
   accessToken,
   userOrgId,
 }: QuestionListProps) {
   const [questions, setQuestions] = useState(initialQuestions);
+  const [localCollections, setLocalCollections] = useState(initialCollections);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -61,7 +62,11 @@ export default function QuestionList({
   }
 
   function getCollectionSymbol(collectionId: string): string {
-    return collections.find((c) => c.collection_id === collectionId)?.collection_symbol ?? collectionId;
+    return localCollections.find((c) => c.collection_id === collectionId)?.collection_symbol ?? collectionId;
+  }
+
+  function handleCollectionCreated(created: AdminCollection) {
+    setLocalCollections((prev) => [...prev, created]);
   }
 
   const filteredQuestions = collectionFilter
@@ -90,7 +95,7 @@ export default function QuestionList({
       {/* Filter */}
       <div style={{ marginBottom: '1rem' }}>
         <CollectionSelector
-          collections={collections}
+          collections={localCollections}
           selectedId={collectionFilter}
           onChange={setCollectionFilter}
           label="Filter by collection"
@@ -100,7 +105,7 @@ export default function QuestionList({
       {/* Create form */}
       {showCreate && (
         <QuestionForm
-          collections={collections}
+          collections={localCollections}
           accessToken={accessToken}
           userOrgId={userOrgId}
           onSave={() => {
@@ -108,6 +113,7 @@ export default function QuestionList({
             fetchQuestions();
           }}
           onCancel={() => setShowCreate(false)}
+          onCollectionCreated={handleCollectionCreated}
         />
       )}
 
@@ -144,7 +150,7 @@ export default function QuestionList({
                       <td colSpan={5}>
                         <QuestionForm
                           question={q}
-                          collections={collections}
+                          collections={localCollections}
                           accessToken={accessToken}
                           userOrgId={userOrgId}
                           onSave={() => {
@@ -152,6 +158,7 @@ export default function QuestionList({
                             fetchQuestions();
                           }}
                           onCancel={() => setEditingId(null)}
+                          onCollectionCreated={handleCollectionCreated}
                         />
                       </td>
                     </tr>
