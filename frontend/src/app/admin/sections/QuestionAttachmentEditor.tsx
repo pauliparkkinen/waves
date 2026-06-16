@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { AdminQuestion, AdminCollection, SectionQuestion } from '@/lib/api';
 
 type QuestionAttachmentEditorProps = {
@@ -39,6 +39,8 @@ export default function QuestionAttachmentEditor({
     return map;
   }, [availableQuestions]);
 
+  const [selectedAddSymbol, setSelectedAddSymbol] = useState('');
+
   const sortedCollections = useMemo(
     () =>
       [...collections].sort((a, b) =>
@@ -47,9 +49,8 @@ export default function QuestionAttachmentEditor({
     [collections],
   );
 
-  function handleAdd(e: React.ChangeEvent<HTMLSelectElement>) {
-    const selectedSymbol = e.target.value;
-    if (!selectedSymbol) return;
+  function handleAddButton() {
+    if (!selectedAddSymbol) return;
 
     const maxOrder = sectionQuestions.reduce(
       (max, sq) => Math.max(max, sq.order_number),
@@ -57,30 +58,21 @@ export default function QuestionAttachmentEditor({
     );
 
     const selectedQuestion = questions.find(
-      (q) => q.question_symbol === selectedSymbol,
+      (q) => q.question_symbol === selectedAddSymbol,
     );
     const newQuestion: SectionQuestion = {
-      question_symbol: selectedSymbol,
+      question_symbol: selectedAddSymbol,
       version_number: selectedQuestion?.version ?? 1,
       order_number: maxOrder + 1,
       required: false,
     };
 
     onChange([...sectionQuestions, newQuestion]);
+    setSelectedAddSymbol('');
   }
 
   function handleRemove(symbol: string) {
     onChange(sectionQuestions.filter((sq) => sq.question_symbol !== symbol));
-  }
-
-  function handleOrderChange(symbol: string, value: string) {
-    const num = parseInt(value, 10);
-    if (isNaN(num) || num < 0) return;
-    onChange(
-      sectionQuestions.map((sq) =>
-        sq.question_symbol === symbol ? { ...sq, order_number: num } : sq,
-      ),
-    );
   }
 
   function handleRequiredToggle(symbol: string) {
@@ -166,14 +158,6 @@ export default function QuestionAttachmentEditor({
           </div>
 
           <div className="question-attachment-fields">
-            <input
-              type="number"
-              className="question-attachment-order"
-              value={sq.order_number}
-              min={0}
-              onChange={(e) => handleOrderChange(sq.question_symbol, e.target.value)}
-              aria-label={`Order for ${sq.question_symbol}`}
-            />
             <span className="question-attachment-symbol">
               {sq.question_symbol}
             </span>
@@ -201,8 +185,8 @@ export default function QuestionAttachmentEditor({
       {availableQuestions.length > 0 && (
         <div className="question-attachment-add">
           <select
-            defaultValue=""
-            onChange={handleAdd}
+            value={selectedAddSymbol}
+            onChange={(e) => setSelectedAddSymbol(e.target.value)}
             aria-label="Add question"
           >
             <option value="" disabled>
@@ -225,8 +209,8 @@ export default function QuestionAttachmentEditor({
           <button
             type="button"
             className="btn-primary btn-small"
-            disabled
-            title="Select a question from the dropdown first"
+            disabled={!selectedAddSymbol}
+            onClick={handleAddButton}
           >
             Add
           </button>

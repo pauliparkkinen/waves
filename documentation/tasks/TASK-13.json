@@ -2,9 +2,9 @@
   "id": "TASK-13",
   "title": "Frontend: Section Editor Component",
   "description": "Build section editor component. Title and description fields. Question attachment with selection list ordered by collections then alphabetically by question symbol. Drag-and-drop reordering of questions. Visibility condition selector with formula editor link. Draft/publish toggle. Translation editor integration.",
-  "status": "Draft",
+  "status": "Ready-to-review",
   "creationDate": "2026-06-11T12:53:15.656Z",
-  "updateDate": "2026-06-11T12:53:55.416Z",
+  "updateDate": "2026-06-16T15:57:46.644Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -12,6 +12,20 @@
       "changedBy": "unknown",
       "changedAt": "2026-06-11T12:53:15.656Z",
       "comment": "Initial creation"
+    },
+    {
+      "fromStatus": "Draft",
+      "toStatus": "Plan-ready",
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-16T15:47:34.486Z",
+      "comment": "Implementation plan created for Section Editor component"
+    },
+    {
+      "fromStatus": "Plan-ready",
+      "toStatus": "Ready-to-review",
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-16T15:57:46.644Z",
+      "comment": "Implementation complete and pushed to TASK-13-section-editor branch"
     }
   ],
   "changeHistory": [

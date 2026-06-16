@@ -117,7 +117,7 @@ describe('QuestionAttachmentEditor', () => {
   });
 
   describe('given questions attached', () => {
-    it('when rendered, then shows rows with symbol, order, required', () => {
+    it('when rendered, then shows rows with symbol and required', () => {
       const sqs: SectionQuestion[] = [
         { question_symbol: 'annual_revenue', version_number: 1, order_number: 0, required: true },
         { question_symbol: 'diagnosis', version_number: 1, order_number: 1, required: false },
@@ -178,28 +178,6 @@ describe('QuestionAttachmentEditor', () => {
       fireEvent.click(checkbox);
       expect(onChange).toHaveBeenCalledWith([
         { question_symbol: 'annual_revenue', version_number: 1, order_number: 0, required: false },
-      ]);
-    });
-  });
-
-  describe('given questions attached', () => {
-    it('when order number is changed, then calls onChange with updated order', () => {
-      const sqs: SectionQuestion[] = [
-        { question_symbol: 'annual_revenue', version_number: 1, order_number: 0, required: true },
-      ];
-      const onChange = vi.fn();
-      render(
-        <QuestionAttachmentEditor
-          questions={mockQuestions}
-          collections={mockCollections}
-          sectionQuestions={sqs}
-          onChange={onChange}
-        />,
-      );
-      const orderInput = screen.getByLabelText('Order for annual_revenue');
-      fireEvent.change(orderInput, { target: { value: '5' } });
-      expect(onChange).toHaveBeenCalledWith([
-        { question_symbol: 'annual_revenue', version_number: 1, order_number: 5, required: true },
       ]);
     });
   });
@@ -277,7 +255,7 @@ describe('QuestionAttachmentEditor', () => {
   });
 
   describe('given available questions', () => {
-    it('when a question is selected from the add dropdown, then calls onChange with new question appended', () => {
+    it('when Add is clicked after selecting a question, then calls onChange with new question appended', () => {
       const sqs: SectionQuestion[] = [];
       const onChange = vi.fn();
       render(
@@ -290,6 +268,8 @@ describe('QuestionAttachmentEditor', () => {
       );
       const select = screen.getByLabelText('Add question');
       fireEvent.change(select, { target: { value: 'annual_revenue' } });
+      expect(onChange).not.toHaveBeenCalled();
+      fireEvent.click(screen.getByRole('button', { name: 'Add' }));
       expect(onChange).toHaveBeenCalledWith([
         {
           question_symbol: 'annual_revenue',
@@ -359,7 +339,7 @@ describe('SectionForm', () => {
   });
 
   describe('given valid input on create', () => {
-    it('when submitted, then calls POST /api/admin/sections', async () => {
+    it('when submitted, then calls POST /api/admin/sections with status draft', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockSection),
@@ -389,7 +369,7 @@ describe('SectionForm', () => {
             headers: expect.objectContaining({
               'Content-Type': 'application/json',
             }),
-            body: expect.stringContaining('new_section'),
+            body: expect.stringContaining('"status":"draft"'),
           }),
         );
       });
@@ -429,27 +409,6 @@ describe('SectionForm', () => {
           }),
         );
       });
-    });
-  });
-
-  describe('given status toggle', () => {
-    it('when Published radio is clicked, then status switches', () => {
-      render(
-        <SectionForm
-          collections={mockCollections}
-          questions={mockQuestions}
-          accessToken="test-token"
-          onSave={vi.fn()}
-          onCancel={vi.fn()}
-        />,
-      );
-      const draftRadio = screen.getByLabelText('Draft') as HTMLInputElement;
-      const publishedRadio = screen.getByLabelText('Published') as HTMLInputElement;
-      expect(draftRadio.checked).toBe(true);
-      expect(publishedRadio.checked).toBe(false);
-      fireEvent.click(publishedRadio);
-      expect(draftRadio.checked).toBe(false);
-      expect(publishedRadio.checked).toBe(true);
     });
   });
 
@@ -734,6 +693,140 @@ describe('SectionList', () => {
       fireEvent.click(cancelButton);
       expect(
         screen.queryByText('Confirm Delete'),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('given a draft section', () => {
+    it('when Publish button clicked, then shows publish confirmation modal', () => {
+      render(
+        <SectionList
+          initialSections={mockSections}
+          collections={mockCollections}
+          questions={mockQuestions}
+          accessToken="test-token"
+        />,
+      );
+      const publishButton = screen.getByRole('button', {
+        name: /Publish financial_section/i,
+      });
+      fireEvent.click(publishButton);
+      expect(screen.getByText('Confirm Publish')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Are you sure you want to publish this section? It will be visible to users.',
+        ),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('given a published section', () => {
+    it('when Unpublish button clicked, then shows unpublish confirmation modal', () => {
+      render(
+        <SectionList
+          initialSections={mockSections}
+          collections={mockCollections}
+          questions={mockQuestions}
+          accessToken="test-token"
+        />,
+      );
+      const unpublishButton = screen.getByRole('button', {
+        name: /Unpublish clinical_section/i,
+      });
+      fireEvent.click(unpublishButton);
+      expect(screen.getByText('Confirm Unpublish')).toBeInTheDocument();
+      expect(
+        screen.getByText('Are you sure you want to unpublish this section?'),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('given publish modal open', () => {
+    it('when Confirm is clicked, then calls PUT with status published', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true });
+
+      render(
+        <SectionList
+          initialSections={mockSections}
+          collections={mockCollections}
+          questions={mockQuestions}
+          accessToken="test-token"
+        />,
+      );
+
+      const publishButton = screen.getByRole('button', {
+        name: /Publish financial_section/i,
+      });
+      fireEvent.click(publishButton);
+
+      const confirmButton = screen.getByRole('button', { name: 'Publish' });
+      fireEvent.click(confirmButton);
+
+      await waitFor(() => {
+        expect(mockFetch).toHaveBeenCalledWith(
+          '/api/admin/sections/sec-1',
+          expect.objectContaining({
+            method: 'PUT',
+            body: expect.stringContaining('"published"'),
+          }),
+        );
+      });
+    });
+  });
+
+  describe('given unpublish modal open', () => {
+    it('when Confirm is clicked, then calls PUT with status draft', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true });
+
+      render(
+        <SectionList
+          initialSections={mockSections}
+          collections={mockCollections}
+          questions={mockQuestions}
+          accessToken="test-token"
+        />,
+      );
+
+      const unpublishButton = screen.getByRole('button', {
+        name: /Unpublish clinical_section/i,
+      });
+      fireEvent.click(unpublishButton);
+
+      const confirmButton = screen.getByRole('button', { name: 'Unpublish' });
+      fireEvent.click(confirmButton);
+
+      await waitFor(() => {
+        expect(mockFetch).toHaveBeenCalledWith(
+          '/api/admin/sections/sec-2',
+          expect.objectContaining({
+            method: 'PUT',
+            body: expect.stringContaining('"draft"'),
+          }),
+        );
+      });
+    });
+  });
+
+  describe('given publish modal open', () => {
+    it('when Cancel is clicked, then hides modal', () => {
+      render(
+        <SectionList
+          initialSections={mockSections}
+          collections={mockCollections}
+          questions={mockQuestions}
+          accessToken="test-token"
+        />,
+      );
+
+      const publishButton = screen.getByRole('button', {
+        name: /Publish financial_section/i,
+      });
+      fireEvent.click(publishButton);
+
+      const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+      fireEvent.click(cancelButton);
+      expect(
+        screen.queryByText('Confirm Publish'),
       ).not.toBeInTheDocument();
     });
   });

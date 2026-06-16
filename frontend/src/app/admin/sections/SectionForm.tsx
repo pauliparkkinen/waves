@@ -23,9 +23,6 @@ export default function SectionForm({
 }: SectionFormProps) {
   const isEdit = !!section;
   const [symbol, setSymbol] = useState(section?.section_symbol ?? '');
-  const [status, setStatus] = useState<'draft' | 'published'>(
-    section?.status ?? 'draft',
-  );
   const [conditionFormulaId, setConditionFormulaId] = useState<
     string | undefined
   >(section?.condition_formula_id);
@@ -64,7 +61,7 @@ export default function SectionForm({
       const body: Record<string, unknown> = {
         section_symbol: symbol.trim(),
         version: section?.version ?? 1,
-        status,
+        ...(isEdit ? {} : { status: 'draft' as const }),
         condition_formula_id: conditionFormulaId,
         section_questions: sectionQuestions,
         translations: section?.translations ?? [],
@@ -126,32 +123,6 @@ export default function SectionForm({
             {fieldErrors.symbol}
           </p>
         )}
-      </div>
-
-      <div className="form-group">
-        <label>Status</label>
-        <div className="draft-publish-toggle">
-          <label>
-            <input
-              type="radio"
-              name="section-status"
-              value="draft"
-              checked={status === 'draft'}
-              onChange={() => setStatus('draft')}
-            />
-            Draft
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="section-status"
-              value="published"
-              checked={status === 'published'}
-              onChange={() => setStatus('published')}
-            />
-            Published
-          </label>
-        </div>
       </div>
 
       <div className="form-group">

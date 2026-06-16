@@ -23,6 +23,8 @@ export default function SectionList({
   const [showCreate, setShowCreate] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [publishingId, setPublishingId] = useState<string | null>(null);
+  const [publishError, setPublishError] = useState<string | null>(null);
 
   const fetchSections = useCallback(async () => {
     setLoading(true);
@@ -41,6 +43,31 @@ export default function SectionList({
       setLoading(false);
     }
   }, [accessToken]);
+
+  async function handlePublish(section: AdminSection) {
+    const newStatus = section.status === 'draft' ? 'published' : 'draft';
+    setError(null);
+    setPublishError(null);
+    try {
+      const res = await fetch(`/api/admin/sections/${section.section_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ status: newStatus }),
+        cache: 'no-store',
+      });
+      if (!res.ok) throw new Error(`Failed to update section (${res.status})`);
+      setPublishingId(null);
+      await fetchSections();
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : 'Failed to update section';
+      setError(msg);
+      setPublishError(msg);
+    }
+  }
 
   async function handleDelete(id: string) {
     setError(null);
@@ -61,9 +88,9 @@ export default function SectionList({
   return (
     <div>
       {/* Error banner */}
-      {error && (
+      {(error || publishError) && (
         <div className="error-message" role="alert" style={{ marginBottom: '1rem' }}>
-          {error}
+          {error || publishError}
         </div>
       )}
 
@@ -157,6 +184,23 @@ export default function SectionList({
                     <td>{sec.version}</td>
                     <td>
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        {sec.status === 'draft' ? (
+                          <button
+                            className="btn-primary btn-small"
+                            onClick={() => setPublishingId(sec.section_id)}
+                            aria-label={`Publish ${sec.section_symbol}`}
+                          >
+                            Publish
+                          </button>
+                        ) : (
+                          <button
+                            className="btn-secondary btn-small"
+                            onClick={() => setPublishingId(sec.section_id)}
+                            aria-label={`Unpublish ${sec.section_symbol}`}
+                          >
+                            Unpublish
+                          </button>
+                        )}
                         <button
                           className="btn-secondary btn-small"
                           onClick={() => setEditingId(sec.section_id)}
@@ -213,6 +257,60 @@ export default function SectionList({
                 onClick={() => handleDelete(deletingId)}
               >
                 Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Publish confirmation modal */}
+      {publishingId && (
+        <div
+          className="modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="publish-heading"
+          onClick={() => setPublishingId(null)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setPublishingId(null);
+          }}
+          tabIndex={-1}
+        >
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3 id="publish-heading">
+              {sections.find((s) => s.section_id === publishingId)?.status === 'draft'
+                ? 'Confirm Publish'
+                : 'Confirm Unpublish'}
+            </h3>
+            <p>
+              {sections.find((s) => s.section_id === publishingId)?.status === 'draft'
+                ? 'Are you sure you want to publish this section? It will be visible to users.'
+                : 'Are you sure you want to unpublish this section?'}
+            </p>
+            <div className="modal-actions">
+              <button
+                className="btn-secondary"
+                onClick={() => setPublishingId(null)}
+                autoFocus
+              >
+                Cancel
+              </button>
+              <button
+                className={
+                  sections.find((s) => s.section_id === publishingId)?.status === 'draft'
+                    ? 'btn-primary'
+                    : 'btn-secondary'
+                }
+                onClick={() => {
+                  const section = sections.find(
+                    (s) => s.section_id === publishingId,
+                  );
+                  if (section) handlePublish(section);
+                }}
+              >
+                {sections.find((s) => s.section_id === publishingId)?.status === 'draft'
+                  ? 'Publish'
+                  : 'Unpublish'}
               </button>
             </div>
           </div>
