@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { AdminSection, AdminCollection, AdminQuestion, SectionQuestion } from '@/lib/api';
 import QuestionAttachmentEditor from './QuestionAttachmentEditor';
 import CollectionSelector from '../collections/CollectionSelector';
+import InlineCollectionCreator from '../questions/InlineCollectionCreator';
 
 type SectionFormProps = {
   section?: AdminSection;
@@ -25,6 +26,8 @@ export default function SectionForm({
   onCancel,
 }: SectionFormProps) {
   const [localQuestions, setLocalQuestions] = useState(questions);
+  const [localCollections, setLocalCollections] = useState(collections);
+  const [showInlineCreator, setShowInlineCreator] = useState(false);
   const isEdit = !!section;
   const [symbol, setSymbol] = useState(section?.section_symbol ?? '');
   const [collectionId, setCollectionId] = useState<string | undefined>(
@@ -58,6 +61,12 @@ export default function SectionForm({
     }
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
+  }
+
+  function handleCollectionCreated(created: AdminCollection) {
+    setLocalCollections((prev) => [...prev, created]);
+    setCollectionId(created.collection_id);
+    setShowInlineCreator(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -140,10 +149,17 @@ export default function SectionForm({
         <label>Collection</label>
         <div className="collection-selector-row">
           <CollectionSelector
-            collections={collections}
+            collections={localCollections}
             selectedId={collectionId}
             onChange={setCollectionId}
           />
+          <button
+            type="button"
+            className="btn-secondary btn-small btn-new-collection"
+            onClick={() => setShowInlineCreator(true)}
+          >
+            + New Collection
+          </button>
         </div>
         {fieldErrors.collectionId && (
           <p className="inline-error" role="alert">{fieldErrors.collectionId}</p>
@@ -206,6 +222,15 @@ export default function SectionForm({
           {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
         </button>
       </div>
+
+      {showInlineCreator && (
+        <InlineCollectionCreator
+          accessToken={accessToken}
+          userOrgId={userOrgId}
+          onCreated={handleCollectionCreated}
+          onCancel={() => setShowInlineCreator(false)}
+        />
+      )}
     </form>
   );
 }
