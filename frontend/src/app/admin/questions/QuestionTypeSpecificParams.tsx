@@ -71,15 +71,28 @@ export default function QuestionTypeSpecificParams({
             />
           </div>
           <div className="form-group">
-            <label htmlFor="param-placeholder">Placeholder</label>
-            <input
-              id="param-placeholder"
-              type="text"
-              className="collection-selector"
-              value={(parameters.placeholder as string | undefined) ?? ''}
-              onChange={(e) => updateParam('placeholder', e.target.value)}
-              placeholder="Placeholder text"
-            />
+            <div className="translation-ref-header">
+              <label htmlFor="param-placeholder">Placeholder</label>
+              <span className="translation-ref-badge">translation ref</span>
+            </div>
+            <div className="translation-ref-field">
+              <input
+                id="param-placeholder"
+                type="text"
+                className="collection-selector"
+                value={(parameters.placeholder as string | undefined) ?? ''}
+                onChange={(e) => updateParam('placeholder', e.target.value)}
+                placeholder="translation_symbol"
+              />
+              <button
+                type="button"
+                className="btn-secondary btn-small btn-translate"
+                disabled
+                title="Coming soon"
+              >
+                Add Translation
+              </button>
+            </div>
           </div>
           <div className="form-group">
             <label>
@@ -136,26 +149,52 @@ export default function QuestionTypeSpecificParams({
             />
           </div>
           <div className="form-group">
-            <label htmlFor="param-min-label">Minimum label</label>
-            <input
-              id="param-min-label"
-              type="text"
-              className="collection-selector"
-              value={(parameters.min_label as string | undefined) ?? ''}
-              onChange={(e) => updateParam('min_label', e.target.value)}
-              placeholder="Minimum label"
-            />
+            <div className="translation-ref-header">
+              <label htmlFor="param-min-label">Minimum label</label>
+              <span className="translation-ref-badge">translation ref</span>
+            </div>
+            <div className="translation-ref-field">
+              <input
+                id="param-min-label"
+                type="text"
+                className="collection-selector"
+                value={(parameters.min_label as string | undefined) ?? ''}
+                onChange={(e) => updateParam('min_label', e.target.value)}
+                placeholder="translation_symbol"
+              />
+              <button
+                type="button"
+                className="btn-secondary btn-small btn-translate"
+                disabled
+                title="Coming soon"
+              >
+                Add Translation
+              </button>
+            </div>
           </div>
           <div className="form-group">
-            <label htmlFor="param-max-label">Maximum label</label>
-            <input
-              id="param-max-label"
-              type="text"
-              className="collection-selector"
-              value={(parameters.max_label as string | undefined) ?? ''}
-              onChange={(e) => updateParam('max_label', e.target.value)}
-              placeholder="Maximum label"
-            />
+            <div className="translation-ref-header">
+              <label htmlFor="param-max-label">Maximum label</label>
+              <span className="translation-ref-badge">translation ref</span>
+            </div>
+            <div className="translation-ref-field">
+              <input
+                id="param-max-label"
+                type="text"
+                className="collection-selector"
+                value={(parameters.max_label as string | undefined) ?? ''}
+                onChange={(e) => updateParam('max_label', e.target.value)}
+                placeholder="translation_symbol"
+              />
+              <button
+                type="button"
+                className="btn-secondary btn-small btn-translate"
+                disabled
+                title="Coming soon"
+              >
+                Add Translation
+              </button>
+            </div>
           </div>
         </div>
       );

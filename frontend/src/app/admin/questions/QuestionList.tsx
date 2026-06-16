@@ -147,9 +147,9 @@ export default function QuestionList({
                 if (q.question_id === editingId) {
                   return (
                     <tr key={q.question_id}>
-                      <td colSpan={5}>
-                        <QuestionForm
-                          question={q}
+                       <td colSpan={5} className="edit-form-cell">
+                         <QuestionForm
+                           question={q}
                           collections={localCollections}
                           accessToken={accessToken}
                           userOrgId={userOrgId}

@@ -593,3 +593,75 @@ button {
 .inline-collection-creator-modal {
   min-height: 100px;
 }
+
+/* ── Edit Form in Table ──────────────────────────────────────────────────── */
+
+.edit-form-cell {
+  padding: 1.25rem !important;
+  background: #f0f4ff;
+  border-top: 3px solid #2563eb;
+  border-bottom: 3px solid #2563eb;
+}
+
+.edit-form-cell .collection-form {
+  margin-bottom: 0;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.edit-form-cell + tr td {
+  padding-top: 1rem;
+}
+
+/* ── Translation Reference Fields ────────────────────────────────────────── */
+
+.translation-ref-field {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.translation-ref-field input {
+  flex: 1;
+}
+
+.translation-ref-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #6b7280;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  padding: 0.1rem 0.35rem;
+  margin-left: 0.25rem;
+  white-space: nowrap;
+}
+
+.translation-ref-badge.active {
+  color: #1d4ed8;
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+.btn-translate {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  white-space: nowrap;
+}
+
+.translation-ref-header {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.35rem;
+}
+
+.translation-ref-header .translation-ref-badge {
+  font-size: 0.65rem;
+}

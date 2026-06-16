@@ -82,7 +82,7 @@ describe('OptionsEditor', () => {
       const options = [{ label: 'Old', value: 'val', order_index: 0 }];
       const onChange = vi.fn();
       render(<OptionsEditor options={options} onChange={onChange} />);
-      const labelInput = screen.getByLabelText('Option 1 label');
+      const labelInput = screen.getByLabelText('Option 1 label (translation ref)');
       fireEvent.change(labelInput, { target: { value: 'New Label' } });
       expect(onChange).toHaveBeenCalledWith([{ label: 'New Label', value: 'val', order_index: 0 }]);
     });
