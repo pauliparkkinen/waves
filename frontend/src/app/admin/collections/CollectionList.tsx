@@ -86,28 +86,32 @@ export default function CollectionList({
 
       {/* Create form */}
       {showCreate && (
-        <CollectionForm
-          accessToken={accessToken}
-          userOrgId={userOrgId}
-          onSave={() => {
-            setShowCreate(false);
-            fetchCollections();
-          }}
-          onCancel={() => setShowCreate(false)}
-        />
+        <div className="inline-edit-container">
+          <CollectionForm
+            accessToken={accessToken}
+            userOrgId={userOrgId}
+            onSave={() => {
+              setShowCreate(false);
+              fetchCollections();
+            }}
+            onCancel={() => setShowCreate(false)}
+          />
+        </div>
       )}
 
       {/* Edit form */}
       {editingId && (
-        <CollectionForm
-          collection={collections.find((c) => c.collection_id === editingId)}
-          accessToken={accessToken}
-          onSave={() => {
-            setEditingId(null);
-            fetchCollections();
-          }}
-          onCancel={() => setEditingId(null)}
-        />
+        <div className="inline-edit-container">
+          <CollectionForm
+            collection={collections.find((c) => c.collection_id === editingId)}
+            accessToken={accessToken}
+            onSave={() => {
+              setEditingId(null);
+              fetchCollections();
+            }}
+            onCancel={() => setEditingId(null)}
+          />
+        </div>
       )}
 
       {/* Loading */}
