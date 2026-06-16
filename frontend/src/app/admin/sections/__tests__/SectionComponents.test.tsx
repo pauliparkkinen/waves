@@ -548,6 +548,25 @@ describe('SectionForm', () => {
       });
     });
   });
+
+  describe('given readOnly mode', () => {
+    it('when rendered, then shows View Section heading and Close button', () => {
+      render(
+        <SectionForm
+          section={mockSection}
+          collections={mockCollections}
+          questions={mockQuestions}
+          accessToken="test-token"
+          readOnly={true}
+          onSave={vi.fn()}
+          onCancel={vi.fn()}
+        />,
+      );
+      expect(screen.getByText('View Section: test_section')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /Update|Cancel/ })).not.toBeInTheDocument();
+    });
+  });
 });
 
 // ── SectionList tests ────────────────────────────────────────────────────────
@@ -763,27 +782,6 @@ describe('SectionList', () => {
     });
   });
 
-  describe('given a published section', () => {
-    it('when Unpublish button clicked, then shows unpublish confirmation modal', () => {
-      render(
-        <SectionList
-          initialSections={mockSections}
-          collections={mockCollections}
-          questions={mockQuestions}
-          accessToken="test-token"
-        />,
-      );
-      const unpublishButton = screen.getByRole('button', {
-        name: /Unpublish clinical_section/i,
-      });
-      fireEvent.click(unpublishButton);
-      expect(screen.getByText('Confirm Unpublish')).toBeInTheDocument();
-      expect(
-        screen.getByText('Are you sure you want to unpublish this section?'),
-      ).toBeInTheDocument();
-    });
-  });
-
   describe('given publish modal open', () => {
     it('when Confirm is clicked, then calls PUT with status published', async () => {
       mockFetch.mockResolvedValueOnce({ ok: true });
@@ -811,39 +809,6 @@ describe('SectionList', () => {
           expect.objectContaining({
             method: 'PUT',
             body: expect.stringContaining('"published"'),
-          }),
-        );
-      });
-    });
-  });
-
-  describe('given unpublish modal open', () => {
-    it('when Confirm is clicked, then calls PUT with status draft', async () => {
-      mockFetch.mockResolvedValueOnce({ ok: true });
-
-      render(
-        <SectionList
-          initialSections={mockSections}
-          collections={mockCollections}
-          questions={mockQuestions}
-          accessToken="test-token"
-        />,
-      );
-
-      const unpublishButton = screen.getByRole('button', {
-        name: /Unpublish clinical_section/i,
-      });
-      fireEvent.click(unpublishButton);
-
-      const confirmButton = screen.getByRole('button', { name: 'Unpublish' });
-      fireEvent.click(confirmButton);
-
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledWith(
-          '/api/admin/sections/sec-2',
-          expect.objectContaining({
-            method: 'PUT',
-            body: expect.stringContaining('"draft"'),
           }),
         );
       });
@@ -932,6 +897,54 @@ describe('SectionList', () => {
       expect(
         screen.getByText(/No sections yet/),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('given a published section', () => {
+    it('when View is clicked, then shows read-only form', () => {
+      render(
+        <SectionList
+          initialSections={mockSections}
+          collections={mockCollections}
+          questions={mockQuestions}
+          accessToken="test-token"
+        />,
+      );
+      const viewButton = screen.getByRole('button', { name: /View clinical_section/i });
+      fireEvent.click(viewButton);
+      expect(screen.getByText(/clinical_section/)).toBeInTheDocument();
+    });
+  });
+
+  describe('given a published section', () => {
+    it('when New Version is clicked, then shows confirmation modal', () => {
+      render(
+        <SectionList
+          initialSections={mockSections}
+          collections={mockCollections}
+          questions={mockQuestions}
+          accessToken="test-token"
+        />,
+      );
+      const newVersionButton = screen.getByRole('button', { name: /New version of clinical_section/i });
+      fireEvent.click(newVersionButton);
+      expect(screen.getByRole('heading', { name: 'Create New Version' })).toBeInTheDocument();
+    });
+  });
+
+  describe('given sections', () => {
+    it('when version number is clicked, then shows version details popup', () => {
+      render(
+        <SectionList
+          initialSections={mockSections}
+          collections={mockCollections}
+          questions={mockQuestions}
+          accessToken="test-token"
+        />,
+      );
+      const versionButtons = screen.getAllByRole('button', { name: /View version details/i });
+      fireEvent.click(versionButtons[0]);
+      expect(screen.getByText('Version Details')).toBeInTheDocument();
     });
   });
 });

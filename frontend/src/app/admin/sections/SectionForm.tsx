@@ -12,6 +12,7 @@ type SectionFormProps = {
   questions: AdminQuestion[];
   accessToken: string;
   userOrgId?: string;
+  readOnly?: boolean;
   onSave: () => void;
   onCancel: () => void;
 };
@@ -22,6 +23,7 @@ export default function SectionForm({
   questions,
   accessToken,
   userOrgId,
+  readOnly,
   onSave,
   onCancel,
 }: SectionFormProps) {
@@ -29,6 +31,7 @@ export default function SectionForm({
   const [localCollections, setLocalCollections] = useState(collections);
   const [showInlineCreator, setShowInlineCreator] = useState(false);
   const isEdit = !!section;
+  const isReadOnly = readOnly === true;
   const [symbol, setSymbol] = useState(section?.section_symbol ?? '');
   const [collectionId, setCollectionId] = useState<string | undefined>(
     section?.collection_id,
@@ -71,6 +74,7 @@ export default function SectionForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isReadOnly) return;
     if (!validate()) return;
 
     setSaving(true);
@@ -117,7 +121,7 @@ export default function SectionForm({
 
   return (
     <form className="collection-form" onSubmit={handleSubmit} noValidate>
-      <h3>{isEdit ? 'Edit Section' : 'Create Section'}</h3>
+      <h3>{isReadOnly ? `View Section: ${section?.section_symbol ?? ''}` : isEdit ? 'Edit Section' : 'Create Section'}</h3>
 
       {error && (
         <div className="error-message" role="alert">
@@ -135,6 +139,7 @@ export default function SectionForm({
           placeholder="e.g. financial_info"
           maxLength={100}
           pattern="[a-zA-Z0-9_]+"
+          disabled={isReadOnly}
           aria-invalid={!!fieldErrors.symbol}
           aria-describedby={fieldErrors.symbol ? 'symbol-error' : undefined}
         />
@@ -152,14 +157,17 @@ export default function SectionForm({
             collections={localCollections}
             selectedId={collectionId}
             onChange={setCollectionId}
+            disabled={isReadOnly}
           />
-          <button
-            type="button"
-            className="btn-secondary btn-small btn-new-collection"
-            onClick={() => setShowInlineCreator(true)}
-          >
-            + New Collection
-          </button>
+          {!isReadOnly && (
+            <button
+              type="button"
+              className="btn-secondary btn-small btn-new-collection"
+              onClick={() => setShowInlineCreator(true)}
+            >
+              + New Collection
+            </button>
+          )}
         </div>
         {fieldErrors.collectionId && (
           <p className="inline-error" role="alert">{fieldErrors.collectionId}</p>
@@ -173,6 +181,7 @@ export default function SectionForm({
           className="collection-selector"
           value={conditionFormulaId ?? ''}
           onChange={(e) => setConditionFormulaId(e.target.value || undefined)}
+          disabled={isReadOnly}
         >
           <option value="">-- None --</option>
           <option value="placeholder-1" disabled>
@@ -195,33 +204,48 @@ export default function SectionForm({
           onQuestionCreated={(newQ) => {
             setLocalQuestions((prev) => [...prev, newQ]);
           }}
+          readOnly={isReadOnly}
         />
       </div>
 
-      <div className="form-group">
-        <button
-          type="button"
-          className="btn-secondary btn-small"
-          disabled
-          title="Coming soon"
-        >
-          Translations
-        </button>
-      </div>
+      {!isReadOnly && (
+        <div className="form-group">
+          <button
+            type="button"
+            className="btn-secondary btn-small"
+            disabled
+            title="Coming soon"
+          >
+            Translations
+          </button>
+        </div>
+      )}
 
-      <div className="form-actions">
-        <button
-          type="button"
-          className="btn-secondary"
-          onClick={onCancel}
-          disabled={saving}
-        >
-          Cancel
-        </button>
-        <button type="submit" className="btn-primary" disabled={saving}>
-          {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
-        </button>
-      </div>
+      {isReadOnly ? (
+        <div className="form-actions">
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={onCancel}
+          >
+            Close
+          </button>
+        </div>
+      ) : (
+        <div className="form-actions">
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={onCancel}
+            disabled={saving}
+          >
+            Cancel
+          </button>
+          <button type="submit" className="btn-primary" disabled={saving}>
+            {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+          </button>
+        </div>
+      )}
 
       {showInlineCreator && (
         <InlineCollectionCreator

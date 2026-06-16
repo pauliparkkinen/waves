@@ -12,6 +12,7 @@ type QuestionAttachmentEditorProps = {
   userOrgId?: string;
   accessToken?: string;
   onQuestionCreated?: (question: AdminQuestion) => void;
+  readOnly?: boolean;
 };
 
 export default function QuestionAttachmentEditor({
@@ -22,6 +23,7 @@ export default function QuestionAttachmentEditor({
   userOrgId,
   accessToken,
   onQuestionCreated,
+  readOnly,
 }: QuestionAttachmentEditorProps) {
   const [showQuestionCreator, setShowQuestionCreator] = useState(false);
   const attachedSymbols = useMemo(
@@ -148,53 +150,53 @@ export default function QuestionAttachmentEditor({
 
       {sortedQuestions.map((sq, index) => (
         <div key={sq.question_symbol} className="question-attachment-row">
-          <div className="question-attachment-reorder">
-            <button
-              type="button"
-              className="btn-secondary btn-small"
-              disabled={index === 0}
-              onClick={() => handleMoveUp(index)}
-              aria-label={`Move ${sq.question_symbol} up`}
-            >
-              ▲
-            </button>
-            <button
-              type="button"
-              className="btn-secondary btn-small"
-              disabled={index === sortedQuestions.length - 1}
-              onClick={() => handleMoveDown(index)}
-              aria-label={`Move ${sq.question_symbol} down`}
-            >
-              ▼
-            </button>
-          </div>
-
-          <div className="question-attachment-fields">
-            <span className="question-attachment-symbol">
-              {sq.question_symbol}
-            </span>
-            <label className="question-attachment-required">
-              <input
-                type="checkbox"
-                checked={sq.required}
-                onChange={() => handleRequiredToggle(sq.question_symbol)}
-              />
-              Required
-            </label>
-          </div>
-
-          <button
-            type="button"
-            className="btn-danger btn-small"
-            onClick={() => handleRemove(sq.question_symbol)}
-            aria-label={`Remove ${sq.question_symbol}`}
-          >
-            Remove
-          </button>
+          <span className="question-attachment-symbol">
+            {sq.question_symbol}
+          </span>
+          {!readOnly && (
+            <>
+              <div className="question-attachment-reorder">
+                <button
+                  type="button"
+                  className="btn-secondary btn-small"
+                  disabled={index === 0}
+                  onClick={() => handleMoveUp(index)}
+                  aria-label={`Move ${sq.question_symbol} up`}
+                >
+                  ▲
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary btn-small"
+                  disabled={index === sortedQuestions.length - 1}
+                  onClick={() => handleMoveDown(index)}
+                  aria-label={`Move ${sq.question_symbol} down`}
+                >
+                  ▼
+                </button>
+              </div>
+              <label className="question-attachment-required">
+                <input
+                  type="checkbox"
+                  checked={sq.required}
+                  onChange={() => handleRequiredToggle(sq.question_symbol)}
+                />
+                Required
+              </label>
+              <button
+                type="button"
+                className="btn-danger btn-small"
+                onClick={() => handleRemove(sq.question_symbol)}
+                aria-label={`Remove ${sq.question_symbol}`}
+              >
+                Remove
+              </button>
+            </>
+          )}
         </div>
       ))}
 
-      {availableQuestions.length > 0 && (
+      {!readOnly && availableQuestions.length > 0 && (
         <div className="question-attachment-add">
           <select
             value={selectedAddSymbol}
@@ -229,15 +231,17 @@ export default function QuestionAttachmentEditor({
         </div>
       )}
 
-      <div style={{ marginTop: '0.75rem' }}>
-        <button
-          type="button"
-          className="btn-secondary btn-small"
-          onClick={() => setShowQuestionCreator(true)}
-        >
-          + New Question
-        </button>
-      </div>
+      {!readOnly && (
+        <div style={{ marginTop: '0.75rem' }}>
+          <button
+            type="button"
+            className="btn-secondary btn-small"
+            onClick={() => setShowQuestionCreator(true)}
+          >
+            + New Question
+          </button>
+        </div>
+      )}
 
       {showQuestionCreator && (
         <InlineQuestionCreator

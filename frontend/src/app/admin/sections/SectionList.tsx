@@ -25,9 +25,12 @@ export default function SectionList({
   const [error, setError] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [publishError, setPublishError] = useState<string | null>(null);
+  const [versionPopupId, setVersionPopupId] = useState<string | null>(null);
+  const [newVersioningId, setNewVersioningId] = useState<string | null>(null);
   const [collectionFilter, setCollectionFilter] = useState<string | undefined>(undefined);
 
   const filteredSections = useMemo(() => {
@@ -54,7 +57,6 @@ export default function SectionList({
   }, [accessToken]);
 
   async function handlePublish(section: AdminSection) {
-    const newStatus = section.status === 'draft' ? 'published' : 'draft';
     setError(null);
     setPublishError(null);
     try {
@@ -64,7 +66,7 @@ export default function SectionList({
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ status: 'published' }),
         cache: 'no-store',
       });
       if (!res.ok) throw new Error(`Failed to update section (${res.status})`);
@@ -165,6 +167,24 @@ export default function SectionList({
             </thead>
             <tbody>
               {filteredSections.map((sec) => {
+                if (sec.section_id === viewingId) {
+                  return (
+                    <tr key={sec.section_id}>
+                      <td colSpan={5} className="inline-edit-container table-cell">
+                        <SectionForm
+                          section={sec}
+                          collections={collections}
+                          questions={questions}
+                          accessToken={accessToken}
+                          userOrgId={userOrgId}
+                          readOnly={true}
+                          onSave={() => {}}
+                          onCancel={() => setViewingId(null)}
+                        />
+                      </td>
+                    </tr>
+                  );
+                }
                 if (sec.section_id === editingId) {
                   return (
                     <tr key={sec.section_id}>
@@ -202,33 +222,52 @@ export default function SectionList({
                       </span>
                     </td>
                     <td>{sec.section_questions.length} questions</td>
-                    <td>{sec.version}</td>
+                    <td>
+                      <button
+                        className="btn-link-version"
+                        onClick={() => setVersionPopupId(sec.section_id)}
+                        aria-label={`View version details for ${sec.section_symbol}`}
+                      >
+                        {sec.version}
+                      </button>
+                    </td>
                     <td>
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
                         {sec.status === 'draft' ? (
-                          <button
-                            className="btn-primary btn-small"
-                            onClick={() => setPublishingId(sec.section_id)}
-                            aria-label={`Publish ${sec.section_symbol}`}
-                          >
-                            Publish
-                          </button>
+                          <>
+                            <button
+                              className="btn-primary btn-small"
+                              onClick={() => setPublishingId(sec.section_id)}
+                              aria-label={`Publish ${sec.section_symbol}`}
+                            >
+                              Publish
+                            </button>
+                            <button
+                              className="btn-secondary btn-small"
+                              onClick={() => setEditingId(sec.section_id)}
+                              aria-label={`Edit ${sec.section_symbol}`}
+                            >
+                              Edit
+                            </button>
+                          </>
                         ) : (
-                          <button
-                            className="btn-secondary btn-small"
-                            onClick={() => setPublishingId(sec.section_id)}
-                            aria-label={`Unpublish ${sec.section_symbol}`}
-                          >
-                            Unpublish
-                          </button>
+                          <>
+                            <button
+                              className="btn-secondary btn-small"
+                              onClick={() => setViewingId(sec.section_id)}
+                              aria-label={`View ${sec.section_symbol}`}
+                            >
+                              View
+                            </button>
+                            <button
+                              className="btn-primary btn-small"
+                              onClick={() => setNewVersioningId(sec.section_id)}
+                              aria-label={`New version of ${sec.section_symbol}`}
+                            >
+                              New Version
+                            </button>
+                          </>
                         )}
-                        <button
-                          className="btn-secondary btn-small"
-                          onClick={() => setEditingId(sec.section_id)}
-                          aria-label={`Edit ${sec.section_symbol}`}
-                        >
-                          Edit
-                        </button>
                         <button
                           className="btn-danger btn-small"
                           onClick={() => setDeletingId(sec.section_id)}
@@ -298,16 +337,8 @@ export default function SectionList({
           tabIndex={-1}
         >
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3 id="publish-heading">
-              {sections.find((s) => s.section_id === publishingId)?.status === 'draft'
-                ? 'Confirm Publish'
-                : 'Confirm Unpublish'}
-            </h3>
-            <p>
-              {sections.find((s) => s.section_id === publishingId)?.status === 'draft'
-                ? 'Are you sure you want to publish this section? It will be visible to users.'
-                : 'Are you sure you want to unpublish this section?'}
-            </p>
+            <h3 id="publish-heading">Confirm Publish</h3>
+            <p>Are you sure you want to publish this section? It will be visible to users.</p>
             <div className="modal-actions">
               <button
                 className="btn-secondary"
@@ -317,11 +348,7 @@ export default function SectionList({
                 Cancel
               </button>
               <button
-                className={
-                  sections.find((s) => s.section_id === publishingId)?.status === 'draft'
-                    ? 'btn-primary'
-                    : 'btn-secondary'
-                }
+                className="btn-primary"
                 onClick={() => {
                   const section = sections.find(
                     (s) => s.section_id === publishingId,
@@ -329,9 +356,96 @@ export default function SectionList({
                   if (section) handlePublish(section);
                 }}
               >
-                {sections.find((s) => s.section_id === publishingId)?.status === 'draft'
-                  ? 'Publish'
-                  : 'Unpublish'}
+                Publish
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Version details popup */}
+      {versionPopupId && (
+        <div
+          className="modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="version-heading"
+          onClick={() => setVersionPopupId(null)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setVersionPopupId(null);
+          }}
+          tabIndex={-1}
+        >
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3 id="version-heading">Version Details</h3>
+            {(() => {
+              const sec = sections.find(s => s.section_id === versionPopupId);
+              if (!sec) return null;
+              return (
+                <>
+                  <p><strong>Section:</strong> {sec.section_symbol}</p>
+                  <p><strong>Version:</strong> {sec.version}</p>
+                  <p><strong>Status:</strong> {sec.status}</p>
+                  <p><strong>Questions:</strong> {sec.section_questions.length}</p>
+                  <p><strong>Collection ID:</strong> {sec.collection_id}</p>
+                  <p><strong>Condition Formula:</strong> {sec.condition_formula_id ?? 'None'}</p>
+                  <div className="modal-actions">
+                    <button className="btn-secondary" onClick={() => setVersionPopupId(null)} autoFocus>Close</button>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+
+      {/* New Version confirmation modal */}
+      {newVersioningId && (
+        <div
+          className="modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="newversion-heading"
+          onClick={() => setNewVersioningId(null)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setNewVersioningId(null);
+          }}
+          tabIndex={-1}
+        >
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3 id="newversion-heading">Create New Version</h3>
+            <p>This will create a new draft version based on the current published section. The published version will remain unchanged.</p>
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => setNewVersioningId(null)} autoFocus>Cancel</button>
+              <button className="btn-primary" onClick={async () => {
+                const sec = sections.find(s => s.section_id === newVersioningId);
+                if (!sec) return;
+                try {
+                  const res = await fetch('/api/admin/sections', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({
+                      section_symbol: sec.section_symbol,
+                      collection_id: sec.collection_id,
+                      version: sec.version + 1,
+                      status: 'draft',
+                      condition_formula_id: sec.condition_formula_id,
+                      section_questions: sec.section_questions,
+                      translations: sec.translations,
+                    }),
+                  });
+                  if (!res.ok) throw new Error(`Failed to create new version (${res.status})`);
+                  setNewVersioningId(null);
+                  await fetchSections();
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : 'Failed to create new version');
+                  setNewVersioningId(null);
+                }
+              }}>
+                Create New Version
               </button>
             </div>
           </div>

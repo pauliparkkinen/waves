@@ -8,6 +8,7 @@ type CollectionSelectorProps = {
   selectedId?: string;
   onChange: (collectionId: string | undefined) => void;
   label?: string;
+  disabled?: boolean;
 };
 
 export default function CollectionSelector({
@@ -15,6 +16,7 @@ export default function CollectionSelector({
   selectedId,
   onChange,
   label,
+  disabled,
 }: CollectionSelectorProps) {
   const id = useId();
 
@@ -26,6 +28,7 @@ export default function CollectionSelector({
         className="collection-selector"
         value={selectedId ?? ""}
         onChange={(e) => onChange(e.target.value || undefined)}
+        disabled={disabled}
       >
         <option value="">-- Unassigned --</option>
         {collections.map((col) => (

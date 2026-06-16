@@ -807,3 +807,16 @@ button {
   outline-offset: -1px;
   border-color: transparent;
 }
+
+.btn-link-version {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: inherit;
+  padding: 0;
+}
+.btn-link-version:hover {
+  color: #1d4ed8;
+}
