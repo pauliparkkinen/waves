@@ -64,6 +64,7 @@ export type SectionQuestion = {
 export type AdminSection = {
   section_id: string;
   section_symbol: string;
+  collection_id: string;
   condition_formula_id?: string;
   version: number;
   status: PublishStatus;

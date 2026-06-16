@@ -83,6 +83,10 @@ export function validateSectionInput(data: unknown): void {
     addError(errors, 'section_symbol', 'section_symbol is required and must be a non-empty string');
   }
 
+  if (!('collection_id' in data) || !isNonEmptyString(data.collection_id)) {
+    addError(errors, 'collection_id', 'collection_id is required and must be a non-empty string');
+  }
+
   if (!('version' in data) || typeof data.version !== 'number' || (data.version as number) < 1) {
     addError(errors, 'version', 'version is required and must be >= 1');
   }
@@ -120,6 +124,10 @@ export function validateSectionUpdateInput(data: unknown): void {
 
   if ('section_symbol' in data && !isNonEmptyString(data.section_symbol)) {
     addError(errors, 'section_symbol', 'section_symbol must be a non-empty string');
+  }
+
+  if ('collection_id' in data && !isNonEmptyString(data.collection_id)) {
+    addError(errors, 'collection_id', 'collection_id must be a non-empty string');
   }
 
   if ('version' in data) {
