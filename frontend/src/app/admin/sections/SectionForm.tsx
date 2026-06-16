@@ -187,7 +187,7 @@ export default function SectionForm({
       <div className="form-group">
         <QuestionAttachmentEditor
           questions={localQuestions}
-          collections={collections}
+          collections={localCollections}
           sectionQuestions={sectionQuestions}
           onChange={setSectionQuestions}
           userOrgId={userOrgId}
