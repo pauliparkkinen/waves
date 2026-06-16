@@ -76,8 +76,7 @@ export default function InlineQuestionCreator({
     return Object.keys(errors).length === 0;
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit() {
     if (!validate()) return;
     setSaving(true);
     setError(null);
@@ -134,7 +133,7 @@ export default function InlineQuestionCreator({
       tabIndex={-1}
     >
       <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '36rem' }}>
-        <form onSubmit={handleSubmit} noValidate>
+        <div>
           <h3 id="inline-question-heading">Create Question</h3>
 
           {error && <div className="error-message" role="alert">{error}</div>}
@@ -152,6 +151,7 @@ export default function InlineQuestionCreator({
               autoFocus
               aria-invalid={!!fieldErrors.symbol}
               aria-describedby={fieldErrors.symbol ? 'iq-symbol-error' : undefined}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSubmit(); } }}
             />
             {fieldErrors.symbol && (
               <p className="inline-error" id="iq-symbol-error" role="alert">{fieldErrors.symbol}</p>
@@ -196,11 +196,11 @@ export default function InlineQuestionCreator({
 
           <div className="modal-actions">
             <button type="button" className="btn-secondary" onClick={onCancel} disabled={saving}>Cancel</button>
-            <button type="submit" className="btn-primary" disabled={saving}>
+            <button type="button" className="btn-primary" onClick={handleSubmit} disabled={saving}>
               {saving ? 'Creating...' : 'Create'}
             </button>
           </div>
-        </form>
+        </div>
 
         {showInlineCreator && (
           <InlineCollectionCreator
