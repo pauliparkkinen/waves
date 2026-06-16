@@ -2,9 +2,9 @@
   "id": "TASK-12",
   "title": "Frontend: Question Editor Component",
   "description": "Build question editor component. Before type selection, show common parameters (symbol, collection selector, translations button). After type selection, show type-specific parameters. Question type selector with multi-select, select-one, free-text, range options. Visibility condition selector with link to formula editor popup. Options management for select-type questions. Translation editor integration.",
-  "status": "Ready-to-review",
+  "status": "Approved",
   "creationDate": "2026-06-11T12:53:14.645Z",
-  "updateDate": "2026-06-16T14:59:20.619Z",
+  "updateDate": "2026-06-16T15:36:54.689Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -26,6 +26,14 @@
       "changedBy": "developer",
       "changedAt": "2026-06-16T14:59:20.318Z",
       "comment": "Implementation complete. Question Editor component built with OptionsEditor, QuestionTypeSpecificParams, QuestionList, QuestionForm, InlineCollectionCreator. 98 tests passing. Code review findings addressed."
+    },
+    {
+      "fromStatus": "Ready-to-review",
+      "toStatus": "Approved",
+      "changedBy": "Pauli Parkkinen",
+      "changedAt": "2026-06-16T15:36:54.689Z",
+      "approvedBy": "Pauli Parkkinen",
+      "approvedAt": "2026-06-16T15:36:54.689Z"
     }
   ],
   "changeHistory": [
