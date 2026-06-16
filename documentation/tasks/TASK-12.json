@@ -2,9 +2,9 @@
   "id": "TASK-12",
   "title": "Frontend: Question Editor Component",
   "description": "Build question editor component. Before type selection, show common parameters (symbol, collection selector, translations button). After type selection, show type-specific parameters. Question type selector with multi-select, select-one, free-text, range options. Visibility condition selector with link to formula editor popup. Options management for select-type questions. Translation editor integration.",
-  "status": "Draft",
+  "status": "Ready-to-review",
   "creationDate": "2026-06-11T12:53:14.645Z",
-  "updateDate": "2026-06-11T12:53:54.974Z",
+  "updateDate": "2026-06-16T14:59:20.619Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -12,6 +12,36 @@
       "changedBy": "unknown",
       "changedAt": "2026-06-11T12:53:14.645Z",
       "comment": "Initial creation"
+    },
+    {
+      "fromStatus": "Draft",
+      "toStatus": "Plan-ready",
+      "changedBy": "planner-agent",
+      "changedAt": "2026-06-16T13:20:49.034Z",
+      "comment": "Planning phase complete. Implementation plan includes Question Editor with simultaneous editing support for collections, questions, and sections."
+    },
+    {
+      "fromStatus": "Plan-ready",
+      "toStatus": "Ready-to-review",
+      "changedBy": "developer",
+      "changedAt": "2026-06-16T14:59:20.318Z",
+      "comment": "Implementation complete. Question Editor component built with OptionsEditor, QuestionTypeSpecificParams, QuestionList, QuestionForm, InlineCollectionCreator. 98 tests passing. Code review findings addressed."
+    },
+    {
+      "fromStatus": "Ready-to-review",
+      "toStatus": "Approved",
+      "changedBy": "developer",
+      "changedAt": "2026-06-16T14:59:20.619Z",
+      "comment": "All review findings addressed. 98 tests pass, TypeScript clean, no nested form issues. Ready for merge.",
+      "approvedBy": "Pauli Parkkinen",
+      "approvedAt": "2026-06-16T14:59:20.619Z"
+    },
+    {
+      "fromStatus": "Approved",
+      "toStatus": "Ready-to-review",
+      "changedBy": "developer",
+      "changedAt": "2026-06-16T14:59:20.619Z",
+      "comment": "Moved back to Ready-to-review before push for final verification."
     }
   ],
   "changeHistory": [
