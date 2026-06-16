@@ -808,6 +808,22 @@ button {
   border-color: transparent;
 }
 
+.question-version-select {
+  width: 4.5rem;
+  padding: 0.2rem 0.3rem;
+  font-size: 0.8rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  background: #fff;
+}
+
+.question-version-text {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 600;
+  min-width: 2.5rem;
+}
+
 .btn-link-version {
   background: none;
   border: none;

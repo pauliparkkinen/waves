@@ -251,9 +251,9 @@ describe('QuestionAttachmentEditor', () => {
         (o) => o.textContent,
       );
       // 'annual_revenue' should be excluded, but 'quarterly_revenue' and 'diagnosis' should be present
-      expect(options).not.toContain('annual_revenue');
-      expect(options).toContain('quarterly_revenue');
-      expect(options).toContain('diagnosis');
+      expect(options).not.toContain('annual_revenue (v1)');
+      expect(options).toContain('quarterly_revenue (v1)');
+      expect(options).toContain('diagnosis (v2)');
     });
   });
 

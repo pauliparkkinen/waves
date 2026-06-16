@@ -26,6 +26,19 @@ export default function QuestionAttachmentEditor({
   readOnly,
 }: QuestionAttachmentEditorProps) {
   const [showQuestionCreator, setShowQuestionCreator] = useState(false);
+
+  const questionsBySymbol = useMemo(() => {
+    const map = new Map<string, AdminQuestion[]>();
+    for (const q of questions) {
+      if (!map.has(q.question_symbol)) map.set(q.question_symbol, []);
+      map.get(q.question_symbol)!.push(q);
+    }
+    for (const [, versions] of map) {
+      versions.sort((a, b) => b.version - a.version);
+    }
+    return map;
+  }, [questions]);
+
   const attachedSymbols = useMemo(
     () => new Set(sectionQuestions.map((sq) => sq.question_symbol)),
     [sectionQuestions],
@@ -41,7 +54,14 @@ export default function QuestionAttachmentEditor({
 
   const questionsByCollection = useMemo(() => {
     const map = new Map<string, AdminQuestion[]>();
+    const latestBySymbol = new Map<string, AdminQuestion>();
     for (const q of availableQuestions) {
+      const existing = latestBySymbol.get(q.question_symbol);
+      if (!existing || q.version > existing.version) {
+        latestBySymbol.set(q.question_symbol, q);
+      }
+    }
+    for (const q of latestBySymbol.values()) {
       const colId = q.collection_id;
       if (!map.has(colId)) map.set(colId, []);
       map.get(colId)!.push(q);
@@ -67,12 +87,11 @@ export default function QuestionAttachmentEditor({
       -1,
     );
 
-    const selectedQuestion = questions.find(
-      (q) => q.question_symbol === selectedAddSymbol,
-    );
+    const versions = questionsBySymbol.get(selectedAddSymbol) ?? [];
+    const latestVersion = versions[0];
     const newQuestion: SectionQuestion = {
       question_symbol: selectedAddSymbol,
-      version_number: selectedQuestion?.version ?? 1,
+      version_number: latestVersion?.version ?? 1,
       order_number: maxOrder + 1,
       required: false,
     };
@@ -91,6 +110,14 @@ export default function QuestionAttachmentEditor({
         sq.question_symbol === symbol
           ? { ...sq, required: !sq.required }
           : sq,
+      ),
+    );
+  }
+
+  function handleVersionChange(symbol: string, version: number) {
+    onChange(
+      sectionQuestions.map((sq) =>
+        sq.question_symbol === symbol ? { ...sq, version_number: version } : sq,
       ),
     );
   }
@@ -148,11 +175,29 @@ export default function QuestionAttachmentEditor({
         </div>
       )}
 
-      {sortedQuestions.map((sq, index) => (
+      {sortedQuestions.map((sq, index) => {
+        const versions = questionsBySymbol.get(sq.question_symbol) ?? [];
+        return (
         <div key={sq.question_symbol} className="question-attachment-row">
           <span className="question-attachment-symbol">
             {sq.question_symbol}
           </span>
+          {!readOnly && versions.length > 1 ? (
+            <select
+              className="question-version-select"
+              value={String(sq.version_number)}
+              onChange={(e) => handleVersionChange(sq.question_symbol, parseInt(e.target.value, 10))}
+              aria-label={`Version for ${sq.question_symbol}`}
+            >
+              {versions.map((qv) => (
+                <option key={qv.version} value={qv.version}>
+                  v{qv.version}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="question-version-text">v{sq.version_number}</span>
+          )}
           {!readOnly && (
             <>
               <div className="question-attachment-reorder">
@@ -194,7 +239,8 @@ export default function QuestionAttachmentEditor({
             </>
           )}
         </div>
-      ))}
+      );
+      })}
 
       {!readOnly && availableQuestions.length > 0 && (
         <div className="question-attachment-add">
@@ -213,7 +259,7 @@ export default function QuestionAttachmentEditor({
                 <optgroup key={col.collection_id} label={col.collection_symbol}>
                   {colQuestions.map((q) => (
                     <option key={q.question_id} value={q.question_symbol}>
-                      {q.question_symbol}
+                      {q.question_symbol} (v{q.version})
                     </option>
                   ))}
                 </optgroup>
