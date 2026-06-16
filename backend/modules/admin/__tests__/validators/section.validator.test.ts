@@ -7,6 +7,7 @@ import {
 
 const validSection = {
   section_symbol: 'sec-1',
+  collection_id: 'col-1',
   version: 1,
   status: 'draft' as const,
   condition_formula_id: undefined,
@@ -24,6 +25,11 @@ describe('validateSectionInput', () => {
 
     it('given missing section_symbol, then it throws with section_symbol error', () => {
       const { section_symbol: _, ...data } = validSection;
+      expect(() => validateSectionInput(data)).toThrow(SectionValidationError);
+    });
+
+    it('given missing collection_id, then it throws with collection_id error', () => {
+      const { collection_id: _, ...data } = validSection;
       expect(() => validateSectionInput(data)).toThrow(SectionValidationError);
     });
 

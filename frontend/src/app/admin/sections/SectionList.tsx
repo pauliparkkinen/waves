@@ -30,23 +30,10 @@ export default function SectionList({
   const [publishError, setPublishError] = useState<string | null>(null);
   const [collectionFilter, setCollectionFilter] = useState<string | undefined>(undefined);
 
-  const symbolToCollection = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const q of questions) {
-      map.set(q.question_symbol, q.collection_id);
-    }
-    return map;
-  }, [questions]);
-
   const filteredSections = useMemo(() => {
     if (!collectionFilter) return sections;
-    return sections.filter((sec) =>
-      sec.section_questions.some((sq) => {
-        const colId = symbolToCollection.get(sq.question_symbol);
-        return colId === collectionFilter;
-      }),
-    );
-  }, [sections, collectionFilter, symbolToCollection]);
+    return sections.filter((sec) => sec.collection_id === collectionFilter);
+  }, [sections, collectionFilter]);
 
   const fetchSections = useCallback(async () => {
     setLoading(true);

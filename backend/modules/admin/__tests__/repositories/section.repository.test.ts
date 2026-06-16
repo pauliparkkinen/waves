@@ -4,6 +4,7 @@ import type { CreateSectionInput } from '../../types/section.types.js';
 
 const sampleData: CreateSectionInput = {
   section_symbol: 'sec-1',
+  collection_id: 'col-1',
   version: 1,
   status: 'draft',
   condition_formula_id: undefined,

@@ -13,6 +13,7 @@ function makeSectionRepository(overrides: Partial<ISectionRepository> = {}): ISe
     createSection: vi.fn().mockReturnValue({
       section_id: 'section-1',
       section_symbol: 'sec-1',
+      collection_id: 'col-1',
       version: 1,
       status: 'draft',
       condition_formula_id: undefined,
@@ -42,6 +43,7 @@ const orgUser: AuthUser = { sub: 'org-user', permissions: [], organisation_id: '
 const sampleSection: Section = {
   section_id: 'section-1',
   section_symbol: 'sec-1',
+  collection_id: 'col-1',
   version: 1,
   status: 'draft',
   condition_formula_id: undefined,
@@ -110,6 +112,7 @@ describe('SectionService', () => {
       const service = new SectionService(sectionRepo, questionRepo);
       const validData: CreateSectionInput = {
         section_symbol: 'sec-1',
+        collection_id: 'col-1',
         version: 1,
         status: 'draft',
         section_questions: [
@@ -132,6 +135,7 @@ describe('SectionService', () => {
       const service = new SectionService(sectionRepo, questionRepo);
       const data: CreateSectionInput = {
         section_symbol: 'sec-1',
+        collection_id: 'col-1',
         version: 1,
         status: 'draft',
         section_questions: [
@@ -149,6 +153,7 @@ describe('SectionService', () => {
       const service = new SectionService(sectionRepo, questionRepo);
       const data: CreateSectionInput = {
         section_symbol: 'sec-1',
+        collection_id: 'col-1',
         version: 1,
         status: 'draft',
         section_questions: [

@@ -26,6 +26,7 @@ export type PublishStatus = 'draft' | 'published';
 export type Section = {
   section_id: string;
   section_symbol: string;
+  collection_id: string;
   condition_formula_id?: string;
   version: number;
   status: PublishStatus;

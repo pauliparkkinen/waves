@@ -81,6 +81,7 @@ const mockQuestions: AdminQuestion[] = [
 const mockSection: AdminSection = {
   section_id: 'sec-1',
   section_symbol: 'test_section',
+  collection_id: 'col-1',
   condition_formula_id: undefined,
   version: 1,
   status: 'draft',
@@ -361,6 +362,10 @@ describe('SectionForm', () => {
       fireEvent.change(screen.getByLabelText('Section Symbol'), {
         target: { value: 'new_section' },
       });
+      // Select a collection
+      fireEvent.change(screen.getByDisplayValue('-- Unassigned --'), {
+        target: { value: 'col-1' },
+      });
       fireEvent.click(screen.getByRole('button', { name: 'Create' }));
 
       await waitFor(() => {
@@ -372,6 +377,12 @@ describe('SectionForm', () => {
               'Content-Type': 'application/json',
             }),
             body: expect.stringContaining('"status":"draft"'),
+          }),
+        );
+        expect(mockFetch).toHaveBeenCalledWith(
+          '/api/admin/sections',
+          expect.objectContaining({
+            body: expect.stringContaining('collection_id'),
           }),
         );
       });
@@ -458,6 +469,28 @@ describe('SectionForm', () => {
     });
   });
 
+  describe('given missing collection', () => {
+    it('when submitted, then shows collection validation error', async () => {
+      render(
+        <SectionForm
+          collections={mockCollections}
+          questions={mockQuestions}
+          accessToken="test-token"
+          onSave={vi.fn()}
+          onCancel={vi.fn()}
+        />,
+      );
+      fireEvent.change(screen.getByLabelText('Section Symbol'), {
+        target: { value: 'valid_symbol' },
+      });
+      // Don't select a collection - leave it unset
+      fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+      expect(
+        await screen.findByText('Collection is required'),
+      ).toBeInTheDocument();
+    });
+  });
+
   describe('given valid form with API error (400)', () => {
     it('when submitted, then shows error banner', async () => {
       mockFetch.mockResolvedValueOnce({
@@ -478,6 +511,9 @@ describe('SectionForm', () => {
 
       fireEvent.change(screen.getByLabelText('Section Symbol'), {
         target: { value: 'valid_symbol' },
+      });
+      fireEvent.change(screen.getByDisplayValue('-- Unassigned --'), {
+        target: { value: 'col-1' },
       });
       fireEvent.click(screen.getByRole('button', { name: 'Create' }));
 
@@ -502,6 +538,9 @@ describe('SectionForm', () => {
       fireEvent.change(screen.getByLabelText('Section Symbol'), {
         target: { value: 'valid_symbol' },
       });
+      fireEvent.change(screen.getByDisplayValue('-- Unassigned --'), {
+        target: { value: 'col-1' },
+      });
       fireEvent.click(screen.getByRole('button', { name: 'Create' }));
 
       await waitFor(() => {
@@ -517,6 +556,7 @@ const mockSections: AdminSection[] = [
   {
     section_id: 'sec-1',
     section_symbol: 'financial_section',
+    collection_id: 'col-1',
     condition_formula_id: undefined,
     version: 1,
     status: 'draft',
@@ -528,6 +568,7 @@ const mockSections: AdminSection[] = [
   {
     section_id: 'sec-2',
     section_symbol: 'clinical_section',
+    collection_id: 'col-2',
     condition_formula_id: undefined,
     version: 2,
     status: 'published',
@@ -870,6 +911,7 @@ describe('SectionList', () => {
             {
               section_id: 'sec-1',
               section_symbol: 'financial_section',
+              collection_id: 'col-1',
               condition_formula_id: undefined,
               version: 1,
               status: 'draft',

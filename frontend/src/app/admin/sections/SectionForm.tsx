@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { AdminSection, AdminCollection, AdminQuestion, SectionQuestion } from '@/lib/api';
 import QuestionAttachmentEditor from './QuestionAttachmentEditor';
+import CollectionSelector from '../collections/CollectionSelector';
 
 type SectionFormProps = {
   section?: AdminSection;
@@ -26,6 +27,9 @@ export default function SectionForm({
   const [localQuestions, setLocalQuestions] = useState(questions);
   const isEdit = !!section;
   const [symbol, setSymbol] = useState(section?.section_symbol ?? '');
+  const [collectionId, setCollectionId] = useState<string | undefined>(
+    section?.collection_id,
+  );
   const [conditionFormulaId, setConditionFormulaId] = useState<
     string | undefined
   >(section?.condition_formula_id);
@@ -49,6 +53,9 @@ export default function SectionForm({
       errors.symbol =
         'Section symbol may only contain letters, numbers, and underscores';
     }
+    if (!collectionId) {
+      errors.collectionId = 'Collection is required';
+    }
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   }
@@ -63,6 +70,7 @@ export default function SectionForm({
     try {
       const body: Record<string, unknown> = {
         section_symbol: symbol.trim(),
+        collection_id: collectionId,
         version: section?.version ?? 1,
         ...(isEdit ? {} : { status: 'draft' as const }),
         condition_formula_id: conditionFormulaId,
@@ -125,6 +133,20 @@ export default function SectionForm({
           <p className="inline-error" id="symbol-error" role="alert">
             {fieldErrors.symbol}
           </p>
+        )}
+      </div>
+
+      <div className="form-group">
+        <label>Collection</label>
+        <div className="collection-selector-row">
+          <CollectionSelector
+            collections={collections}
+            selectedId={collectionId}
+            onChange={setCollectionId}
+          />
+        </div>
+        {fieldErrors.collectionId && (
+          <p className="inline-error" role="alert">{fieldErrors.collectionId}</p>
         )}
       </div>
 
