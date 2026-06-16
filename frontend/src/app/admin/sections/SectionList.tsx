@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import type { AdminSection, AdminCollection, AdminQuestion } from '@/lib/api';
 import SectionForm from './SectionForm';
+import CollectionSelector from '../collections/CollectionSelector';
 
 type SectionListProps = {
   initialSections: AdminSection[];
   collections: AdminCollection[];
   questions: AdminQuestion[];
   accessToken: string;
+  userOrgId?: string;
 };
 
 export default function SectionList({
@@ -16,6 +18,7 @@ export default function SectionList({
   collections,
   questions,
   accessToken,
+  userOrgId,
 }: SectionListProps) {
   const [sections, setSections] = useState(initialSections);
   const [loading, setLoading] = useState(false);
@@ -25,6 +28,25 @@ export default function SectionList({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [publishError, setPublishError] = useState<string | null>(null);
+  const [collectionFilter, setCollectionFilter] = useState<string | undefined>(undefined);
+
+  const symbolToCollection = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const q of questions) {
+      map.set(q.question_symbol, q.collection_id);
+    }
+    return map;
+  }, [questions]);
+
+  const filteredSections = useMemo(() => {
+    if (!collectionFilter) return sections;
+    return sections.filter((sec) =>
+      sec.section_questions.some((sq) => {
+        const colId = symbolToCollection.get(sq.question_symbol);
+        return colId === collectionFilter;
+      }),
+    );
+  }, [sections, collectionFilter, symbolToCollection]);
 
   const fetchSections = useCallback(async () => {
     setLoading(true);
@@ -104,6 +126,16 @@ export default function SectionList({
         )}
       </div>
 
+      {/* Filter by collection */}
+      <div style={{ marginBottom: '1rem' }}>
+        <CollectionSelector
+          collections={collections}
+          selectedId={collectionFilter}
+          onChange={setCollectionFilter}
+          label="Filter by collection"
+        />
+      </div>
+
       {/* Create form */}
       {showCreate && (
         <div className="inline-edit-container">
@@ -111,6 +143,7 @@ export default function SectionList({
             collections={collections}
             questions={questions}
             accessToken={accessToken}
+            userOrgId={userOrgId}
             onSave={() => {
               setShowCreate(false);
               fetchSections();
@@ -124,14 +157,14 @@ export default function SectionList({
       {loading && <p className="empty-state">Loading...</p>}
 
       {/* Empty state */}
-      {!loading && sections.length === 0 && !showCreate && (
+      {!loading && filteredSections.length === 0 && !showCreate && (
         <p className="empty-state">
           No sections yet. Click &quot;Create Section&quot; to get started.
         </p>
       )}
 
       {/* Table */}
-      {!loading && sections.length > 0 && (
+      {!loading && filteredSections.length > 0 && (
         <div className="collection-table-wrapper">
           <table className="collection-table">
             <thead>
@@ -144,7 +177,7 @@ export default function SectionList({
               </tr>
             </thead>
             <tbody>
-              {sections.map((sec) => {
+              {filteredSections.map((sec) => {
                 if (sec.section_id === editingId) {
                   return (
                     <tr key={sec.section_id}>
@@ -154,6 +187,7 @@ export default function SectionList({
                           collections={collections}
                           questions={questions}
                           accessToken={accessToken}
+                          userOrgId={userOrgId}
                           onSave={() => {
                             setEditingId(null);
                             fetchSections();

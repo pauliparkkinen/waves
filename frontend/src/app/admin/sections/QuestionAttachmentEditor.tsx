@@ -2,12 +2,16 @@
 
 import { useMemo, useState } from 'react';
 import type { AdminQuestion, AdminCollection, SectionQuestion } from '@/lib/api';
+import InlineQuestionCreator from './InlineQuestionCreator';
 
 type QuestionAttachmentEditorProps = {
   questions: AdminQuestion[];
   collections: AdminCollection[];
   sectionQuestions: SectionQuestion[];
   onChange: (updated: SectionQuestion[]) => void;
+  userOrgId?: string;
+  accessToken?: string;
+  onQuestionCreated?: (question: AdminQuestion) => void;
 };
 
 export default function QuestionAttachmentEditor({
@@ -15,7 +19,11 @@ export default function QuestionAttachmentEditor({
   collections,
   sectionQuestions,
   onChange,
+  userOrgId,
+  accessToken,
+  onQuestionCreated,
 }: QuestionAttachmentEditorProps) {
+  const [showQuestionCreator, setShowQuestionCreator] = useState(false);
   const attachedSymbols = useMemo(
     () => new Set(sectionQuestions.map((sq) => sq.question_symbol)),
     [sectionQuestions],
@@ -85,33 +93,37 @@ export default function QuestionAttachmentEditor({
     );
   }
 
-  function handleMoveUp(index: number) {
-    if (index <= 0) return;
-    const updated = [...sectionQuestions];
-    const temp = updated[index].order_number;
-    updated[index] = {
-      ...updated[index],
-      order_number: updated[index - 1].order_number,
-    };
-    updated[index - 1] = {
-      ...updated[index - 1],
-      order_number: temp,
-    };
+  function handleMoveUp(sortedIndex: number) {
+    if (sortedIndex <= 0) return;
+    const current = sortedQuestions[sortedIndex];
+    const above = sortedQuestions[sortedIndex - 1];
+
+    const updated = sectionQuestions.map((sq) => {
+      if (sq.question_symbol === current.question_symbol) {
+        return { ...sq, order_number: sortedIndex - 1 };
+      }
+      if (sq.question_symbol === above.question_symbol) {
+        return { ...above, order_number: sortedIndex };
+      }
+      return sq;
+    });
     onChange(updated);
   }
 
-  function handleMoveDown(index: number) {
-    if (index >= sectionQuestions.length - 1) return;
-    const updated = [...sectionQuestions];
-    const temp = updated[index].order_number;
-    updated[index] = {
-      ...updated[index],
-      order_number: updated[index + 1].order_number,
-    };
-    updated[index + 1] = {
-      ...updated[index + 1],
-      order_number: temp,
-    };
+  function handleMoveDown(sortedIndex: number) {
+    if (sortedIndex >= sortedQuestions.length - 1) return;
+    const current = sortedQuestions[sortedIndex];
+    const below = sortedQuestions[sortedIndex + 1];
+
+    const updated = sectionQuestions.map((sq) => {
+      if (sq.question_symbol === current.question_symbol) {
+        return { ...sq, order_number: sortedIndex + 1 };
+      }
+      if (sq.question_symbol === below.question_symbol) {
+        return { ...below, order_number: sortedIndex };
+      }
+      return sq;
+    });
     onChange(updated);
   }
 
@@ -149,7 +161,7 @@ export default function QuestionAttachmentEditor({
             <button
               type="button"
               className="btn-secondary btn-small"
-              disabled={index === sectionQuestions.length - 1}
+              disabled={index === sortedQuestions.length - 1}
               onClick={() => handleMoveDown(index)}
               aria-label={`Move ${sq.question_symbol} down`}
             >
@@ -215,6 +227,29 @@ export default function QuestionAttachmentEditor({
             Add
           </button>
         </div>
+      )}
+
+      <div style={{ marginTop: '0.75rem' }}>
+        <button
+          type="button"
+          className="btn-secondary btn-small"
+          onClick={() => setShowQuestionCreator(true)}
+        >
+          + New Question
+        </button>
+      </div>
+
+      {showQuestionCreator && (
+        <InlineQuestionCreator
+          accessToken={accessToken ?? ''}
+          collections={collections}
+          userOrgId={userOrgId}
+          onCreated={(newQuestion) => {
+            if (onQuestionCreated) onQuestionCreated(newQuestion);
+            setShowQuestionCreator(false);
+          }}
+          onCancel={() => setShowQuestionCreator(false)}
+        />
       )}
     </div>
   );

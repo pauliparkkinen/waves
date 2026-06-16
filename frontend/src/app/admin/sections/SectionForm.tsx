@@ -9,6 +9,7 @@ type SectionFormProps = {
   collections: AdminCollection[];
   questions: AdminQuestion[];
   accessToken: string;
+  userOrgId?: string;
   onSave: () => void;
   onCancel: () => void;
 };
@@ -18,9 +19,11 @@ export default function SectionForm({
   collections,
   questions,
   accessToken,
+  userOrgId,
   onSave,
   onCancel,
 }: SectionFormProps) {
+  const [localQuestions, setLocalQuestions] = useState(questions);
   const isEdit = !!section;
   const [symbol, setSymbol] = useState(section?.section_symbol ?? '');
   const [conditionFormulaId, setConditionFormulaId] = useState<
@@ -144,12 +147,16 @@ export default function SectionForm({
       </div>
 
       <div className="form-group">
-        <label>Attached Questions</label>
         <QuestionAttachmentEditor
-          questions={questions}
+          questions={localQuestions}
           collections={collections}
           sectionQuestions={sectionQuestions}
           onChange={setSectionQuestions}
+          userOrgId={userOrgId}
+          accessToken={accessToken}
+          onQuestionCreated={(newQ) => {
+            setLocalQuestions((prev) => [...prev, newQ]);
+          }}
         />
       </div>
 

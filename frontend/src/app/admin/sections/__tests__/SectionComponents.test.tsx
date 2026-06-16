@@ -3,11 +3,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import QuestionAttachmentEditor from '../QuestionAttachmentEditor';
 import SectionForm from '../SectionForm';
 import SectionList from '../SectionList';
+import InlineQuestionCreator from '../InlineQuestionCreator';
 import type {
   AdminSection,
   AdminCollection,
   AdminQuestion,
   SectionQuestion,
+  QuestionType,
 } from '@/lib/api';
 
 // Mock next/navigation
@@ -828,6 +830,171 @@ describe('SectionList', () => {
       expect(
         screen.queryByText('Confirm Publish'),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('given collection filter', () => {
+    it('when rendered, then shows filter selector', () => {
+      render(
+        <SectionList
+          initialSections={mockSections}
+          collections={mockCollections}
+          questions={mockQuestions}
+          accessToken="test-token"
+        />,
+      );
+      expect(screen.getByLabelText('Filter by collection')).toBeInTheDocument();
+    });
+
+    it('when filter is set to a collection, then shows only matching sections', () => {
+      render(
+        <SectionList
+          initialSections={mockSections}
+          collections={mockCollections}
+          questions={mockQuestions}
+          accessToken="test-token"
+        />,
+      );
+      // financial_section has annual_revenue (col-1), clinical_section has diagnosis (col-2) and annual_revenue (col-1)
+      // Filter by col-2 should show only clinical_section
+      const filterSelect = screen.getByLabelText('Filter by collection');
+      fireEvent.change(filterSelect, { target: { value: 'col-2' } });
+      expect(screen.getByText('clinical_section')).toBeInTheDocument();
+      expect(screen.queryByText('financial_section')).not.toBeInTheDocument();
+    });
+
+    it('when filter matches no sections, then shows empty state', () => {
+      render(
+        <SectionList
+          initialSections={[
+            {
+              section_id: 'sec-1',
+              section_symbol: 'financial_section',
+              condition_formula_id: undefined,
+              version: 1,
+              status: 'draft',
+              section_questions: [
+                { question_symbol: 'annual_revenue', version_number: 1, order_number: 0, required: true },
+              ],
+              translations: [],
+            },
+          ]}
+          collections={mockCollections}
+          questions={mockQuestions}
+          accessToken="test-token"
+        />,
+      );
+      // Filter by col-2; financial_section has only col-1 questions, so no match
+      const filterSelect = screen.getByLabelText('Filter by collection');
+      fireEvent.change(filterSelect, { target: { value: 'col-2' } });
+      expect(
+        screen.getByText(/No sections yet/),
+      ).toBeInTheDocument();
+    });
+  });
+});
+
+// ── InlineQuestionCreator tests ──────────────────────────────────────────────
+
+describe('InlineQuestionCreator', () => {
+  beforeEach(() => {
+    mockFetch.mockReset();
+  });
+
+  describe('given default props', () => {
+    it('when rendered, then shows modal with heading', () => {
+      render(
+        <InlineQuestionCreator
+          accessToken="test-token"
+          collections={mockCollections}
+          onCreated={vi.fn()}
+          onCancel={vi.fn()}
+        />,
+      );
+      expect(screen.getByText('Create Question')).toBeInTheDocument();
+      expect(screen.getByLabelText('Question Symbol')).toBeInTheDocument();
+    });
+  });
+
+  describe('given empty form', () => {
+    it('when submitted, then shows required field errors', async () => {
+      render(
+        <InlineQuestionCreator
+          accessToken="test-token"
+          collections={mockCollections}
+          onCreated={vi.fn()}
+          onCancel={vi.fn()}
+        />,
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+      expect(
+        await screen.findByText('Question symbol is required'),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByText('Collection is required'),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByText('Question type is required'),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('given valid form', () => {
+    it('when submitted, then calls onCreated with new question', async () => {
+      const newQuestion: AdminQuestion = {
+        question_id: 'q-new',
+        question_symbol: 'new_question',
+        collection_id: 'col-1',
+        type: 'free-text',
+        version: 1,
+        parameters: {},
+        condition_formula_id: undefined,
+        created_at: '2026-06-01T00:00:00Z',
+        updated_at: '2026-06-01T00:00:00Z',
+        translations: [],
+      };
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(newQuestion),
+        text: () => Promise.resolve(''),
+      });
+
+      const onCreated = vi.fn();
+      render(
+        <InlineQuestionCreator
+          accessToken="test-token"
+          collections={mockCollections}
+          onCreated={onCreated}
+          onCancel={vi.fn()}
+        />,
+      );
+
+      fireEvent.change(screen.getByLabelText('Question Symbol'), {
+        target: { value: 'new_question' },
+      });
+
+      const collectionSelect = screen.getAllByRole('combobox')[0];
+      fireEvent.change(collectionSelect, { target: { value: 'col-1' } });
+
+      const typeRadio = screen.getByLabelText('Free-text');
+      fireEvent.click(typeRadio);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+      await waitFor(() => {
+        expect(onCreated).toHaveBeenCalledWith(newQuestion);
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/admin/questions',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'Content-Type': 'application/json',
+          }),
+          body: expect.stringContaining('new_question'),
+        }),
+      );
     });
   });
 });
