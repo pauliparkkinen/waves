@@ -594,22 +594,29 @@ button {
   min-height: 100px;
 }
 
-/* ── Edit Form in Table ──────────────────────────────────────────────────── */
+/* ── Inline Editor Container ──────────────────────────────────────────────── */
 
-.edit-form-cell {
-  padding: 1.25rem !important;
+.inline-edit-container {
   background: #f0f4ff;
   border-top: 3px solid #2563eb;
   border-bottom: 3px solid #2563eb;
+  padding: 1.25rem;
+  margin: 1rem 0;
 }
 
-.edit-form-cell .collection-form {
+.inline-edit-container .collection-form {
   margin-bottom: 0;
   background: #fff;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
-.edit-form-cell + tr td {
+/* Modifier: embedded inside a table cell */
+.inline-edit-container.table-cell {
+  padding: 1.25rem !important;
+  margin: 0;
+}
+
+.inline-edit-container.table-cell + tr td {
   padding-top: 1rem;
 }
 

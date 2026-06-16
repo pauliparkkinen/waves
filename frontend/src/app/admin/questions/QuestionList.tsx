@@ -147,7 +147,7 @@ export default function QuestionList({
                 if (q.question_id === editingId) {
                   return (
                     <tr key={q.question_id}>
-                       <td colSpan={5} className="edit-form-cell">
+                       <td colSpan={5} className="inline-edit-container table-cell">
                          <QuestionForm
                            question={q}
                           collections={localCollections}
