@@ -577,7 +577,7 @@ const mockSections: AdminSection[] = [
     section_symbol: 'financial_section',
     collection_id: 'col-1',
     condition_formula_id: undefined,
-    version: 1,
+    version: 2,
     status: 'draft',
     section_questions: [
       { question_symbol: 'annual_revenue', version_number: 1, order_number: 0, required: true },
@@ -586,14 +586,25 @@ const mockSections: AdminSection[] = [
   },
   {
     section_id: 'sec-2',
+    section_symbol: 'financial_section',
+    collection_id: 'col-1',
+    condition_formula_id: undefined,
+    version: 1,
+    status: 'published',
+    section_questions: [
+      { question_symbol: 'annual_revenue', version_number: 1, order_number: 0, required: true },
+    ],
+    translations: [],
+  },
+  {
+    section_id: 'sec-3',
     section_symbol: 'clinical_section',
     collection_id: 'col-2',
     condition_formula_id: undefined,
-    version: 2,
+    version: 1,
     status: 'published',
     section_questions: [
       { question_symbol: 'diagnosis', version_number: 1, order_number: 0, required: false },
-      { question_symbol: 'annual_revenue', version_number: 1, order_number: 1, required: true },
     ],
     translations: [],
   },
@@ -601,7 +612,7 @@ const mockSections: AdminSection[] = [
 
 describe('SectionList', () => {
   describe('given sections', () => {
-    it('when rendered, then shows table with rows', () => {
+    it('when rendered, then shows table with grouped rows', () => {
       render(
         <SectionList
           initialSections={mockSections}
@@ -611,10 +622,8 @@ describe('SectionList', () => {
         />,
       );
       expect(screen.getByText('Sections')).toBeInTheDocument();
-      expect(screen.getByText('financial_section')).toBeInTheDocument();
-      expect(screen.getByText('clinical_section')).toBeInTheDocument();
-      expect(screen.getByText('1 questions')).toBeInTheDocument();
-      expect(screen.getByText('2 questions')).toBeInTheDocument();
+      expect(screen.getByText('financial_section (col-1)')).toBeInTheDocument();
+      expect(screen.getByText('clinical_section (col-2)')).toBeInTheDocument();
     });
   });
 
@@ -666,7 +675,7 @@ describe('SectionList', () => {
   });
 
   describe('given sections', () => {
-    it('when Edit clicked, then shows inline form in table row', () => {
+    it('when Edit clicked on draft latest, then shows inline form in table row', () => {
       render(
         <SectionList
           initialSections={mockSections}
@@ -676,7 +685,7 @@ describe('SectionList', () => {
         />,
       );
       const editButton = screen.getByRole('button', {
-        name: /Edit financial_section/i,
+        name: /Edit financial_section v2/i,
       });
       fireEvent.click(editButton);
       expect(screen.getByText('Edit Section')).toBeInTheDocument();
@@ -684,7 +693,7 @@ describe('SectionList', () => {
   });
 
   describe('given sections', () => {
-    it('when Delete clicked, then shows confirmation modal', () => {
+    it('when Delete clicked on draft, then shows confirmation modal', () => {
       render(
         <SectionList
           initialSections={mockSections}
@@ -694,7 +703,7 @@ describe('SectionList', () => {
         />,
       );
       const deleteButton = screen.getByRole('button', {
-        name: /Delete financial_section/i,
+        name: /Delete financial_section v2/i,
       });
       fireEvent.click(deleteButton);
       expect(screen.getByText('Confirm Delete')).toBeInTheDocument();
@@ -716,7 +725,7 @@ describe('SectionList', () => {
       );
 
       const deleteButton = screen.getByRole('button', {
-        name: /Delete financial_section/i,
+        name: /Delete financial_section v2/i,
       });
       fireEvent.click(deleteButton);
 
@@ -747,7 +756,7 @@ describe('SectionList', () => {
       );
 
       const deleteButton = screen.getByRole('button', {
-        name: /Delete financial_section/i,
+        name: /Delete financial_section v2/i,
       });
       fireEvent.click(deleteButton);
 
@@ -770,7 +779,7 @@ describe('SectionList', () => {
         />,
       );
       const publishButton = screen.getByRole('button', {
-        name: /Publish financial_section/i,
+        name: /Publish financial_section v2/i,
       });
       fireEvent.click(publishButton);
       expect(screen.getByText('Confirm Publish')).toBeInTheDocument();
@@ -796,7 +805,7 @@ describe('SectionList', () => {
       );
 
       const publishButton = screen.getByRole('button', {
-        name: /Publish financial_section/i,
+        name: /Publish financial_section v2/i,
       });
       fireEvent.click(publishButton);
 
@@ -827,7 +836,7 @@ describe('SectionList', () => {
       );
 
       const publishButton = screen.getByRole('button', {
-        name: /Publish financial_section/i,
+        name: /Publish financial_section v2/i,
       });
       fireEvent.click(publishButton);
 
@@ -861,12 +870,26 @@ describe('SectionList', () => {
           accessToken="test-token"
         />,
       );
-      // financial_section has annual_revenue (col-1), clinical_section has diagnosis (col-2) and annual_revenue (col-1)
       // Filter by col-2 should show only clinical_section
       const filterSelect = screen.getByLabelText('Filter by collection');
       fireEvent.change(filterSelect, { target: { value: 'col-2' } });
       expect(screen.getByText('clinical_section')).toBeInTheDocument();
       expect(screen.queryByText('financial_section')).not.toBeInTheDocument();
+    });
+
+    it('when filtered by collection, then shows symbol without collection_id', () => {
+      render(
+        <SectionList
+          initialSections={mockSections}
+          collections={mockCollections}
+          questions={mockQuestions}
+          accessToken="test-token"
+        />,
+      );
+      const filterSelect = screen.getByLabelText('Filter by collection');
+      fireEvent.change(filterSelect, { target: { value: 'col-1' } });
+      expect(screen.getByText('financial_section')).toBeInTheDocument();
+      expect(screen.queryByText('financial_section (col-1)')).not.toBeInTheDocument();
     });
 
     it('when filter matches no sections, then shows empty state', () => {
@@ -910,14 +933,14 @@ describe('SectionList', () => {
           accessToken="test-token"
         />,
       );
-      const viewButton = screen.getByRole('button', { name: /View clinical_section/i });
+      const viewButton = screen.getByRole('button', { name: /View clinical_section v1/i });
       fireEvent.click(viewButton);
       expect(screen.getByText(/clinical_section/)).toBeInTheDocument();
     });
   });
 
   describe('given a published section', () => {
-    it('when New Version is clicked, then shows confirmation modal', () => {
+    it('when New Version is clicked on latest published, then shows confirmation modal', () => {
       render(
         <SectionList
           initialSections={mockSections}
@@ -932,8 +955,8 @@ describe('SectionList', () => {
     });
   });
 
-  describe('given sections', () => {
-    it('when version number is clicked, then shows version details popup', () => {
+  describe('given sections with multiple versions', () => {
+    it('when version button is clicked, then shows sub-rows for older versions', () => {
       render(
         <SectionList
           initialSections={mockSections}
@@ -942,9 +965,26 @@ describe('SectionList', () => {
           accessToken="test-token"
         />,
       );
-      const versionButtons = screen.getAllByRole('button', { name: /View version details/i });
-      fireEvent.click(versionButtons[0]);
-      expect(screen.getByText('Version Details')).toBeInTheDocument();
+      const toggleButton = screen.getByRole('button', { name: /Toggle versions for financial_section/i });
+      fireEvent.click(toggleButton);
+      expect(screen.getByText('v1')).toBeInTheDocument();
+      expect(screen.getAllByText('published').length).toBeGreaterThanOrEqual(2);
+    });
+
+    it('when version is clicked again, then hides sub-rows', () => {
+      render(
+        <SectionList
+          initialSections={mockSections}
+          collections={mockCollections}
+          questions={mockQuestions}
+          accessToken="test-token"
+        />,
+      );
+      const toggleButton = screen.getByRole('button', { name: /Toggle versions for financial_section/i });
+      fireEvent.click(toggleButton);
+      expect(screen.getByText('v1')).toBeInTheDocument();
+      fireEvent.click(toggleButton);
+      expect(screen.queryByText('v1')).not.toBeInTheDocument();
     });
   });
 });
