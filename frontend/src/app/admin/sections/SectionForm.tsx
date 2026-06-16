@@ -13,6 +13,7 @@ type SectionFormProps = {
   accessToken: string;
   userOrgId?: string;
   readOnly?: boolean;
+  disableSymbolAndCollection?: boolean;
   onSave: () => void;
   onCancel: () => void;
 };
@@ -24,6 +25,7 @@ export default function SectionForm({
   accessToken,
   userOrgId,
   readOnly,
+  disableSymbolAndCollection,
   onSave,
   onCancel,
 }: SectionFormProps) {
@@ -32,6 +34,7 @@ export default function SectionForm({
   const [showInlineCreator, setShowInlineCreator] = useState(false);
   const isEdit = !!section;
   const isReadOnly = readOnly === true;
+  const isSymbolCollectionDisabled = isReadOnly || (isEdit && disableSymbolAndCollection);
   const [symbol, setSymbol] = useState(section?.section_symbol ?? '');
   const [collectionId, setCollectionId] = useState<string | undefined>(
     section?.collection_id,
@@ -139,7 +142,7 @@ export default function SectionForm({
           placeholder="e.g. financial_info"
           maxLength={100}
           pattern="[a-zA-Z0-9_]+"
-          disabled={isReadOnly}
+          disabled={isSymbolCollectionDisabled}
           aria-invalid={!!fieldErrors.symbol}
           aria-describedby={fieldErrors.symbol ? 'symbol-error' : undefined}
         />
@@ -157,9 +160,9 @@ export default function SectionForm({
             collections={localCollections}
             selectedId={collectionId}
             onChange={setCollectionId}
-            disabled={isReadOnly}
+            disabled={isSymbolCollectionDisabled}
           />
-          {!isReadOnly && (
+          {!isSymbolCollectionDisabled && (
             <button
               type="button"
               className="btn-secondary btn-small btn-new-collection"

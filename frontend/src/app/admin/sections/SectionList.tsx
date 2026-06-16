@@ -234,6 +234,7 @@ export default function SectionList({
                         <td colSpan={5} className="inline-edit-container table-cell">
                           <SectionForm section={group.latest} collections={collections} questions={questions}
                             accessToken={accessToken} userOrgId={userOrgId}
+                            disableSymbolAndCollection={group.versions.some(v => v.status === 'published')}
                             onSave={() => { setEditingId(null); fetchSections(); }}
                             onCancel={() => setEditingId(null)} />
                         </td>
