@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import QuestionAttachmentEditor from '../QuestionAttachmentEditor';
 import SectionForm from '../SectionForm';
 import SectionList from '../SectionList';
@@ -622,8 +622,12 @@ describe('SectionList', () => {
         />,
       );
       expect(screen.getByText('Sections')).toBeInTheDocument();
-      expect(screen.getByText('financial_section (financial)')).toBeInTheDocument();
-      expect(screen.getByText('clinical_section (clinical)')).toBeInTheDocument();
+      // Collection header rows (also appears in filter dropdown options)
+      expect(screen.getAllByText('financial').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('clinical').length).toBeGreaterThanOrEqual(1);
+      // Section rows
+      expect(screen.getByText('financial_section')).toBeInTheDocument();
+      expect(screen.getByText('clinical_section')).toBeInTheDocument();
     });
   });
 
@@ -877,7 +881,7 @@ describe('SectionList', () => {
       expect(screen.queryByText('financial_section')).not.toBeInTheDocument();
     });
 
-    it('when filtered by collection, then shows symbol without collection_id', () => {
+    it('when filtered by collection, then shows only matching collection and sections', () => {
       render(
         <SectionList
           initialSections={mockSections}
@@ -888,8 +892,11 @@ describe('SectionList', () => {
       );
       const filterSelect = screen.getByLabelText('Filter by collection');
       fireEvent.change(filterSelect, { target: { value: 'col-1' } });
+      expect(screen.getAllByText('financial').length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText('financial_section')).toBeInTheDocument();
-      expect(screen.queryByText('financial_section (financial)')).not.toBeInTheDocument();
+      // clinical sections should not appear in the table
+      const table = screen.getByRole('table');
+      expect(within(table).queryByText('clinical_section')).not.toBeInTheDocument();
     });
 
     it('when filter matches no sections, then shows empty state', () => {

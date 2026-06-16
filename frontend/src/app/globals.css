@@ -868,3 +868,19 @@ button {
   margin-left: 0.25rem;
   vertical-align: middle;
 }
+
+.collection-header-row td {
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 0.5rem 1rem !important;
+  border-bottom: 2px solid #e5e7eb;
+  border-top: 2px solid #e5e7eb;
+}
+
+.section-group-row td:first-child {
+  padding-left: 2rem !important;
+}

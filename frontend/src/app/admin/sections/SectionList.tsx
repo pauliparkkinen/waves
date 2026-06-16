@@ -52,6 +52,12 @@ export default function SectionList({
     latest: AdminSection;
   };
 
+  type CollectionGroup = {
+    collectionId: string;
+    collectionSymbol: string;
+    sectionGroups: SectionGroup[];
+  };
+
   const groupedSections = useMemo(() => {
     const groups = new Map<string, AdminSection[]>();
     for (const sec of filteredSections) {
@@ -66,6 +72,22 @@ export default function SectionList({
       .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
       .map(([key, versions]) => ({ key, versions, latest: versions[0] }));
   }, [filteredSections]);
+
+  const collectionGroups = useMemo(() => {
+    const collMap = new Map<string, SectionGroup[]>();
+    for (const sg of groupedSections) {
+      const colId = sg.latest.collection_id;
+      if (!collMap.has(colId)) collMap.set(colId, []);
+      collMap.get(colId)!.push(sg);
+    }
+    return [...collMap.entries()]
+      .map(([colId, sectionGroups]) => ({
+        collectionId: colId,
+        collectionSymbol: collectionMap.get(colId) ?? colId,
+        sectionGroups,
+      }))
+      .sort((a, b) => a.collectionSymbol.localeCompare(b.collectionSymbol));
+  }, [groupedSections, collectionMap]);
 
   const fetchSections = useCallback(async () => {
     setLoading(true);
@@ -223,91 +245,100 @@ export default function SectionList({
               </tr>
             </thead>
             <tbody>
-              {groupedSections.map((group) => {
-                const isExpanded = expandedGroupKey === group.key;
-                const showSymbolWithCollection = !collectionFilter;
+              {collectionGroups.map((colGroup) => (
+                <Fragment key={colGroup.collectionId}>
+                  {/* Collection header row */}
+                  <tr className="collection-header-row">
+                    <td colSpan={5}>
+                      {colGroup.collectionSymbol}
+                    </td>
+                  </tr>
 
-                return (
-                  <Fragment key={group.key}>
-                    {group.latest.section_id === viewingId ? (
-                      <tr key={`view-${group.key}`}>
-                        <td colSpan={5} className="inline-edit-container table-cell">
-                          <SectionForm section={group.latest} collections={collections} questions={questions}
-                            accessToken={accessToken} userOrgId={userOrgId} readOnly={true}
-                            onSave={() => {}} onCancel={() => setViewingId(null)} />
-                        </td>
-                      </tr>
-                    ) : group.latest.section_id === editingId ? (
-                      <tr key={`edit-${group.key}`}>
-                        <td colSpan={5} className="inline-edit-container table-cell">
-                          <SectionForm section={group.latest} collections={collections} questions={questions}
-                            accessToken={accessToken} userOrgId={userOrgId}
-                            disableSymbolAndCollection={group.versions.some(v => v.status === 'published')}
-                            onSave={() => { setEditingId(null); fetchSections(); }}
-                            onCancel={() => setEditingId(null)} />
-                        </td>
-                      </tr>
-                    ) : (
-                      <tr key={group.key}>
-                        <td>
-                          <strong>{showSymbolWithCollection
-                            ? `${group.latest.section_symbol} (${collectionMap.get(group.latest.collection_id) ?? group.latest.collection_id})`
-                            : group.latest.section_symbol}</strong>
-                        </td>
-                        <td>
-                          <span className={group.latest.status === 'published' ? 'section-status-published' : 'section-status-draft'}>
-                            {group.latest.status}
-                          </span>
-                        </td>
-                        <td>{group.latest.section_questions.length} questions</td>
-                        <td>
-                          <button className="btn-link-version" onClick={() => {
-                            setExpandedGroupKey(isExpanded ? null : group.key);
-                          }} aria-label={`Toggle versions for ${group.latest.section_symbol}`}>
-                            {group.latest.version}
-                          </button>
-                          {group.versions.length > 1 && (
-                            <span className="version-count-badge">+{group.versions.length - 1}</span>
-                          )}
-                        </td>
-                        <td>
-                          <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            {renderActions(group.latest, true)}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
+                  {/* Section groups within this collection */}
+                  {colGroup.sectionGroups.map((group) => {
+                    const isExpanded = expandedGroupKey === group.key;
 
-                    {isExpanded && group.versions.slice(1).map((ver) => (
-                      <tr key={ver.section_id} className="version-sub-row">
-                        {ver.section_id === viewingId ? (
-                          <td colSpan={5} className="inline-edit-container table-cell">
-                            <SectionForm section={ver} collections={collections} questions={questions}
-                              accessToken={accessToken} userOrgId={userOrgId} readOnly={true}
-                              onSave={() => {}} onCancel={() => setViewingId(null)} />
-                          </td>
+                    return (
+                      <Fragment key={group.key}>
+                        {group.latest.section_id === viewingId ? (
+                          <tr key={`view-${group.key}`}>
+                            <td colSpan={5} className="inline-edit-container table-cell">
+                              <SectionForm section={group.latest} collections={collections} questions={questions}
+                                accessToken={accessToken} userOrgId={userOrgId} readOnly={true}
+                                onSave={() => {}} onCancel={() => setViewingId(null)} />
+                            </td>
+                          </tr>
+                        ) : group.latest.section_id === editingId ? (
+                          <tr key={`edit-${group.key}`}>
+                            <td colSpan={5} className="inline-edit-container table-cell">
+                              <SectionForm section={group.latest} collections={collections} questions={questions}
+                                accessToken={accessToken} userOrgId={userOrgId}
+                                disableSymbolAndCollection={group.versions.some(v => v.status === 'published')}
+                                onSave={() => { setEditingId(null); fetchSections(); }}
+                                onCancel={() => setEditingId(null)} />
+                            </td>
+                          </tr>
                         ) : (
-                          <>
-                            <td className="version-sub-symbol">v{ver.version}</td>
+                          <tr key={group.key} className="section-group-row">
                             <td>
-                              <span className={ver.status === 'published' ? 'section-status-published' : 'section-status-draft'}>
-                                {ver.status}
+                              <strong>{group.latest.section_symbol}</strong>
+                            </td>
+                            <td>
+                              <span className={group.latest.status === 'published' ? 'section-status-published' : 'section-status-draft'}>
+                                {group.latest.status}
                               </span>
                             </td>
-                            <td>{ver.section_questions.length} questions</td>
-                            <td>{ver.version}</td>
+                            <td>{group.latest.section_questions.length} questions</td>
+                            <td>
+                              <button className="btn-link-version" onClick={() => {
+                                setExpandedGroupKey(isExpanded ? null : group.key);
+                              }} aria-label={`Toggle versions for ${group.latest.section_symbol}`}>
+                                {group.latest.version}
+                              </button>
+                              {group.versions.length > 1 && (
+                                <span className="version-count-badge">+{group.versions.length - 1}</span>
+                              )}
+                            </td>
                             <td>
                               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                {renderActions(ver, false)}
+                                {renderActions(group.latest, true)}
                               </div>
                             </td>
-                          </>
+                          </tr>
                         )}
-                      </tr>
-                    ))}
-                  </Fragment>
-                );
-              })}
+
+                        {isExpanded && group.versions.slice(1).map((ver) => (
+                          <tr key={ver.section_id} className="version-sub-row">
+                            {ver.section_id === viewingId ? (
+                              <td colSpan={5} className="inline-edit-container table-cell">
+                                <SectionForm section={ver} collections={collections} questions={questions}
+                                  accessToken={accessToken} userOrgId={userOrgId} readOnly={true}
+                                  onSave={() => {}} onCancel={() => setViewingId(null)} />
+                              </td>
+                            ) : (
+                              <>
+                                <td className="version-sub-symbol">v{ver.version}</td>
+                                <td>
+                                  <span className={ver.status === 'published' ? 'section-status-published' : 'section-status-draft'}>
+                                    {ver.status}
+                                  </span>
+                                </td>
+                                <td>{ver.section_questions.length} questions</td>
+                                <td>{ver.version}</td>
+                                <td>
+                                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    {renderActions(ver, false)}
+                                  </div>
+                                </td>
+                              </>
+                            )}
+                          </tr>
+                        ))}
+                      </Fragment>
+                    );
+                  })}
+                </Fragment>
+              ))}
             </tbody>
           </table>
         </div>
