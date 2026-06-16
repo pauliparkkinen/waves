@@ -21,11 +21,11 @@ const MOCK_USER = {
   sub: 'mock-user',
   email: 'mock@localhost',
   organisation_id: 'mock-org',
-  permissions: ['records:read'],
+  permissions: ['records:read', 'admin:manage'],
 };
 
 /** Probability (0–1) that a request is randomly denied. */
-const DENY_PROBABILITY = 0.3;
+const DENY_PROBABILITY = 0.0;
 
 export function createMockAuthMiddleware(): MiddlewareHandler {
   logger.warn(

@@ -21,12 +21,13 @@ describe('InMemoryCollectionRepository', () => {
 
     it('when createCollection is called, then it creates and returns the collection', () => {
       const repo = new InMemoryCollectionRepository();
-      const data = { collection_permissions: [] };
+      const data = { collection_symbol: 'Test Collection', collection_permissions: [] };
 
       const result = repo.createCollection(data);
 
       expect(result.collection_id).toBeDefined();
       expect(result.collection_id).toMatch(/^collection-/);
+      expect(result.collection_symbol).toBe('Test Collection');
       expect(result.collection_permissions).toEqual([]);
     });
 
@@ -58,7 +59,7 @@ describe('InMemoryCollectionRepository', () => {
   describe('given a repository with a collection', () => {
     it('when getCollection is called with the existing id, then it returns the collection', () => {
       const repo = new InMemoryCollectionRepository();
-      const created = repo.createCollection({ collection_permissions: [] });
+      const created = repo.createCollection({ collection_symbol: 'Test Collection', collection_permissions: [] });
 
       const result = repo.getCollection(created.collection_id);
 
@@ -67,7 +68,7 @@ describe('InMemoryCollectionRepository', () => {
 
     it('when updateCollection is called, then it updates the collection', () => {
       const repo = new InMemoryCollectionRepository();
-      const created = repo.createCollection({ collection_permissions: [] });
+      const created = repo.createCollection({ collection_symbol: 'Test Collection', collection_permissions: [] });
 
       const updated = repo.updateCollection(created.collection_id, {
         collection_permissions: [
@@ -82,14 +83,14 @@ describe('InMemoryCollectionRepository', () => {
     it('when updateCollection is called with a non-existent id, then it returns undefined', () => {
       const repo = new InMemoryCollectionRepository();
 
-      const result = repo.updateCollection('nonexistent', { collection_permissions: [] });
+      const result = repo.updateCollection('nonexistent', { collection_symbol: 'Test Collection', collection_permissions: [] });
 
       expect(result).toBeUndefined();
     });
 
     it('when deleteCollection is called, then it removes the collection and returns true', () => {
       const repo = new InMemoryCollectionRepository();
-      const created = repo.createCollection({ collection_permissions: [] });
+      const created = repo.createCollection({ collection_symbol: 'Test Collection', collection_permissions: [] });
 
       const deleted = repo.deleteCollection(created.collection_id);
 
@@ -102,11 +103,13 @@ describe('InMemoryCollectionRepository', () => {
     it('when called, then it returns collections where the org has read permission', () => {
       const repo = new InMemoryCollectionRepository();
       repo.createCollection({
+        collection_symbol: 'Collection A',
         collection_permissions: [
           { organisation_id: 'org-1', read: true, use: false, edit: false, owner: false },
         ],
       });
       repo.createCollection({
+        collection_symbol: 'Collection B',
         collection_permissions: [
           { organisation_id: 'org-2', read: true, use: false, edit: false, owner: false },
         ],
@@ -120,6 +123,7 @@ describe('InMemoryCollectionRepository', () => {
     it('when the org has no read permission, then it returns empty', () => {
       const repo = new InMemoryCollectionRepository();
       repo.createCollection({
+        collection_symbol: 'Collection C',
         collection_permissions: [
           { organisation_id: 'org-1', read: false, use: false, edit: false, owner: false },
         ],
@@ -135,6 +139,7 @@ describe('InMemoryCollectionRepository', () => {
     it('when org has read level, then read check returns true', () => {
       const repo = new InMemoryCollectionRepository();
       const created = repo.createCollection({
+        collection_symbol: 'Collection D',
         collection_permissions: [
           { organisation_id: 'org-1', read: true, use: false, edit: false, owner: false },
         ],
@@ -148,6 +153,7 @@ describe('InMemoryCollectionRepository', () => {
     it('when org has read level, then use check returns false', () => {
       const repo = new InMemoryCollectionRepository();
       const created = repo.createCollection({
+        collection_symbol: 'Collection E',
         collection_permissions: [
           { organisation_id: 'org-1', read: true, use: false, edit: false, owner: false },
         ],
@@ -161,6 +167,7 @@ describe('InMemoryCollectionRepository', () => {
     it('when org has use level, then read and use checks return true', () => {
       const repo = new InMemoryCollectionRepository();
       const created = repo.createCollection({
+        collection_symbol: 'Collection F',
         collection_permissions: [
           { organisation_id: 'org-1', read: true, use: true, edit: false, owner: false },
         ],
@@ -173,6 +180,7 @@ describe('InMemoryCollectionRepository', () => {
     it('when org has owner level, then all checks return true', () => {
       const repo = new InMemoryCollectionRepository();
       const created = repo.createCollection({
+        collection_symbol: 'Collection G',
         collection_permissions: [
           { organisation_id: 'org-1', read: true, use: true, edit: true, owner: true },
         ],
@@ -187,6 +195,7 @@ describe('InMemoryCollectionRepository', () => {
     it('when org has no permissions, then check returns false', () => {
       const repo = new InMemoryCollectionRepository();
       const created = repo.createCollection({
+        collection_symbol: 'Collection H',
         collection_permissions: [
           { organisation_id: 'org-1', read: false, use: false, edit: false, owner: false },
         ],
@@ -200,6 +209,7 @@ describe('InMemoryCollectionRepository', () => {
     it('when a different org has permissions, then check returns false for the non-permitted org', () => {
       const repo = new InMemoryCollectionRepository();
       const created = repo.createCollection({
+        collection_symbol: 'Collection I',
         collection_permissions: [
           { organisation_id: 'org-1', read: true, use: false, edit: false, owner: false },
         ],
@@ -213,6 +223,7 @@ describe('InMemoryCollectionRepository', () => {
     it('when org has edit level, then read and use and edit return true, owner returns false', () => {
       const repo = new InMemoryCollectionRepository();
       const created = repo.createCollection({
+        collection_symbol: 'Collection J',
         collection_permissions: [
           { organisation_id: 'org-1', read: true, use: true, edit: true, owner: false },
         ],
@@ -227,6 +238,7 @@ describe('InMemoryCollectionRepository', () => {
     it('when org has owner only (read/use/edit false), then owner returns true, edit returns true (hierarchical)', () => {
       const repo = new InMemoryCollectionRepository();
       const created = repo.createCollection({
+        collection_symbol: 'Collection K',
         collection_permissions: [
           { organisation_id: 'org-1', read: false, use: false, edit: false, owner: true },
         ],
@@ -239,6 +251,7 @@ describe('InMemoryCollectionRepository', () => {
     it('when collection has empty collection_permissions, then checkPermission returns false', () => {
       const repo = new InMemoryCollectionRepository();
       const created = repo.createCollection({
+        collection_symbol: 'Collection L',
         collection_permissions: [],
       });
 

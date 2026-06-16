@@ -10,6 +10,7 @@ export type CollectionPermission = {
 
 export type Collection = {
   collection_id: string;
+  collection_symbol: string;
   collection_permissions: CollectionPermission[];
 };
 

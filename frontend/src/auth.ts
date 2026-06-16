@@ -20,15 +20,21 @@ function buildProvider() {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [buildProvider()],
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, account, profile }) {
       // Persist the access token in the JWT so it can be forwarded to the backend
       if (account?.access_token) {
         token.accessToken = account.access_token;
+      }
+      // Extract organisation ID from the OIDC profile (if available)
+      if (profile) {
+        const p = profile as Record<string, unknown>;
+        token.organisationId = (p.organisation_id as string) ?? (p.org_id as string) ?? undefined;
       }
       return token;
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken as string | undefined;
+      session.organisationId = token.organisationId as string | undefined;
       return session;
     },
   },

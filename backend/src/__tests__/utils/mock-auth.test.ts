@@ -48,8 +48,8 @@ describe('createMockAuthMiddleware', () => {
     });
   });
 
-  describe('given Math.random always returns below the deny threshold', () => {
-    it('when a request is made, then it returns 403', async () => {
+  describe('given Math.random always returns below the deny threshold (0)', () => {
+    it('when DENY_PROBABILITY is 0, then the request succeeds (no random denial)', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0);
       const { createMockAuthMiddleware } = await import('../../utils/mock-auth.js');
       const app = new Hono();
@@ -58,25 +58,8 @@ describe('createMockAuthMiddleware', () => {
 
       const res = await app.request('http://localhost/test');
 
-      expect(res.status).toBe(403);
-    });
-
-    it('when a request is made, then the user is still set on the context before the denial', async () => {
-      vi.spyOn(Math, 'random').mockReturnValue(0);
-      const { createMockAuthMiddleware } = await import('../../utils/mock-auth.js');
-      let capturedUser: unknown;
-      const app = new Hono();
-      app.use('*', createMockAuthMiddleware());
-      // onError runs after the HTTPException is thrown, by which point c.get('user') is already set
-      app.onError((err, c) => {
-        capturedUser = c.get('user');
-        return c.json({ error: 'denied' }, 403);
-      });
-      app.get('/test', (c) => c.json({ ok: true }));
-
-      await app.request('http://localhost/test');
-
-      expect(capturedUser).toMatchObject({ sub: 'mock-user' });
+      // DENY_PROBABILITY is 0.0, so Math.random() < 0 is never true
+      expect(res.status).toBe(200);
     });
   });
 });

@@ -24,6 +24,7 @@ export type CollectionPermission = {
 
 export type AdminCollection = {
   collection_id: string;
+  collection_symbol: string;
   collection_permissions: CollectionPermission[];
 };
 

@@ -9,7 +9,7 @@ function makeRepository(overrides: Partial<ICollectionRepository> = {}): ICollec
     getCollection: vi.fn().mockReturnValue(undefined),
     createCollection: vi
       .fn()
-      .mockReturnValue({ collection_id: 'collection-1', collection_permissions: [] }),
+      .mockReturnValue({ collection_id: 'collection-1', collection_symbol: 'Test Collection', collection_permissions: [] }),
     updateCollection: vi.fn().mockReturnValue(undefined),
     deleteCollection: vi.fn().mockReturnValue(false),
     findCollectionsByOrganisation: vi.fn().mockReturnValue([]),
@@ -35,7 +35,7 @@ describe('CollectionService', () => {
 
   describe('listCollections', () => {
     it('when user has admin:manage, then it returns all collections', () => {
-      const collections = [{ collection_id: 'c-1', collection_permissions: [] }];
+      const collections = [{ collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [] }];
       const repo = makeRepository({ listCollections: vi.fn().mockReturnValue(collections) });
       const service = new CollectionService(repo);
 
@@ -46,7 +46,7 @@ describe('CollectionService', () => {
     });
 
     it('when user has organisation_id, then it filters by org', () => {
-      const collections = [{ collection_id: 'c-1', collection_permissions: [] }];
+      const collections = [{ collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [] }];
       const repo = makeRepository({
         findCollectionsByOrganisation: vi.fn().mockReturnValue(collections),
       });
@@ -69,7 +69,7 @@ describe('CollectionService', () => {
 
   describe('getCollection', () => {
     it('when user has admin:manage, then it returns the collection', () => {
-      const collection = { collection_id: 'c-1', collection_permissions: [] };
+      const collection = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [] };
       const repo = makeRepository({ getCollection: vi.fn().mockReturnValue(collection) });
       const service = new CollectionService(repo);
 
@@ -79,7 +79,7 @@ describe('CollectionService', () => {
     });
 
     it('when user has org with read permission, then it returns the collection', () => {
-      const collection = { collection_id: 'c-1', collection_permissions: [] };
+      const collection = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [] };
       const repo = makeRepository({
         getCollection: vi.fn().mockReturnValue(collection),
         checkPermission: vi.fn().mockReturnValue(true),
@@ -93,7 +93,7 @@ describe('CollectionService', () => {
     });
 
     it('when user has org without read permission, then it returns undefined', () => {
-      const collection = { collection_id: 'c-1', collection_permissions: [] };
+      const collection = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [] };
       const repo = makeRepository({
         getCollection: vi.fn().mockReturnValue(collection),
         checkPermission: vi.fn().mockReturnValue(false),
@@ -116,11 +116,11 @@ describe('CollectionService', () => {
   });
 
   describe('createCollection', () => {
-    it('when user has admin:manage, then it creates and returns the collection', () => {
-      const created = { collection_id: 'c-1', collection_permissions: [] };
+    it('when user has admin:manage with no org, then it creates and returns the collection', () => {
+      const created = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [{ organisation_id: 'org-1', read: true, use: true, edit: true, owner: true }] };
       const repo = makeRepository({ createCollection: vi.fn().mockReturnValue(created) });
       const service = new CollectionService(repo);
-      const data = { collection_permissions: [] };
+      const data = { collection_symbol: 'Test Collection', collection_permissions: [{ organisation_id: 'org-1', read: true, use: true, edit: true, owner: true }] };
 
       const result = service.createCollection(data, adminUser);
 
@@ -128,10 +128,68 @@ describe('CollectionService', () => {
       expect(repo.createCollection).toHaveBeenCalledWith(data);
     });
 
+    it('when user has an org, then the org is auto-assigned as owner with all permissions', () => {
+      const adminWithOrg: AuthUser = { sub: 'admin', permissions: ['admin:manage'], organisation_id: 'org-1' };
+      const data = { collection_symbol: 'Test Collection', collection_permissions: [] };
+      const expectedCall = {
+        ...data,
+        collection_permissions: [{ organisation_id: 'org-1', read: true, use: true, edit: true, owner: true }],
+      };
+      const created = { collection_id: 'c-1', ...expectedCall };
+      const repo = makeRepository({ createCollection: vi.fn().mockReturnValue(created) });
+      const service = new CollectionService(repo);
+
+      const result = service.createCollection(data, adminWithOrg);
+
+      expect(result).toEqual(created);
+      expect(repo.createCollection).toHaveBeenCalledWith(expectedCall);
+    });
+
+    it('when user has an org already in permissions without owner, then it upgrades to owner and validates single owner', () => {
+      const adminWithOrg: AuthUser = { sub: 'admin', permissions: ['admin:manage'], organisation_id: 'org-1' };
+      const data = {
+        collection_symbol: 'Test Collection',
+        collection_permissions: [
+          { organisation_id: 'org-1', read: true, use: false, edit: false, owner: false },
+          { organisation_id: 'org-2', read: true, use: false, edit: false, owner: false },
+        ],
+      };
+      const expectedCall = {
+        ...data,
+        collection_permissions: [
+          { organisation_id: 'org-1', read: true, use: true, edit: true, owner: true },
+          { organisation_id: 'org-2', read: true, use: false, edit: false, owner: false },
+        ],
+      };
+      const created = { collection_id: 'c-1', ...expectedCall };
+      const repo = makeRepository({ createCollection: vi.fn().mockReturnValue(created) });
+      const service = new CollectionService(repo);
+
+      const result = service.createCollection(data, adminWithOrg);
+
+      expect(result).toEqual(created);
+      expect(repo.createCollection).toHaveBeenCalledWith(expectedCall);
+    });
+
+    it('when permissions have multiple owners, then it throws', () => {
+      const service = new CollectionService(makeRepository());
+      const data = {
+        collection_symbol: 'Test Collection',
+        collection_permissions: [
+          { organisation_id: 'org-1', read: true, use: true, edit: true, owner: true },
+          { organisation_id: 'org-2', read: true, use: true, edit: true, owner: true },
+        ],
+      };
+
+      expect(() => service.createCollection(data, adminUser)).toThrow(
+        'exactly one organisation with owner rights'
+      );
+    });
+
     it('when user does not have admin:manage, then it throws', () => {
       const service = new CollectionService(makeRepository());
 
-      expect(() => service.createCollection({ collection_permissions: [] }, orgUser)).toThrow(
+      expect(() => service.createCollection({ collection_symbol: 'Test Collection', collection_permissions: [{ organisation_id: 'org-1', read: true, use: true, edit: true, owner: true }] }, orgUser)).toThrow(
         'Insufficient permissions'
       );
     });
@@ -139,8 +197,8 @@ describe('CollectionService', () => {
 
   describe('updateCollection', () => {
     it('when user has admin:manage, then it updates and returns the collection', () => {
-      const existing = { collection_id: 'c-1', collection_permissions: [] };
-      const updated = { collection_id: 'c-1', collection_permissions: [] };
+      const existing = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [{ organisation_id: 'org-1', read: true, use: true, edit: true, owner: true }] };
+      const updated = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [{ organisation_id: 'org-1', read: true, use: true, edit: true, owner: true }] };
       const repo = makeRepository({
         getCollection: vi.fn().mockReturnValue(existing),
         updateCollection: vi.fn().mockReturnValue(updated),
@@ -154,8 +212,8 @@ describe('CollectionService', () => {
     });
 
     it('when user is an owner, then it updates and returns the collection', () => {
-      const existing = { collection_id: 'c-1', collection_permissions: [] };
-      const updated = { collection_id: 'c-1', collection_permissions: [] };
+      const existing = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [{ organisation_id: 'org-1', read: true, use: true, edit: true, owner: true }] };
+      const updated = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [{ organisation_id: 'org-1', read: true, use: true, edit: true, owner: true }] };
       const repo = makeRepository({
         getCollection: vi.fn().mockReturnValue(existing),
         checkPermission: vi.fn().mockReturnValue(true),
@@ -170,7 +228,7 @@ describe('CollectionService', () => {
     });
 
     it('when user is not an owner, then it throws', () => {
-      const existing = { collection_id: 'c-1', collection_permissions: [] };
+      const existing = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [{ organisation_id: 'org-1', read: true, use: true, edit: true, owner: true }] };
       const repo = makeRepository({
         getCollection: vi.fn().mockReturnValue(existing),
         checkPermission: vi.fn().mockReturnValue(false),
@@ -180,6 +238,39 @@ describe('CollectionService', () => {
       expect(() => service.updateCollection('c-1', {}, orgUser)).toThrow(
         'Insufficient permissions'
       );
+    });
+
+    it('when update includes permissions with multiple owners, then it throws', () => {
+      const existing = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [{ organisation_id: 'org-1', read: true, use: true, edit: true, owner: true }] };
+      const repo = makeRepository({
+        getCollection: vi.fn().mockReturnValue(existing),
+      });
+      const service = new CollectionService(repo);
+
+      expect(() =>
+        service.updateCollection('c-1', {
+          collection_permissions: [
+            { organisation_id: 'org-1', read: true, use: true, edit: true, owner: true },
+            { organisation_id: 'org-2', read: true, use: true, edit: true, owner: true },
+          ],
+        }, adminUser)
+      ).toThrow('exactly one organisation with owner rights');
+    });
+
+    it('when update includes permissions with no owners, then it throws', () => {
+      const existing = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [{ organisation_id: 'org-1', read: true, use: true, edit: true, owner: true }] };
+      const repo = makeRepository({
+        getCollection: vi.fn().mockReturnValue(existing),
+      });
+      const service = new CollectionService(repo);
+
+      expect(() =>
+        service.updateCollection('c-1', {
+          collection_permissions: [
+            { organisation_id: 'org-1', read: true, use: true, edit: false, owner: false },
+          ],
+        }, adminUser)
+      ).toThrow('exactly one organisation with owner rights');
     });
 
     it('when the collection does not exist, then it returns undefined', () => {
@@ -194,7 +285,7 @@ describe('CollectionService', () => {
 
   describe('deleteCollection', () => {
     it('when user has admin:manage, then it deletes and returns true', () => {
-      const existing = { collection_id: 'c-1', collection_permissions: [] };
+      const existing = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [] };
       const repo = makeRepository({
         getCollection: vi.fn().mockReturnValue(existing),
         deleteCollection: vi.fn().mockReturnValue(true),
@@ -208,7 +299,7 @@ describe('CollectionService', () => {
     });
 
     it('when user is an owner, then it deletes and returns true', () => {
-      const existing = { collection_id: 'c-1', collection_permissions: [] };
+      const existing = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [] };
       const repo = makeRepository({
         getCollection: vi.fn().mockReturnValue(existing),
         checkPermission: vi.fn().mockReturnValue(true),
@@ -223,7 +314,7 @@ describe('CollectionService', () => {
     });
 
     it('when user is not an owner, then it throws', () => {
-      const existing = { collection_id: 'c-1', collection_permissions: [] };
+      const existing = { collection_id: 'c-1', collection_symbol: 'Test Collection', collection_permissions: [] };
       const repo = makeRepository({
         getCollection: vi.fn().mockReturnValue(existing),
         checkPermission: vi.fn().mockReturnValue(false),
