@@ -77,6 +77,7 @@ export default function FormForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    e.stopPropagation();
     if (isReadOnly) return;
     if (!validate()) return;
 

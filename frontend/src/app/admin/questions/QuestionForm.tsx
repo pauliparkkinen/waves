@@ -104,6 +104,7 @@ export default function QuestionForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    e.stopPropagation();
     if (!validate()) return;
 
     setSaving(true);
