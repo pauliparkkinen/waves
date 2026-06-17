@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from 'react';
-import type { AdminSection, AdminCollection, AdminQuestion, SectionQuestion } from '@/lib/api';
+import { useState, useEffect } from 'react';
+import type { AdminSection, AdminCollection, AdminQuestion, SectionQuestion, Formula } from '@/lib/api';
 import QuestionAttachmentEditor from './QuestionAttachmentEditor';
 import CollectionSelector from '../collections/CollectionSelector';
 import InlineCollectionCreator from '../questions/InlineCollectionCreator';
+import FormulaEditorPopup from '../components/FormulaEditorPopup';
 
 type SectionFormProps = {
   section?: AdminSection;
@@ -47,6 +48,8 @@ export default function SectionForm({
   const [sectionQuestions, setSectionQuestions] = useState<SectionQuestion[]>(
     section?.section_questions ?? [],
   );
+  const [formulasInCollection, setFormulasInCollection] = useState<Formula[]>([]);
+  const [editingFormulaId, setEditingFormulaId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -70,6 +73,27 @@ export default function SectionForm({
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   }
+
+  async function refreshFormulas() {
+    if (!collectionId) return;
+    try {
+      const res = await fetch(
+        `/api/admin/formulas?collection_id=${encodeURIComponent(collectionId)}`,
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      );
+      if (res.ok) {
+        const data = (await res.json()) as Formula[];
+        setFormulasInCollection(data);
+      }
+    } catch {
+      /* silently ignore */
+    }
+  }
+
+  useEffect(() => {
+    refreshFormulas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collectionId, accessToken]);
 
   function handleCollectionCreated(created: AdminCollection) {
     setLocalCollections((prev) => [...prev, created]);
@@ -182,22 +206,59 @@ export default function SectionForm({
       </div>
 
       <div className="form-group">
-        <label htmlFor="condition-formula">Visibility Condition</label>
-        <select
-          id="condition-formula"
-          className="collection-selector"
-          value={conditionFormulaId ?? ''}
-          onChange={(e) => setConditionFormulaId(e.target.value || undefined)}
-          disabled={isReadOnly}
-        >
-          <option value="">-- None --</option>
-          <option value="placeholder-1" disabled>
-            Formula 1 (coming soon)
-          </option>
-          <option value="placeholder-2" disabled>
-            Formula 2 (coming soon)
-          </option>
-        </select>
+        <label>Visibility Condition</label>
+        <div className="collection-selector-row">
+          <select
+            className="collection-selector"
+            value={conditionFormulaId ?? ''}
+            onChange={(e) => setConditionFormulaId(e.target.value || undefined)}
+            disabled={isReadOnly}
+          >
+            <option value="">-- None --</option>
+            {formulasInCollection.map((f) => (
+              <option key={f.formula_id} value={f.formula_id}>
+                {f.symbol} ({f.output_type})
+              </option>
+            ))}
+          </select>
+          {!isReadOnly && conditionFormulaId && (
+            <button
+              type="button"
+              className="btn-secondary btn-small"
+              onClick={() => setEditingFormulaId(conditionFormulaId)}
+            >
+              Edit
+            </button>
+          )}
+          {!isReadOnly && collectionId && (
+            <button
+              type="button"
+              className="btn-secondary btn-small"
+              onClick={() => setEditingFormulaId('__new__')}
+            >
+              + New Formula
+            </button>
+          )}
+        </div>
+        {editingFormulaId && (
+          <FormulaEditorPopup
+            formula={
+              editingFormulaId === '__new__'
+                ? undefined
+                : formulasInCollection.find(
+                    (f) => f.formula_id === editingFormulaId,
+                  )
+            }
+            collectionId={collectionId ?? ''}
+            accessToken={accessToken}
+            onSave={(saved) => {
+              setConditionFormulaId(saved.formula_id);
+              setEditingFormulaId(null);
+              refreshFormulas();
+            }}
+            onCancel={() => setEditingFormulaId(null)}
+          />
+        )}
       </div>
 
       <div className="form-group">

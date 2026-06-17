@@ -5,6 +5,7 @@ import type { AdminForm, AdminCollection, AdminSection, FormSection } from '@/li
 import SectionAttachmentEditor from './SectionAttachmentEditor';
 import CollectionSelector from '../collections/CollectionSelector';
 import InlineCollectionCreator from '../questions/InlineCollectionCreator';
+import FormulaList from './FormulaList';
 
 type FormFormProps = {
   form?: AdminForm;
@@ -46,6 +47,7 @@ export default function FormForm({
   const [formSections, setFormSections] = useState<FormSection[]>(
     form?.form_sections ?? [],
   );
+  const [formulaIds, setFormulaIds] = useState<string[]>(form?.formulas ?? []);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -93,7 +95,7 @@ export default function FormForm({
         version: form?.version ?? 1,
         ...(isEdit ? {} : { status: 'draft' as const }),
         form_sections: formSections,
-        formulas: form?.formulas ?? [],
+        formulas: formulaIds,
         form_organisations: form?.form_organisations ?? [],
         translations: form?.translations ?? [],
       };
@@ -198,15 +200,19 @@ export default function FormForm({
       </div>
 
       {!isReadOnly && (
+        <div className="form-group">
+          <FormulaList
+            formulaIds={formulaIds}
+            collectionId={collectionId ?? ''}
+            accessToken={accessToken}
+            readOnly={isReadOnly}
+            onChange={(ids) => setFormulaIds(ids)}
+          />
+        </div>
+      )}
+
+      {!isReadOnly && (
         <div className="form-group" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            className="btn-secondary btn-small"
-            disabled
-            title="Coming soon"
-          >
-            Formulas
-          </button>
           <button
             type="button"
             className="btn-secondary btn-small"

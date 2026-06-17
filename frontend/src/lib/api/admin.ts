@@ -94,6 +94,55 @@ export type AdminQuestion = {
   translations: TranslationRef[];
 };
 
+// ── Formula Types ─────────────────────────────────────────────────────────────
+
+export type OutputType = 'number' | 'boolean';
+
+export type FormulaReferenceType = 'formula' | 'activity';
+
+export type FormulaReference = {
+  formula_reference_id: string;
+  symbol: string;
+  type: FormulaReferenceType;
+  referenced_formula_id?: string;
+};
+
+export type BinaryOperator = '+' | '-' | '*' | '/';
+export type LogicalOperator = '&&' | '||';
+export type ComparisonOperator = '>' | '<' | '>=' | '<=' | '==';
+export type FunctionName = 'max' | 'min';
+
+export type AstLiteralNode = { type: 'literal'; value: number | boolean };
+export type AstVariableNode = { type: 'variable'; name: string };
+export type AstBinaryExpressionNode = { type: 'binary_expression'; operator: BinaryOperator; left: AstNode; right: AstNode };
+export type AstLogicalExpressionNode = { type: 'logical_expression'; operator: LogicalOperator; left: AstNode; right: AstNode };
+export type AstComparisonExpressionNode = { type: 'comparison_expression'; operator: ComparisonOperator; left: AstNode; right: AstNode };
+export type AstUnaryExpressionNode = { type: 'unary_expression'; operator: '-'; operand: AstNode };
+export type AstTernaryExpressionNode = { type: 'ternary_expression'; condition: AstNode; true_branch: AstNode; false_branch: AstNode };
+export type AstFunctionCallNode = { type: 'function_call'; function: FunctionName; arguments: AstNode[] };
+
+export type AstNode =
+  | AstLiteralNode
+  | AstVariableNode
+  | AstBinaryExpressionNode
+  | AstLogicalExpressionNode
+  | AstComparisonExpressionNode
+  | AstUnaryExpressionNode
+  | AstTernaryExpressionNode
+  | AstFunctionCallNode;
+
+export type Formula = {
+  collection_id: string;
+  formula_id: string;
+  symbol: string;
+  expression: AstNode;
+  output_type: OutputType;
+  formula_references: FormulaReference[];
+};
+
+export type CreateFormulaInput = Omit<Formula, 'formula_id'>;
+export type UpdateFormulaInput = Partial<Omit<Formula, 'formula_id'>>;
+
 // ── Collections ──────────────────────────────────────────────────────────────
 
 export async function listCollections(
@@ -405,5 +454,84 @@ export async function deleteQuestion(
     throw new Error(
       `Backend DELETE /admin/questions/${id} returned ${res.status}`
     );
+  return true;
+}
+
+// ── Formulas ──────────────────────────────────────────────────────────────────
+
+export async function listFormulas(
+  collectionId?: string,
+  accessToken?: string
+): Promise<Formula[]> {
+  const url = collectionId
+    ? `${BACKEND_URL}/admin/formulas?collection_id=${encodeURIComponent(collectionId)}`
+    : `${BACKEND_URL}/admin/formulas`;
+  const res = await fetch(url, {
+    headers: authHeaders(accessToken),
+    cache: 'no-store',
+  });
+  if (!res.ok)
+    throw new Error(`Backend /admin/formulas returned ${res.status}`);
+  return res.json() as Promise<Formula[]>;
+}
+
+export async function getFormula(
+  id: string,
+  accessToken?: string
+): Promise<Formula | null> {
+  const res = await fetch(`${BACKEND_URL}/admin/formulas/${id}`, {
+    headers: authHeaders(accessToken),
+    cache: 'no-store',
+  });
+  if (res.status === 404) return null;
+  if (!res.ok)
+    throw new Error(`Backend /admin/formulas/${id} returned ${res.status}`);
+  return res.json() as Promise<Formula>;
+}
+
+export async function createFormula(
+  data: CreateFormulaInput,
+  accessToken?: string
+): Promise<Formula> {
+  const res = await fetch(`${BACKEND_URL}/admin/formulas`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders(accessToken) },
+    body: JSON.stringify(data),
+    cache: 'no-store',
+  });
+  if (!res.ok)
+    throw new Error(`Backend POST /admin/formulas returned ${res.status}`);
+  return res.json() as Promise<Formula>;
+}
+
+export async function updateFormula(
+  id: string,
+  data: UpdateFormulaInput,
+  accessToken?: string
+): Promise<Formula | null> {
+  const res = await fetch(`${BACKEND_URL}/admin/formulas/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authHeaders(accessToken) },
+    body: JSON.stringify(data),
+    cache: 'no-store',
+  });
+  if (res.status === 404) return null;
+  if (!res.ok)
+    throw new Error(`Backend PUT /admin/formulas/${id} returned ${res.status}`);
+  return res.json() as Promise<Formula>;
+}
+
+export async function deleteFormula(
+  id: string,
+  accessToken?: string
+): Promise<boolean> {
+  const res = await fetch(`${BACKEND_URL}/admin/formulas/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(accessToken),
+    cache: 'no-store',
+  });
+  if (res.status === 404) return false;
+  if (!res.ok)
+    throw new Error(`Backend DELETE /admin/formulas/${id} returned ${res.status}`);
   return true;
 }
