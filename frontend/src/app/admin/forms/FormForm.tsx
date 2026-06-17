@@ -29,6 +29,8 @@ export default function FormForm({
   onSave,
   onCancel,
 }: FormFormProps) {
+  const [localCollections, setLocalCollections] = useState(collections);
+  const [showInlineCreator, setShowInlineCreator] = useState(false);
   const isEdit = !!form;
   const isReadOnly = readOnly === true;
   const isSymbolCollectionDisabled = isReadOnly || (isEdit && disableSymbolAndCollection);
@@ -40,8 +42,6 @@ export default function FormForm({
     form?.form_sections ?? [],
   );
   const [saving, setSaving] = useState(false);
-  const [localCollections, setLocalCollections] = useState(collections);
-  const [showInlineCreator, setShowInlineCreator] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
@@ -151,13 +151,13 @@ export default function FormForm({
       </div>
 
       <div className="form-group">
+        <label>Collection</label>
         <div className="collection-selector-row">
           <CollectionSelector
             collections={localCollections}
             selectedId={collectionId}
             onChange={setCollectionId}
             disabled={isSymbolCollectionDisabled}
-            label="Collection"
           />
           {!isSymbolCollectionDisabled && (
             <button
@@ -213,15 +213,6 @@ export default function FormForm({
         </div>
       )}
 
-      {showInlineCreator && (
-        <InlineCollectionCreator
-          accessToken={accessToken}
-          userOrgId={userOrgId}
-          onCreated={handleCollectionCreated}
-          onCancel={() => setShowInlineCreator(false)}
-        />
-      )}
-
       {isReadOnly ? (
         <div className="form-actions">
           <button
@@ -246,6 +237,15 @@ export default function FormForm({
             {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </button>
         </div>
+      )}
+
+      {showInlineCreator && (
+        <InlineCollectionCreator
+          accessToken={accessToken}
+          userOrgId={userOrgId}
+          onCreated={handleCollectionCreated}
+          onCancel={() => setShowInlineCreator(false)}
+        />
       )}
     </form>
   );
