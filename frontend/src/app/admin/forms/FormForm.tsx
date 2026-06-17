@@ -16,6 +16,7 @@ type FormFormProps = {
   disableSymbolAndCollection?: boolean;
   onSave: () => void;
   onCancel: () => void;
+  onCollectionCreated?: (collection: AdminCollection) => void;
 };
 
 export default function FormForm({
@@ -28,6 +29,7 @@ export default function FormForm({
   disableSymbolAndCollection,
   onSave,
   onCancel,
+  onCollectionCreated,
 }: FormFormProps) {
   const [localCollections, setLocalCollections] = useState(collections);
   const [showInlineCreator, setShowInlineCreator] = useState(false);
@@ -49,6 +51,7 @@ export default function FormForm({
     setLocalCollections((prev) => [...prev, created]);
     setCollectionId(created.collection_id);
     setShowInlineCreator(false);
+    if (onCollectionCreated) onCollectionCreated(created);
   }
 
   function validate(): boolean {

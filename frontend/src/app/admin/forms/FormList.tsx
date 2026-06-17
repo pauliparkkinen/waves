@@ -32,14 +32,15 @@ export default function FormList({
   const [expandedGroupKey, setExpandedGroupKey] = useState<string | null>(null);
   const [newVersioningId, setNewVersioningId] = useState<string | null>(null);
   const [collectionFilter, setCollectionFilter] = useState<string | undefined>(undefined);
+  const [localCollections, setLocalCollections] = useState(collections);
 
   const collectionMap = useMemo(() => {
     const map = new Map<string, string>();
-    for (const col of collections) {
+    for (const col of localCollections) {
       map.set(col.collection_id, col.collection_symbol);
     }
     return map;
-  }, [collections]);
+  }, [localCollections]);
 
   const filteredForms = useMemo(() => {
     if (!collectionFilter) return forms;
@@ -193,7 +194,7 @@ export default function FormList({
 
       <div style={{ marginBottom: '1rem' }}>
         <CollectionSelector
-          collections={collections}
+          collections={localCollections}
           selectedId={collectionFilter}
           onChange={setCollectionFilter}
           label="Filter by collection"
@@ -203,7 +204,7 @@ export default function FormList({
       {showCreate && (
         <div className="inline-edit-container">
           <FormForm
-            collections={collections}
+            collections={localCollections}
             sections={sections}
             accessToken={accessToken}
             userOrgId={userOrgId}
@@ -212,6 +213,9 @@ export default function FormList({
               fetchForms();
             }}
             onCancel={() => setShowCreate(false)}
+            onCollectionCreated={(created) => {
+              setLocalCollections((prev) => [...prev, created]);
+            }}
           />
         </div>
       )}
