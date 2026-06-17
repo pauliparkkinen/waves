@@ -17,6 +17,7 @@ type FormFormProps = {
   onSave: () => void;
   onCancel: () => void;
   onCollectionCreated?: (collection: AdminCollection) => void;
+  noForm?: boolean;
 };
 
 export default function FormForm({
@@ -30,6 +31,7 @@ export default function FormForm({
   onSave,
   onCancel,
   onCollectionCreated,
+  noForm,
 }: FormFormProps) {
   const [localCollections, setLocalCollections] = useState(collections);
   const [localSections, setLocalSections] = useState(sections);
@@ -124,8 +126,9 @@ export default function FormForm({
     }
   }
 
-  return (
-    <form className="collection-form" onSubmit={handleSubmit} noValidate>
+  function renderContent() {
+    return (
+      <>
       <h3>{isReadOnly ? `View Form: ${form?.form_symbol ?? ''}` : isEdit ? 'Edit Form' : 'Create Form'}</h3>
 
       {error && (
@@ -243,7 +246,7 @@ export default function FormForm({
           >
             Cancel
           </button>
-          <button type="submit" className="btn-primary" disabled={saving}>
+          <button type={noForm ? "button" : "submit"} className="btn-primary" disabled={saving} onClick={noForm ? handleSubmit : undefined}>
             {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </button>
         </div>
@@ -257,6 +260,17 @@ export default function FormForm({
           onCancel={() => setShowInlineCreator(false)}
         />
       )}
+      </>
+    );
+  }
+
+  return noForm ? (
+    <div className="collection-form">
+      {renderContent()}
+    </div>
+  ) : (
+    <form className="collection-form" onSubmit={handleSubmit} noValidate>
+      {renderContent()}
     </form>
   );
 }

@@ -326,6 +326,7 @@ export default function QuestionAttachmentEditor({
               collections={collections}
               accessToken={accessToken ?? ''}
               userOrgId={userOrgId}
+              noForm
               onSave={() => {
                 setShowQuestionForm(false);
                 setQuestionFormError(null);

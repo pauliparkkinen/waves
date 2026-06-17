@@ -16,6 +16,7 @@ type SectionFormProps = {
   disableSymbolAndCollection?: boolean;
   onSave: () => void;
   onCancel: () => void;
+  noForm?: boolean;
 };
 
 export default function SectionForm({
@@ -28,6 +29,7 @@ export default function SectionForm({
   disableSymbolAndCollection,
   onSave,
   onCancel,
+  noForm,
 }: SectionFormProps) {
   const [localQuestions, setLocalQuestions] = useState(questions);
   const [localCollections, setLocalCollections] = useState(collections);
@@ -123,8 +125,9 @@ export default function SectionForm({
     }
   }
 
-  return (
-    <form className="collection-form" onSubmit={handleSubmit} noValidate>
+  function renderContent() {
+    return (
+      <>
       <h3>{isReadOnly ? `View Section: ${section?.section_symbol ?? ''}` : isEdit ? 'Edit Section' : 'Create Section'}</h3>
 
       {error && (
@@ -245,7 +248,7 @@ export default function SectionForm({
           >
             Cancel
           </button>
-          <button type="submit" className="btn-primary" disabled={saving}>
+          <button type={noForm ? "button" : "submit"} className="btn-primary" disabled={saving} onClick={noForm ? handleSubmit : undefined}>
             {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </button>
         </div>
@@ -259,6 +262,17 @@ export default function SectionForm({
           onCancel={() => setShowInlineCreator(false)}
         />
       )}
+      </>
+    );
+  }
+
+  return noForm ? (
+    <div className="collection-form">
+      {renderContent()}
+    </div>
+  ) : (
+    <form className="collection-form" onSubmit={handleSubmit} noValidate>
+      {renderContent()}
     </form>
   );
 }

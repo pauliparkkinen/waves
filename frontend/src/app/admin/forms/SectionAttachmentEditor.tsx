@@ -308,6 +308,7 @@ export default function SectionAttachmentEditor({
               questions={[]}
               accessToken={accessToken ?? ''}
               userOrgId={userOrgId}
+              noForm
               onSave={() => {
                 setShowSectionForm(false);
                 setSectionFormError(null);
