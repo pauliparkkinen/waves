@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor, within } from '@testing-library/rea
 import QuestionAttachmentEditor from '../QuestionAttachmentEditor';
 import SectionForm from '../SectionForm';
 import SectionList from '../SectionList';
-import InlineQuestionCreator from '../InlineQuestionCreator';
+
 import type {
   AdminSection,
   AdminCollection,
@@ -996,107 +996,88 @@ describe('SectionList', () => {
   });
 });
 
-// ── InlineQuestionCreator tests ──────────────────────────────────────────────
+// ── QuestionAttachmentEditor + New Question modal tests ─────────────────────
 
-describe('InlineQuestionCreator', () => {
-  beforeEach(() => {
-    mockFetch.mockReset();
-  });
-
-  describe('given default props', () => {
-    it('when rendered, then shows modal with heading', () => {
+describe('QuestionAttachmentEditor with create button', () => {
+  describe('given available questions', () => {
+    it('when + New Question button is clicked, then shows QuestionForm in a modal', () => {
       render(
-        <InlineQuestionCreator
-          accessToken="test-token"
+        <QuestionAttachmentEditor
+          questions={mockQuestions}
           collections={mockCollections}
-          onCreated={vi.fn()}
-          onCancel={vi.fn()}
+          sectionQuestions={[]}
+          onChange={vi.fn()}
+          accessToken="test-token"
         />,
       );
+      fireEvent.click(screen.getByRole('button', { name: '+ New Question' }));
       expect(screen.getByText('Create Question')).toBeInTheDocument();
-      expect(screen.getByLabelText('Question Symbol')).toBeInTheDocument();
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
-  });
 
-  describe('given empty form', () => {
-    it('when submitted, then shows required field errors', async () => {
+    it('when Cancel is clicked in modal, then hides modal', () => {
       render(
-        <InlineQuestionCreator
-          accessToken="test-token"
+        <QuestionAttachmentEditor
+          questions={mockQuestions}
           collections={mockCollections}
-          onCreated={vi.fn()}
-          onCancel={vi.fn()}
+          sectionQuestions={[]}
+          onChange={vi.fn()}
+          accessToken="test-token"
         />,
       );
-      fireEvent.click(screen.getByRole('button', { name: 'Create' }));
-      expect(
-        await screen.findByText('Question symbol is required'),
-      ).toBeInTheDocument();
-      expect(
-        await screen.findByText('Collection is required'),
-      ).toBeInTheDocument();
-      expect(
-        await screen.findByText('Question type is required'),
-      ).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: '+ New Question' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+      expect(screen.queryByText('Create Question')).not.toBeInTheDocument();
     });
-  });
 
-  describe('given valid form', () => {
-    it('when submitted, then calls onCreated with new question', async () => {
-      const newQuestion: AdminQuestion = {
-        question_id: 'q-new',
-        question_symbol: 'new_question',
-        collection_id: 'col-1',
-        type: 'free-text',
-        version: 1,
-        parameters: {},
-        condition_formula_id: undefined,
-        created_at: '2026-06-01T00:00:00Z',
-        updated_at: '2026-06-01T00:00:00Z',
-        translations: [],
-      };
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(newQuestion),
-        text: () => Promise.resolve(''),
-      });
+    it('when question is saved, then refetches questions and calls onQuestionCreated', async () => {
+      const updatedQuestions: AdminQuestion[] = [
+        ...mockQuestions,
+        {
+          collection_id: 'col-1',
+          question_id: 'q-new',
+          question_symbol: 'new_question',
+          type: 'free-text',
+          version: 1,
+          parameters: {},
+          condition_formula_id: undefined,
+          created_at: '2026-06-01T00:00:00Z',
+          updated_at: '2026-06-01T00:00:00Z',
+          translations: [],
+        },
+      ];
 
-      const onCreated = vi.fn();
+      // First call: QuestionForm's POST on save
+      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(updatedQuestions[3]), text: () => Promise.resolve('') });
+      // Second call: refetchQuestions after save
+      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(updatedQuestions), text: () => Promise.resolve('') });
+
+      const onQuestionCreated = vi.fn();
       render(
-        <InlineQuestionCreator
-          accessToken="test-token"
+        <QuestionAttachmentEditor
+          questions={mockQuestions}
           collections={mockCollections}
-          onCreated={onCreated}
-          onCancel={vi.fn()}
+          sectionQuestions={[]}
+          onChange={vi.fn()}
+          accessToken="test-token"
+          onQuestionCreated={onQuestionCreated}
         />,
       );
 
-      fireEvent.change(screen.getByLabelText('Question Symbol'), {
+      fireEvent.click(screen.getByRole('button', { name: '+ New Question' }));
+      const dialog = screen.getByRole('dialog');
+      fireEvent.change(within(dialog).getByLabelText('Question Symbol'), {
         target: { value: 'new_question' },
       });
-
-      const collectionSelect = screen.getAllByRole('combobox')[0];
+      const collectionSelect = within(dialog).getAllByRole('combobox')[0];
       fireEvent.change(collectionSelect, { target: { value: 'col-1' } });
-
-      const typeRadio = screen.getByLabelText('Free-text');
+      const typeRadio = within(dialog).getByLabelText('Free-text');
       fireEvent.click(typeRadio);
-
-      fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+      fireEvent.click(within(dialog).getByRole('button', { name: 'Create' }));
 
       await waitFor(() => {
-        expect(onCreated).toHaveBeenCalledWith(newQuestion);
+        expect(onQuestionCreated).toHaveBeenCalledWith(updatedQuestions);
       });
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/admin/questions',
-        expect.objectContaining({
-          method: 'POST',
-          headers: expect.objectContaining({
-            'Content-Type': 'application/json',
-          }),
-          body: expect.stringContaining('new_question'),
-        }),
-      );
     });
   });
 });

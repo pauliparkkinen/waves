@@ -22,6 +22,7 @@ type QuestionFormProps = {
   onSave: () => void;
   onCancel: () => void;
   onCollectionCreated?: (collection: AdminCollection) => void;
+  noForm?: boolean;
 };
 
 export default function QuestionForm({
@@ -32,6 +33,7 @@ export default function QuestionForm({
   onSave,
   onCancel,
   onCollectionCreated,
+  noForm,
 }: QuestionFormProps) {
   const isEdit = !!question;
   const [symbol, setSymbol] = useState(question?.question_symbol ?? "");
@@ -104,6 +106,7 @@ export default function QuestionForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    e.stopPropagation();
     if (!validate()) return;
 
     setSaving(true);
@@ -160,8 +163,9 @@ export default function QuestionForm({
     onCollectionCreated?.(created);
   }
 
-  return (
-    <form className="collection-form" onSubmit={handleSubmit} noValidate>
+  function renderContent() {
+    return (
+      <>
       <h3>{isEdit ? "Edit Question" : "Create Question"}</h3>
 
       {error && (
@@ -307,7 +311,7 @@ export default function QuestionForm({
         >
           Cancel
         </button>
-        <button type="submit" className="btn-primary" disabled={saving}>
+        <button type={noForm ? "button" : "submit"} className="btn-primary" disabled={saving} onClick={noForm ? handleSubmit : undefined}>
           {saving ? "Saving..." : isEdit ? "Update" : "Create"}
         </button>
       </div>
@@ -321,6 +325,17 @@ export default function QuestionForm({
           onCancel={() => setShowInlineCreator(false)}
         />
       )}
+      </>
+    );
+  }
+
+  return noForm ? (
+    <div className="collection-form">
+      {renderContent()}
+    </div>
+  ) : (
+    <form className="collection-form" onSubmit={handleSubmit} noValidate>
+      {renderContent()}
     </form>
   );
 }

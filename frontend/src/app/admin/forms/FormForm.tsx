@@ -1,80 +1,80 @@
 "use client";
 
 import { useState } from 'react';
-import type { AdminSection, AdminCollection, AdminQuestion, SectionQuestion } from '@/lib/api';
-import QuestionAttachmentEditor from './QuestionAttachmentEditor';
+import type { AdminForm, AdminCollection, AdminSection, FormSection } from '@/lib/api';
+import SectionAttachmentEditor from './SectionAttachmentEditor';
 import CollectionSelector from '../collections/CollectionSelector';
 import InlineCollectionCreator from '../questions/InlineCollectionCreator';
 
-type SectionFormProps = {
-  section?: AdminSection;
+type FormFormProps = {
+  form?: AdminForm;
   collections: AdminCollection[];
-  questions: AdminQuestion[];
+  sections: AdminSection[];
   accessToken: string;
   userOrgId?: string;
   readOnly?: boolean;
   disableSymbolAndCollection?: boolean;
   onSave: () => void;
   onCancel: () => void;
+  onCollectionCreated?: (collection: AdminCollection) => void;
   noForm?: boolean;
 };
 
-export default function SectionForm({
-  section,
+export default function FormForm({
+  form,
   collections,
-  questions,
+  sections,
   accessToken,
   userOrgId,
   readOnly,
   disableSymbolAndCollection,
   onSave,
   onCancel,
+  onCollectionCreated,
   noForm,
-}: SectionFormProps) {
-  const [localQuestions, setLocalQuestions] = useState(questions);
+}: FormFormProps) {
   const [localCollections, setLocalCollections] = useState(collections);
+  const [localSections, setLocalSections] = useState(sections);
   const [showInlineCreator, setShowInlineCreator] = useState(false);
-  const isEdit = !!section;
+  const isEdit = !!form;
   const isReadOnly = readOnly === true;
   const isSymbolCollectionDisabled = isReadOnly || (isEdit && disableSymbolAndCollection);
-  const [symbol, setSymbol] = useState(section?.section_symbol ?? '');
+  const [symbol, setSymbol] = useState(form?.form_symbol ?? '');
   const [collectionId, setCollectionId] = useState<string | undefined>(
-    section?.collection_id,
+    form?.collection_id,
   );
-  const [conditionFormulaId, setConditionFormulaId] = useState<
-    string | undefined
-  >(section?.condition_formula_id);
-  const [sectionQuestions, setSectionQuestions] = useState<SectionQuestion[]>(
-    section?.section_questions ?? [],
+  const [formSections, setFormSections] = useState<FormSection[]>(
+    form?.form_sections ?? [],
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
+  function handleCollectionCreated(created: AdminCollection) {
+    setLocalCollections((prev) => [...prev, created]);
+    setCollectionId(created.collection_id);
+    setShowInlineCreator(false);
+    if (onCollectionCreated) onCollectionCreated(created);
+  }
+
   function validate(): boolean {
     const errors: Record<string, string> = {};
     const trimmed = symbol.trim();
     if (!trimmed) {
-      errors.symbol = 'Section symbol is required';
+      errors.symbol = 'Form symbol is required';
     } else if (trimmed.length < 2) {
-      errors.symbol = 'Section symbol must be at least 2 characters';
+      errors.symbol = 'Form symbol must be at least 2 characters';
     } else if (trimmed.length > 100) {
-      errors.symbol = 'Section symbol must be 100 characters or fewer';
+      errors.symbol = 'Form symbol must be 100 characters or fewer';
     } else if (!/^[a-zA-Z0-9_]+$/.test(trimmed)) {
       errors.symbol =
-        'Section symbol may only contain letters, numbers, and underscores';
+        'Form symbol may only contain letters, numbers, and underscores';
     }
     if (!collectionId) {
       errors.collectionId = 'Collection is required';
     }
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
-  }
-
-  function handleCollectionCreated(created: AdminCollection) {
-    setLocalCollections((prev) => [...prev, created]);
-    setCollectionId(created.collection_id);
-    setShowInlineCreator(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -88,18 +88,19 @@ export default function SectionForm({
 
     try {
       const body: Record<string, unknown> = {
-        section_symbol: symbol.trim(),
+        form_symbol: symbol.trim(),
         collection_id: collectionId,
-        version: section?.version ?? 1,
+        version: form?.version ?? 1,
         ...(isEdit ? {} : { status: 'draft' as const }),
-        condition_formula_id: conditionFormulaId,
-        section_questions: sectionQuestions,
-        translations: section?.translations ?? [],
+        form_sections: formSections,
+        formulas: form?.formulas ?? [],
+        form_organisations: form?.form_organisations ?? [],
+        translations: form?.translations ?? [],
       };
 
       const url = isEdit
-        ? `/api/admin/sections/${section.section_id}`
-        : '/api/admin/sections';
+        ? `/api/admin/forms/${form.form_id}`
+        : '/api/admin/forms';
 
       const method = isEdit ? 'PUT' : 'POST';
 
@@ -128,7 +129,7 @@ export default function SectionForm({
   function renderContent() {
     return (
       <>
-      <h3>{isReadOnly ? `View Section: ${section?.section_symbol ?? ''}` : isEdit ? 'Edit Section' : 'Create Section'}</h3>
+      <h3>{isReadOnly ? `View Form: ${form?.form_symbol ?? ''}` : isEdit ? 'Edit Form' : 'Create Form'}</h3>
 
       {error && (
         <div className="error-message" role="alert">
@@ -137,13 +138,13 @@ export default function SectionForm({
       )}
 
       <div className="form-group">
-        <label htmlFor="section-symbol">Section Symbol</label>
+        <label htmlFor="form-symbol">Form Symbol</label>
         <input
-          id="section-symbol"
+          id="form-symbol"
           type="text"
           value={symbol}
           onChange={(e) => setSymbol(e.target.value)}
-          placeholder="e.g. financial_info"
+          placeholder="e.g. annual_report"
           maxLength={100}
           pattern="[a-zA-Z0-9_]+"
           disabled={isSymbolCollectionDisabled}
@@ -182,41 +183,30 @@ export default function SectionForm({
       </div>
 
       <div className="form-group">
-        <label htmlFor="condition-formula">Visibility Condition</label>
-        <select
-          id="condition-formula"
-          className="collection-selector"
-          value={conditionFormulaId ?? ''}
-          onChange={(e) => setConditionFormulaId(e.target.value || undefined)}
-          disabled={isReadOnly}
-        >
-          <option value="">-- None --</option>
-          <option value="placeholder-1" disabled>
-            Formula 1 (coming soon)
-          </option>
-          <option value="placeholder-2" disabled>
-            Formula 2 (coming soon)
-          </option>
-        </select>
-      </div>
-
-      <div className="form-group">
-        <QuestionAttachmentEditor
-          questions={localQuestions}
+        <SectionAttachmentEditor
+          sections={localSections}
           collections={localCollections}
-          sectionQuestions={sectionQuestions}
-          onChange={setSectionQuestions}
-          userOrgId={userOrgId}
-          accessToken={accessToken}
-          onQuestionCreated={(updatedQuestions) => {
-            setLocalQuestions(updatedQuestions);
-          }}
+          formSections={formSections}
+          onChange={setFormSections}
           readOnly={isReadOnly}
+          accessToken={accessToken}
+          userOrgId={userOrgId}
+          onSectionCreated={(updatedSections) => {
+            setLocalSections(updatedSections);
+          }}
         />
       </div>
 
       {!isReadOnly && (
-        <div className="form-group">
+        <div className="form-group" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn-secondary btn-small"
+            disabled
+            title="Coming soon"
+          >
+            Formulas
+          </button>
           <button
             type="button"
             className="btn-secondary btn-small"
@@ -224,6 +214,14 @@ export default function SectionForm({
             title="Coming soon"
           >
             Translations
+          </button>
+          <button
+            type="button"
+            className="btn-secondary btn-small"
+            disabled
+            title="Coming soon"
+          >
+            Test Mode
           </button>
         </div>
       )}

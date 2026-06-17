@@ -2,9 +2,9 @@
   "id": "TASK-14",
   "title": "Frontend: Form Editor Component",
   "description": "Build form editor component. Section attachment with selection list ordered by collections then alphabetically by section symbol. Drag-and-drop reordering of sections. Formula list for indicators/urgencies. Draft/publish toggle. Test mode launch button (enabled when no validation errors). Translation editor integration.",
-  "status": "Draft",
+  "status": "Approved",
   "creationDate": "2026-06-11T12:53:17.074Z",
-  "updateDate": "2026-06-11T12:53:55.859Z",
+  "updateDate": "2026-06-17T16:40:01.793Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -12,6 +12,28 @@
       "changedBy": "unknown",
       "changedAt": "2026-06-11T12:53:17.074Z",
       "comment": "Initial creation"
+    },
+    {
+      "fromStatus": "Draft",
+      "toStatus": "Plan-ready",
+      "changedBy": "orchestrator",
+      "changedAt": "2026-06-17T15:09:48.275Z",
+      "comment": "Plan approved by user"
+    },
+    {
+      "fromStatus": "Plan-ready",
+      "toStatus": "Ready-to-review",
+      "changedBy": "orchestrator",
+      "changedAt": "2026-06-17T15:16:31.134Z",
+      "comment": "Implementation complete and reviewed"
+    },
+    {
+      "fromStatus": "Ready-to-review",
+      "toStatus": "Approved",
+      "changedBy": "Pauli Parkkinen",
+      "changedAt": "2026-06-17T16:40:01.793Z",
+      "approvedBy": "Pauli Parkkinen",
+      "approvedAt": "2026-06-17T16:40:01.793Z"
     }
   ],
   "changeHistory": [
