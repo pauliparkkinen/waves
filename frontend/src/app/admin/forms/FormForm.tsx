@@ -187,8 +187,8 @@ export default function FormForm({
           readOnly={isReadOnly}
           accessToken={accessToken}
           userOrgId={userOrgId}
-          onSectionCreated={(newSection) => {
-            setLocalSections((prev) => [...prev, newSection]);
+          onSectionCreated={(updatedSections) => {
+            setLocalSections(updatedSections);
           }}
         />
       </div>
