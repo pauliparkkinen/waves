@@ -317,7 +317,7 @@ export default function QuestionAttachmentEditor({
           role="dialog"
           aria-modal="true"
           aria-labelledby="question-form-heading"
-          onClick={() => setShowQuestionForm(false)}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowQuestionForm(false); }}
           onKeyDown={(e) => { if (e.key === 'Escape') setShowQuestionForm(false); }}
           tabIndex={-1}
         >

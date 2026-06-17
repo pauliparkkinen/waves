@@ -298,7 +298,7 @@ export default function SectionAttachmentEditor({
           role="dialog"
           aria-modal="true"
           aria-labelledby="section-form-heading"
-          onClick={() => setShowSectionForm(false)}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowSectionForm(false); }}
           onKeyDown={(e) => { if (e.key === 'Escape') setShowSectionForm(false); }}
           tabIndex={-1}
         >
