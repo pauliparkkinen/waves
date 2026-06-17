@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import type { AdminSection, AdminCollection, FormSection } from '@/lib/api';
+import InlineSectionCreator from './InlineSectionCreator';
 
 type SectionAttachmentEditorProps = {
   sections: AdminSection[];
@@ -9,6 +10,9 @@ type SectionAttachmentEditorProps = {
   formSections: FormSection[];
   onChange: (updated: FormSection[]) => void;
   readOnly?: boolean;
+  onSectionCreated?: (section: AdminSection) => void;
+  accessToken?: string;
+  userOrgId?: string;
 };
 
 export default function SectionAttachmentEditor({
@@ -17,6 +21,9 @@ export default function SectionAttachmentEditor({
   formSections,
   onChange,
   readOnly,
+  onSectionCreated,
+  accessToken,
+  userOrgId,
 }: SectionAttachmentEditorProps) {
   const sectionsBySymbol = useMemo(() => {
     const map = new Map<string, AdminSection[]>();
@@ -61,6 +68,7 @@ export default function SectionAttachmentEditor({
   }, [availableSections]);
 
   const [selectedAddSymbol, setSelectedAddSymbol] = useState('');
+  const [showSectionCreator, setShowSectionCreator] = useState(false);
 
   const sortedCollections = useMemo(
     () =>
@@ -248,6 +256,31 @@ export default function SectionAttachmentEditor({
             Add
           </button>
         </div>
+      )}
+
+      {!readOnly && (
+        <div style={{ marginTop: '0.75rem' }}>
+          <button
+            type="button"
+            className="btn-secondary btn-small"
+            onClick={() => setShowSectionCreator(true)}
+          >
+            + New Section
+          </button>
+        </div>
+      )}
+
+      {showSectionCreator && (
+        <InlineSectionCreator
+          accessToken={accessToken ?? ''}
+          collections={collections}
+          userOrgId={userOrgId}
+          onCreated={(newSection) => {
+            if (onSectionCreated) onSectionCreated(newSection);
+            setShowSectionCreator(false);
+          }}
+          onCancel={() => setShowSectionCreator(false)}
+        />
       )}
     </div>
   );

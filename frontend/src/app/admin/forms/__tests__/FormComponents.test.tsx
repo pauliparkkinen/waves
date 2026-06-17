@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import SectionAttachmentEditor from '../SectionAttachmentEditor';
+import InlineSectionCreator from '../InlineSectionCreator';
 import FormForm from '../FormForm';
 import FormList from '../FormList';
 import type {
@@ -222,6 +223,196 @@ describe('SectionAttachmentEditor', () => {
           order_number: 0,
         },
       ]);
+    });
+  });
+
+  describe('given available sections with create button', () => {
+    it('when + New Section button is clicked, then shows InlineSectionCreator modal', () => {
+      render(
+        <SectionAttachmentEditor
+          sections={mockSections}
+          collections={mockCollections}
+          formSections={[]}
+          onChange={vi.fn()}
+          accessToken="test-token"
+        />,
+      );
+      fireEvent.click(screen.getByRole('button', { name: '+ New Section' }));
+      expect(screen.getByText('Create Section')).toBeInTheDocument();
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('when Cancel is clicked in modal, then hides modal', () => {
+      render(
+        <SectionAttachmentEditor
+          sections={mockSections}
+          collections={mockCollections}
+          formSections={[]}
+          onChange={vi.fn()}
+          accessToken="test-token"
+        />,
+      );
+      fireEvent.click(screen.getByRole('button', { name: '+ New Section' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+      expect(screen.queryByText('Create Section')).not.toBeInTheDocument();
+    });
+
+    it('when a new section is created, then onSectionCreated is called', async () => {
+      const newSection: AdminSection = {
+        collection_id: 'col-1',
+        section_id: 'sec-new',
+        section_symbol: 'new_section',
+        version: 1,
+        status: 'draft',
+        section_questions: [],
+        translations: [],
+      };
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(newSection),
+        text: () => Promise.resolve(''),
+      });
+
+      const onSectionCreated = vi.fn();
+      render(
+        <SectionAttachmentEditor
+          sections={mockSections}
+          collections={mockCollections}
+          formSections={[]}
+          onChange={vi.fn()}
+          accessToken="test-token"
+          onSectionCreated={onSectionCreated}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: '+ New Section' }));
+      const dialog = screen.getByRole('dialog');
+      fireEvent.change(within(dialog).getByLabelText('Section Symbol'), {
+        target: { value: 'new_section' },
+      });
+      const collectionSelect = within(dialog).getAllByRole('combobox')[0];
+      fireEvent.change(collectionSelect, { target: { value: 'col-1' } });
+      fireEvent.click(within(dialog).getByRole('button', { name: 'Create' }));
+
+      await waitFor(() => {
+        expect(onSectionCreated).toHaveBeenCalledWith(newSection);
+      });
+    });
+  });
+});
+
+// ── InlineSectionCreator tests ────────────────────────────────────────────────
+
+describe('InlineSectionCreator', () => {
+  beforeEach(() => {
+    mockFetch.mockReset();
+  });
+
+  describe('given default props', () => {
+    it('when rendered, then shows modal with heading', () => {
+      render(
+        <InlineSectionCreator
+          accessToken="test-token"
+          collections={mockCollections}
+          onCreated={vi.fn()}
+          onCancel={vi.fn()}
+        />,
+      );
+      expect(screen.getByText('Create Section')).toBeInTheDocument();
+      expect(screen.getByLabelText('Section Symbol')).toBeInTheDocument();
+    });
+  });
+
+  describe('given empty form', () => {
+    it('when submitted, then shows required field errors', async () => {
+      render(
+        <InlineSectionCreator
+          accessToken="test-token"
+          collections={mockCollections}
+          onCreated={vi.fn()}
+          onCancel={vi.fn()}
+        />,
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+      expect(
+        await screen.findByText('Section symbol is required'),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByText('Collection is required'),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('given a short symbol', () => {
+    it('when submitted, then shows symbol length validation error', async () => {
+      render(
+        <InlineSectionCreator
+          accessToken="test-token"
+          collections={mockCollections}
+          onCreated={vi.fn()}
+          onCancel={vi.fn()}
+        />,
+      );
+      fireEvent.change(screen.getByLabelText('Section Symbol'), {
+        target: { value: 'a' },
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+      expect(
+        await screen.findByText('Section symbol must be at least 2 characters'),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('given valid form', () => {
+    it('when submitted, then calls onCreated with new section', async () => {
+      const newSection: AdminSection = {
+        collection_id: 'col-1',
+        section_id: 'sec-new',
+        section_symbol: 'new_section',
+        version: 1,
+        status: 'draft',
+        section_questions: [],
+        translations: [],
+      };
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(newSection),
+        text: () => Promise.resolve(''),
+      });
+
+      const onCreated = vi.fn();
+      render(
+        <InlineSectionCreator
+          accessToken="test-token"
+          collections={mockCollections}
+          onCreated={onCreated}
+          onCancel={vi.fn()}
+        />,
+      );
+
+      fireEvent.change(screen.getByLabelText('Section Symbol'), {
+        target: { value: 'new_section' },
+      });
+
+      const collectionSelect = screen.getAllByRole('combobox')[0];
+      fireEvent.change(collectionSelect, { target: { value: 'col-1' } });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+      await waitFor(() => {
+        expect(onCreated).toHaveBeenCalledWith(newSection);
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/admin/sections',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'Content-Type': 'application/json',
+          }),
+          body: expect.stringContaining('new_section'),
+        }),
+      );
     });
   });
 });

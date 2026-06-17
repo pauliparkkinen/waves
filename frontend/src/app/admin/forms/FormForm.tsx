@@ -32,6 +32,7 @@ export default function FormForm({
   onCollectionCreated,
 }: FormFormProps) {
   const [localCollections, setLocalCollections] = useState(collections);
+  const [localSections, setLocalSections] = useState(sections);
   const [showInlineCreator, setShowInlineCreator] = useState(false);
   const isEdit = !!form;
   const isReadOnly = readOnly === true;
@@ -179,11 +180,16 @@ export default function FormForm({
 
       <div className="form-group">
         <SectionAttachmentEditor
-          sections={sections}
-          collections={collections}
+          sections={localSections}
+          collections={localCollections}
           formSections={formSections}
           onChange={setFormSections}
           readOnly={isReadOnly}
+          accessToken={accessToken}
+          userOrgId={userOrgId}
+          onSectionCreated={(newSection) => {
+            setLocalSections((prev) => [...prev, newSection]);
+          }}
         />
       </div>
 
