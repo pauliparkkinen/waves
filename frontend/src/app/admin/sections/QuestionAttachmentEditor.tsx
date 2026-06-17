@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import type { AdminQuestion, AdminCollection, SectionQuestion } from '@/lib/api';
-import InlineQuestionCreator from './InlineQuestionCreator';
+import QuestionForm from '../questions/QuestionForm';
 
 type QuestionAttachmentEditorProps = {
   questions: AdminQuestion[];
@@ -11,7 +11,7 @@ type QuestionAttachmentEditorProps = {
   onChange: (updated: SectionQuestion[]) => void;
   userOrgId?: string;
   accessToken?: string;
-  onQuestionCreated?: (question: AdminQuestion) => void;
+  onQuestionCreated?: (questions: AdminQuestion[]) => void;
   readOnly?: boolean;
 };
 
@@ -25,7 +25,23 @@ export default function QuestionAttachmentEditor({
   onQuestionCreated,
   readOnly,
 }: QuestionAttachmentEditorProps) {
-  const [showQuestionCreator, setShowQuestionCreator] = useState(false);
+  const [showQuestionForm, setShowQuestionForm] = useState(false);
+  const [questionFormError, setQuestionFormError] = useState<string | null>(null);
+
+  const refetchQuestions = useCallback(async () => {
+    if (!accessToken) return;
+    try {
+      const res = await fetch('/api/admin/questions', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        cache: 'no-store',
+      });
+      if (!res.ok) throw new Error(`Failed to refetch questions (${res.status})`);
+      const data = (await res.json()) as AdminQuestion[];
+      if (onQuestionCreated) onQuestionCreated(data);
+    } catch (err) {
+      setQuestionFormError(err instanceof Error ? err.message : 'Failed to refetch questions');
+    }
+  }, [accessToken, onQuestionCreated]);
 
   const questionsBySymbol = useMemo(() => {
     const map = new Map<string, AdminQuestion[]>();
@@ -282,24 +298,43 @@ export default function QuestionAttachmentEditor({
           <button
             type="button"
             className="btn-secondary btn-small"
-            onClick={() => setShowQuestionCreator(true)}
+            onClick={() => setShowQuestionForm(true)}
           >
             + New Question
           </button>
         </div>
       )}
 
-      {showQuestionCreator && (
-        <InlineQuestionCreator
-          accessToken={accessToken ?? ''}
-          collections={collections}
-          userOrgId={userOrgId}
-          onCreated={(newQuestion) => {
-            if (onQuestionCreated) onQuestionCreated(newQuestion);
-            setShowQuestionCreator(false);
-          }}
-          onCancel={() => setShowQuestionCreator(false)}
-        />
+      {questionFormError && (
+        <div className="error-message" role="alert" style={{ marginTop: '0.5rem' }}>
+          {questionFormError}
+        </div>
+      )}
+
+      {showQuestionForm && (
+        <div
+          className="modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="question-form-heading"
+          onClick={() => setShowQuestionForm(false)}
+          onKeyDown={(e) => { if (e.key === 'Escape') setShowQuestionForm(false); }}
+          tabIndex={-1}
+        >
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '40rem' }}>
+            <QuestionForm
+              collections={collections}
+              accessToken={accessToken ?? ''}
+              userOrgId={userOrgId}
+              onSave={() => {
+                setShowQuestionForm(false);
+                setQuestionFormError(null);
+                refetchQuestions();
+              }}
+              onCancel={() => setShowQuestionForm(false)}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

@@ -204,8 +204,8 @@ export default function SectionForm({
           onChange={setSectionQuestions}
           userOrgId={userOrgId}
           accessToken={accessToken}
-          onQuestionCreated={(newQ) => {
-            setLocalQuestions((prev) => [...prev, newQ]);
+          onQuestionCreated={(updatedQuestions) => {
+            setLocalQuestions(updatedQuestions);
           }}
           readOnly={isReadOnly}
         />
