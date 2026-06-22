@@ -2,9 +2,9 @@
   "id": "TASK-15",
   "title": "Frontend: Formula Editor Popup Component",
   "description": "Build a popup formula editor with human-readable expression input. Variable insertion from current collection (question values, formula results). Operator buttons (+, -, *, /, &&, ||, ?: ternary). Real-time syntax validation with error display. Output type display. JSON AST generation on save.",
-  "status": "Ready-to-review",
+  "status": "Approved",
   "creationDate": "2026-06-11T12:53:17.838Z",
-  "updateDate": "2026-06-17T17:02:00.893Z",
+  "updateDate": "2026-06-22T07:49:46.525Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -26,6 +26,14 @@
       "changedBy": "planner-agent",
       "changedAt": "2026-06-17T17:02:00.893Z",
       "comment": "Implementation complete. All components built: FormulaEditorPopup, FormulaList, astConverter, API proxy routes, backend wiring, integrations into FormForm/SectionForm/QuestionForm. Build passes, code review completed."
+    },
+    {
+      "fromStatus": "Ready-to-review",
+      "toStatus": "Approved",
+      "changedBy": "Pauli Parkkinen",
+      "changedAt": "2026-06-22T07:49:46.524Z",
+      "approvedBy": "Pauli Parkkinen",
+      "approvedAt": "2026-06-22T07:49:46.525Z"
     }
   ],
   "changeHistory": [
