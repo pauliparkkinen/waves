@@ -5,7 +5,7 @@ import QuestionTypeSpecificParams from '../QuestionTypeSpecificParams';
 import QuestionForm from '../QuestionForm';
 import QuestionList from '../QuestionList';
 import InlineCollectionCreator from '../InlineCollectionCreator';
-import type { AdminQuestion, AdminCollection } from '@/lib/api';
+import type { AdminQuestion, AdminCollection, Translation } from '@/lib/api';
 
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
@@ -16,6 +16,16 @@ vi.mock('next/navigation', () => ({
 // Mock global fetch
 const mockFetch = vi.fn();
 globalThis.fetch = mockFetch;
+
+function mockGetOk(times = 1) {
+  for (let i = 0; i < times; i++) {
+    mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]), text: () => Promise.resolve('') });
+  }
+}
+
+beforeEach(() => {
+  mockFetch.mockReset();
+});
 
 const mockCollections: AdminCollection[] = [
   { collection_id: 'col-1', collection_symbol: 'financial', collection_permissions: [] },
@@ -37,10 +47,18 @@ const mockQuestion: AdminQuestion = {
 
 // ── OptionsEditor tests ──────────────────────────────────────────────────────
 
+const optionsEditorBaseProps = {
+  collectionId: 'col-1',
+  entitySymbol: 'test-question',
+  accessToken: 'test-token',
+  translations: [] as Translation[],
+};
+
 describe('OptionsEditor', () => {
   describe('given no options', () => {
     it('when rendered, then shows empty state and Add Option button', () => {
-      render(<OptionsEditor options={[]} onChange={vi.fn()} />);
+      mockGetOk(1); // TranslationField fetch
+      render(<OptionsEditor options={[]} onChange={vi.fn()} {...optionsEditorBaseProps} />);
       expect(screen.getByText("No options defined. Click 'Add Option' to add one.")).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Add Option/i })).toBeInTheDocument();
     });
@@ -49,7 +67,8 @@ describe('OptionsEditor', () => {
   describe('given empty options', () => {
     it('when Add Option is clicked, then calls onChange with a new option row', () => {
       const onChange = vi.fn();
-      render(<OptionsEditor options={[]} onChange={onChange} />);
+      mockGetOk(1); // TranslationField fetch
+      render(<OptionsEditor options={[]} onChange={onChange} {...optionsEditorBaseProps} />);
       fireEvent.click(screen.getByRole('button', { name: /Add Option/i }));
       const callArg = onChange.mock.calls[0][0] as unknown[];
       expect(callArg).toHaveLength(1);
@@ -68,7 +87,8 @@ describe('OptionsEditor', () => {
         { label: 'No', value: 'no', order_index: 1 },
       ];
       const onChange = vi.fn();
-      render(<OptionsEditor options={options} onChange={onChange} />);
+      mockGetOk(2); // TranslationField fetch for each option card
+      render(<OptionsEditor options={options} onChange={onChange} {...optionsEditorBaseProps} />);
       const removeButtons = screen.getAllByRole('button', { name: /Remove option/i });
       fireEvent.click(removeButtons[0]);
       expect(onChange).toHaveBeenCalledWith([
@@ -78,24 +98,14 @@ describe('OptionsEditor', () => {
   });
 
   describe('given an option row', () => {
-    it('when label is changed, then calls onChange with updated label', () => {
+    it('when value is changed, then calls onChange with updated value', () => {
       const options = [{ label: 'Old', value: 'val', order_index: 0 }];
       const onChange = vi.fn();
-      render(<OptionsEditor options={options} onChange={onChange} />);
-      const labelInput = screen.getByLabelText('Option 1 label (translation ref)');
-      fireEvent.change(labelInput, { target: { value: 'New Label' } });
-      expect(onChange).toHaveBeenCalledWith([{ label: 'New Label', value: 'val', order_index: 0 }]);
-    });
-  });
-
-  describe('given an option row', () => {
-    it('when value is changed, then calls onChange with updated value', () => {
-      const options = [{ label: 'Label', value: 'old', order_index: 0 }];
-      const onChange = vi.fn();
-      render(<OptionsEditor options={options} onChange={onChange} />);
+      mockGetOk(1); // TranslationField fetch
+      render(<OptionsEditor options={options} onChange={onChange} {...optionsEditorBaseProps} />);
       const valueInput = screen.getByLabelText('Option 1 value');
       fireEvent.change(valueInput, { target: { value: 'new_value' } });
-      expect(onChange).toHaveBeenCalledWith([{ label: 'Label', value: 'new_value', order_index: 0 }]);
+      expect(onChange).toHaveBeenCalledWith([{ label: 'Old', value: 'new_value', order_index: 0 }]);
     });
   });
 
@@ -106,11 +116,12 @@ describe('OptionsEditor', () => {
         { label: 'B', value: 'b', order_index: 1 },
         { label: 'C', value: 'c', order_index: 2 },
       ];
-      render(<OptionsEditor options={options} onChange={vi.fn()} />);
-      const orderCells = screen.getAllByRole('row').slice(1).map(
-        (row) => row.querySelector('.option-order')?.textContent,
-      );
-      expect(orderCells).toEqual(['1', '2', '3']);
+      mockGetOk(3); // TranslationField fetch for each option card
+      render(<OptionsEditor options={options} onChange={vi.fn()} {...optionsEditorBaseProps} />);
+      const orderNumbers = screen.getAllByText(/^\d+$/).filter(
+        (el) => el.classList.contains('option-order'),
+      ).map((el) => el.textContent);
+      expect(orderNumbers).toEqual(['1', '2', '3']);
     });
   });
 
@@ -120,7 +131,8 @@ describe('OptionsEditor', () => {
       const onChange = vi.fn().mockImplementation((newOpts: typeof options) => {
         options = newOpts;
       });
-      const { rerender } = render(<OptionsEditor options={options} onChange={onChange} />);
+      mockGetOk(1); // TranslationField fetch for initial render
+      const { rerender } = render(<OptionsEditor options={options} onChange={onChange} {...optionsEditorBaseProps} />);
 
       fireEvent.click(screen.getAllByRole('button', { name: /Add Option/i })[0]);
       const call1 = onChange.mock.calls[0][0] as unknown[];
@@ -128,7 +140,8 @@ describe('OptionsEditor', () => {
       expect(call1[0]).toMatchObject({ label: 'First', value: '1', order_index: 5 });
       expect(call1[1]).toMatchObject({ label: '', value: '', order_index: 6 });
 
-      rerender(<OptionsEditor options={options} onChange={onChange} />);
+      mockGetOk(2); // TranslationField fetch for rerender
+      rerender(<OptionsEditor options={options} onChange={onChange} {...optionsEditorBaseProps} />);
       onChange.mockClear();
       fireEvent.click(screen.getAllByRole('button', { name: /Add Option/i })[0]);
       const call2 = onChange.mock.calls[0][0] as unknown[];
@@ -140,6 +153,13 @@ describe('OptionsEditor', () => {
 
 // ── QuestionTypeSpecificParams tests ─────────────────────────────────────────
 
+const tsParamsBaseProps = {
+  collectionId: 'col-1',
+  entitySymbol: 'test-question',
+  accessToken: 'test-token',
+  translations: [] as Translation[],
+};
+
 describe('QuestionTypeSpecificParams', () => {
   describe('given no type', () => {
     it('when rendered, then shows select a question type message', () => {
@@ -148,6 +168,7 @@ describe('QuestionTypeSpecificParams', () => {
           type={'' as never}
           parameters={{}}
           onChange={vi.fn()}
+          {...tsParamsBaseProps}
         />,
       );
       expect(screen.getByText('Select a question type to see its parameters.')).toBeInTheDocument();
@@ -161,28 +182,30 @@ describe('QuestionTypeSpecificParams', () => {
           type="free-text"
           parameters={{}}
           onChange={vi.fn()}
+          {...tsParamsBaseProps}
         />,
       );
       expect(screen.getByLabelText('Max characters')).toBeInTheDocument();
-      expect(screen.getByLabelText('Placeholder')).toBeInTheDocument();
+      expect(screen.getByText('Placeholder')).toBeInTheDocument();
       expect(screen.getByLabelText('Multi-line text area')).toBeInTheDocument();
     });
   });
 
   describe('given range type', () => {
-    it('when rendered, then shows min, max, step, min_label, and max_label fields', () => {
+    it('when rendered, then shows min, max, step, and translation label fields', () => {
       render(
         <QuestionTypeSpecificParams
           type="range"
           parameters={{}}
           onChange={vi.fn()}
+          {...tsParamsBaseProps}
         />,
       );
       expect(screen.getByLabelText('Min *')).toBeInTheDocument();
       expect(screen.getByLabelText('Max *')).toBeInTheDocument();
       expect(screen.getByLabelText('Step')).toBeInTheDocument();
-      expect(screen.getByLabelText('Minimum label')).toBeInTheDocument();
-      expect(screen.getByLabelText('Maximum label')).toBeInTheDocument();
+      expect(screen.getByText('Minimum label')).toBeInTheDocument();
+      expect(screen.getByText('Maximum label')).toBeInTheDocument();
     });
   });
 
@@ -193,6 +216,7 @@ describe('QuestionTypeSpecificParams', () => {
           type="select"
           parameters={{}}
           onChange={vi.fn()}
+          {...tsParamsBaseProps}
         />,
       );
       expect(screen.getByText(/No options defined/)).toBeInTheDocument();
@@ -207,6 +231,7 @@ describe('QuestionTypeSpecificParams', () => {
           type="multiselect"
           parameters={{}}
           onChange={vi.fn()}
+          {...tsParamsBaseProps}
         />,
       );
       expect(screen.getByText(/No options defined/)).toBeInTheDocument();
@@ -222,6 +247,7 @@ describe('QuestionTypeSpecificParams', () => {
           type="radio"
           parameters={{}}
           onChange={vi.fn()}
+          {...tsParamsBaseProps}
         />,
       );
       expect(screen.getByText(/No options defined/)).toBeInTheDocument();
@@ -237,6 +263,7 @@ describe('QuestionTypeSpecificParams', () => {
           type="free-text"
           parameters={{}}
           onChange={onChange}
+          {...tsParamsBaseProps}
         />,
       );
       const maxLengthInput = screen.getByLabelText('Max characters');
@@ -252,6 +279,7 @@ describe('QuestionTypeSpecificParams', () => {
           type="select"
           parameters={{}}
           onChange={vi.fn()}
+          {...tsParamsBaseProps}
         />,
       );
       expect(screen.getByText(/No options defined/)).toBeInTheDocument();
@@ -268,6 +296,7 @@ describe('QuestionForm', () => {
 
   describe('given create mode', () => {
     it('when rendered, then shows "Create Question" heading', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           collections={mockCollections}
@@ -282,6 +311,7 @@ describe('QuestionForm', () => {
 
   describe('given edit mode with a question', () => {
     it('when rendered, then shows "Edit Question" heading and pre-fills data', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           question={mockQuestion}
@@ -299,6 +329,7 @@ describe('QuestionForm', () => {
 
   describe('given empty form', () => {
     it('when submitted, then shows validation errors for required fields', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           collections={mockCollections}
@@ -316,6 +347,7 @@ describe('QuestionForm', () => {
 
   describe('given a short symbol', () => {
     it('when submitted, then shows symbol length validation error', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           collections={mockCollections}
@@ -333,6 +365,7 @@ describe('QuestionForm', () => {
 
   describe('given an invalid symbol', () => {
     it('when submitted, then shows symbol pattern validation error', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           collections={mockCollections}
@@ -352,6 +385,7 @@ describe('QuestionForm', () => {
 
   describe('given type radio buttons', () => {
     it('when a radio is clicked, then that type is selected', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           collections={mockCollections}
@@ -368,6 +402,7 @@ describe('QuestionForm', () => {
 
   describe('given form with symbol and type but no collection', () => {
     it('when submitted, then shows collection required error', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           collections={mockCollections}
@@ -385,6 +420,8 @@ describe('QuestionForm', () => {
 
   describe('given valid create form', () => {
     it('when submitted, then calls POST /api/admin/questions with correct body', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // refreshFormulas
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockQuestion),
@@ -420,6 +457,8 @@ describe('QuestionForm', () => {
 
   describe('given valid edit form', () => {
     it('when submitted, then calls PUT /api/admin/questions/:id with correct body', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // refreshFormulas
       const editQuestion: AdminQuestion = {
         ...mockQuestion,
         question_id: 'q-1',
@@ -459,6 +498,7 @@ describe('QuestionForm', () => {
 
   describe('given create form with type selected', () => {
     it('when type is selected, then type-specific params section appears', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           collections={mockCollections}
@@ -475,6 +515,7 @@ describe('QuestionForm', () => {
 
   describe('given create form', () => {
     it('when + New Collection is clicked, then shows InlineCollectionCreator modal', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           collections={mockCollections}
@@ -491,6 +532,7 @@ describe('QuestionForm', () => {
 
   describe('given create form with valid data', () => {
     it('when Cancel is clicked, then calls onCancel', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       const onCancel = vi.fn();
       render(
         <QuestionForm
@@ -507,6 +549,8 @@ describe('QuestionForm', () => {
 
   describe('given valid form with API error', () => {
     it('when submitted, then shows error banner', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // refreshFormulas
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -533,6 +577,8 @@ describe('QuestionForm', () => {
 
   describe('given valid form with network error', () => {
     it('when submitted, then shows generic error message', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // refreshFormulas
       mockFetch.mockRejectedValueOnce(new TypeError('Network error'));
 
       render(
@@ -658,6 +704,7 @@ describe('QuestionList', () => {
 
   describe('given questions with data', () => {
     it('when Edit is clicked on a row, then renders QuestionForm for that question', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionList
           initialQuestions={mockQuestions}

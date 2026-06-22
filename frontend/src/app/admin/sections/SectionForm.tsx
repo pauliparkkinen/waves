@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import type { AdminSection, AdminCollection, AdminQuestion, SectionQuestion, Formula } from '@/lib/api';
+import { useState, useEffect, useCallback } from 'react';
+import type { AdminSection, AdminCollection, AdminQuestion, SectionQuestion, Formula, Translation, TranslationRef } from '@/lib/api';
+import TranslationField from '../components/TranslationField';
 import QuestionAttachmentEditor from './QuestionAttachmentEditor';
 import CollectionSelector from '../collections/CollectionSelector';
 import InlineCollectionCreator from '../questions/InlineCollectionCreator';
@@ -53,6 +54,30 @@ export default function SectionForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [allTranslations, setAllTranslations] = useState<Translation[]>([]);
+  // Initialize from existing translations in submission order ([0]=Title, [1]=Description)
+  const [titleTranslation, setTitleTranslation] = useState<TranslationRef | null>(
+    section?.translations?.[0] ?? null,
+  );
+  const [descriptionTranslation, setDescriptionTranslation] = useState<TranslationRef | null>(
+    section?.translations?.[1] ?? null,
+  );
+
+  const refreshTranslations = useCallback(async () => {
+    if (!collectionId) return;
+    try {
+      const res = await fetch(
+        `/api/admin/translations?collection_id=${encodeURIComponent(collectionId)}`,
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      );
+      const data = (await (res.ok ? res.json() : Promise.resolve([]))) as Translation[];
+      setAllTranslations(data);
+    } catch {
+      setAllTranslations([]);
+    }
+  }, [collectionId, accessToken]);
+
+  useEffect(() => { refreshTranslations(); }, [refreshTranslations]);
 
   function validate(): boolean {
     const errors: Record<string, string> = {};
@@ -118,7 +143,7 @@ export default function SectionForm({
         ...(isEdit ? {} : { status: 'draft' as const }),
         condition_formula_id: conditionFormulaId,
         section_questions: sectionQuestions,
-        translations: section?.translations ?? [],
+        translations: [titleTranslation, descriptionTranslation].filter((t): t is TranslationRef => t !== null),
       };
 
       const url = isEdit
@@ -276,16 +301,30 @@ export default function SectionForm({
         />
       </div>
 
-      {!isReadOnly && (
-        <div className="form-group">
-          <button
-            type="button"
-            className="btn-secondary btn-small"
-            disabled
-            title="Coming soon"
-          >
-            Translations
-          </button>
+      {!isReadOnly && collectionId && (
+        <div className="form-group translation-fields-group">
+          <TranslationField
+            label="Section Title"
+            collectionId={collectionId}
+            entitySymbol={symbol.trim() || section?.section_symbol || ''}
+            accessToken={accessToken}
+            value={titleTranslation ?? undefined}
+            onChange={(ref) => setTitleTranslation(ref)}
+            readOnly={isReadOnly}
+            translations={allTranslations}
+            onManageSaved={refreshTranslations}
+          />
+          <TranslationField
+            label="Description"
+            collectionId={collectionId}
+            entitySymbol={symbol.trim() || section?.section_symbol || ''}
+            accessToken={accessToken}
+            value={descriptionTranslation ?? undefined}
+            onChange={(ref) => setDescriptionTranslation(ref)}
+            readOnly={isReadOnly}
+            translations={allTranslations}
+            onManageSaved={refreshTranslations}
+          />
         </div>
       )}
 

@@ -22,6 +22,12 @@ vi.mock('next/navigation', () => ({
 const mockFetch = vi.fn();
 globalThis.fetch = mockFetch;
 
+function mockGetOk(times = 1) {
+  for (let i = 0; i < times; i++) {
+    mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]), text: () => Promise.resolve('') });
+  }
+}
+
 beforeEach(() => {
   mockFetch.mockReset();
 });
@@ -294,6 +300,7 @@ describe('SectionForm', () => {
 
   describe('given create mode', () => {
     it('when rendered, then shows "Create Section" heading', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <SectionForm
           collections={mockCollections}
@@ -309,6 +316,7 @@ describe('SectionForm', () => {
 
   describe('given edit mode with a section', () => {
     it('when rendered, then shows "Edit Section" heading', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <SectionForm
           section={mockSection}
@@ -325,6 +333,7 @@ describe('SectionForm', () => {
 
   describe('given empty section_symbol', () => {
     it('when submitted, then shows validation error', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <SectionForm
           collections={mockCollections}
@@ -343,6 +352,8 @@ describe('SectionForm', () => {
 
   describe('given valid input on create', () => {
     it('when submitted, then calls POST /api/admin/sections with status draft', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // refreshFormulas
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockSection),
@@ -391,6 +402,8 @@ describe('SectionForm', () => {
 
   describe('given valid input on edit', () => {
     it('when submitted, then calls PUT on the correct section ID', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // refreshFormulas
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockSection),
@@ -427,6 +440,7 @@ describe('SectionForm', () => {
 
   describe('given a short symbol', () => {
     it('when submitted, then shows symbol length validation error', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <SectionForm
           collections={mockCollections}
@@ -448,6 +462,7 @@ describe('SectionForm', () => {
 
   describe('given an invalid symbol pattern', () => {
     it('when submitted, then shows symbol pattern validation error', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <SectionForm
           collections={mockCollections}
@@ -471,6 +486,7 @@ describe('SectionForm', () => {
 
   describe('given missing collection', () => {
     it('when submitted, then shows collection validation error', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <SectionForm
           collections={mockCollections}
@@ -493,6 +509,8 @@ describe('SectionForm', () => {
 
   describe('given valid form with API error (400)', () => {
     it('when submitted, then shows error banner', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // refreshFormulas
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -523,6 +541,8 @@ describe('SectionForm', () => {
 
   describe('given valid form with network error', () => {
     it('when submitted, then shows generic error message', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // refreshFormulas
       mockFetch.mockRejectedValueOnce(new TypeError('Network error'));
 
       render(
@@ -551,6 +571,7 @@ describe('SectionForm', () => {
 
   describe('given readOnly mode', () => {
     it('when rendered, then shows View Section heading and Close button', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <SectionForm
           section={mockSection}
@@ -680,6 +701,7 @@ describe('SectionList', () => {
 
   describe('given sections', () => {
     it('when Edit clicked on draft latest, then shows inline form in table row', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <SectionList
           initialSections={mockSections}
@@ -932,6 +954,7 @@ describe('SectionList', () => {
 
   describe('given a published section', () => {
     it('when View is clicked, then shows read-only form', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <SectionList
           initialSections={mockSections}
@@ -1001,6 +1024,7 @@ describe('SectionList', () => {
 describe('QuestionAttachmentEditor with create button', () => {
   describe('given available questions', () => {
     it('when + New Question button is clicked, then shows QuestionForm in a modal', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionAttachmentEditor
           questions={mockQuestions}
@@ -1016,6 +1040,7 @@ describe('QuestionAttachmentEditor with create button', () => {
     });
 
     it('when Cancel is clicked in modal, then hides modal', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionAttachmentEditor
           questions={mockQuestions}
@@ -1047,6 +1072,8 @@ describe('QuestionAttachmentEditor with create button', () => {
         },
       ];
 
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // QuestionForm's refreshFormulas
       // First call: QuestionForm's POST on save
       mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(updatedQuestions[3]), text: () => Promise.resolve('') });
       // Second call: refetchQuestions after save

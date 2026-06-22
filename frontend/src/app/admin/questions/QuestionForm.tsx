@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import type { AdminQuestion, AdminCollection, QuestionType, Formula } from "@/lib/api";
+import { useState, useEffect, useCallback } from "react";
+import type { AdminQuestion, AdminCollection, QuestionType, Formula, Translation, TranslationRef } from "@/lib/api";
+import TranslationField from "../components/TranslationField";
 import CollectionSelector from "../collections/CollectionSelector";
 import QuestionTypeSpecificParams from "./QuestionTypeSpecificParams";
 import InlineCollectionCreator from "./InlineCollectionCreator";
@@ -58,6 +59,14 @@ export default function QuestionForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [allTranslations, setAllTranslations] = useState<Translation[]>([]);
+  // Initialize from existing translations in submission order ([0]=Title, [1]=Description)
+  const [titleTranslation, setTitleTranslation] = useState<TranslationRef | null>(
+    question?.translations?.[0] ?? null,
+  );
+  const [descriptionTranslation, setDescriptionTranslation] = useState<TranslationRef | null>(
+    question?.translations?.[1] ?? null,
+  );
 
   function validate(): boolean {
     const errors: Record<string, string> = {};
@@ -127,7 +136,7 @@ export default function QuestionForm({
         parameters,
         condition_formula_id: conditionFormulaId,
         value_type: valueType,
-        translations: question?.translations ?? [],
+        translations: [titleTranslation, descriptionTranslation].filter((t): t is TranslationRef => t !== null),
       };
 
       const url = isEdit
@@ -178,6 +187,22 @@ export default function QuestionForm({
       /* silently ignore */
     }
   }
+
+  const refreshTranslations = useCallback(async () => {
+    if (!collectionId) return;
+    try {
+      const res = await fetch(
+        `/api/admin/translations?collection_id=${encodeURIComponent(collectionId)}`,
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      );
+      const data = (await (res.ok ? res.json() : Promise.resolve([]))) as Translation[];
+      setAllTranslations(data);
+    } catch {
+      setAllTranslations([]);
+    }
+  }, [collectionId, accessToken]);
+
+  useEffect(() => { refreshTranslations(); }, [refreshTranslations]);
 
   useEffect(() => {
     refreshFormulas();
@@ -246,16 +271,30 @@ export default function QuestionForm({
         )}
       </div>
 
-      <div className="form-group">
-        <button
-          type="button"
-          className="btn-secondary btn-small"
-          disabled
-          title="Coming soon"
-        >
-          Translations
-        </button>
-      </div>
+      {collectionId && (
+        <>
+          <TranslationField
+            label="Title"
+            collectionId={collectionId}
+            entitySymbol={symbol.trim() || question?.question_symbol || ''}
+            accessToken={accessToken}
+            value={titleTranslation ?? undefined}
+            onChange={(ref) => setTitleTranslation(ref)}
+            translations={allTranslations}
+            onManageSaved={refreshTranslations}
+          />
+          <TranslationField
+            label="Description"
+            collectionId={collectionId}
+            entitySymbol={symbol.trim() || question?.question_symbol || ''}
+            accessToken={accessToken}
+            value={descriptionTranslation ?? undefined}
+            onChange={(ref) => setDescriptionTranslation(ref)}
+            translations={allTranslations}
+            onManageSaved={refreshTranslations}
+          />
+        </>
+      )}
 
       {/* Section 2: Type Selector */}
       <div className="form-group">
@@ -290,6 +329,11 @@ export default function QuestionForm({
             parameters={parameters}
             onChange={setParameters}
             valueType={valueType}
+            collectionId={collectionId}
+            entitySymbol={symbol.trim() || question?.question_symbol || ''}
+            accessToken={accessToken}
+            translations={allTranslations}
+            onManageSaved={refreshTranslations}
           />
           {fieldErrors.parameters && (
             <p className="inline-error" role="alert">

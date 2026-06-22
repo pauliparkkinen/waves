@@ -1,14 +1,20 @@
 'use client';
 
 import { useCallback } from 'react';
-import type { QuestionType } from '@/lib/api';
+import type { QuestionType, Translation, TranslationRef } from '@/lib/api';
 import OptionsEditor from './OptionsEditor';
+import TranslationField from '../components/TranslationField';
 
 type QuestionTypeSpecificParamsProps = {
   type: QuestionType;
   parameters: Record<string, unknown>;
   onChange: (parameters: Record<string, unknown>) => void;
   valueType?: string;
+  collectionId?: string;
+  entitySymbol: string;
+  accessToken: string;
+  translations: Translation[];
+  onManageSaved?: () => void;
 };
 
 function isValidOption(
@@ -29,11 +35,22 @@ function ensureOptions(
   return Array.isArray(raw) ? raw.filter(isValidOption) : [];
 }
 
+function paramToRef(value: unknown, symbol: string): TranslationRef | undefined {
+  return typeof value === 'string' && value.trim()
+    ? { translation_symbol: value.trim(), symbol }
+    : undefined;
+}
+
 export default function QuestionTypeSpecificParams({
   type,
   parameters,
   onChange,
   valueType,
+  collectionId,
+  entitySymbol,
+  accessToken,
+  translations,
+  onManageSaved,
 }: QuestionTypeSpecificParamsProps) {
   const updateParam = useCallback(
     (key: string, value: unknown) => {
@@ -73,28 +90,16 @@ export default function QuestionTypeSpecificParams({
             />
           </div>
           <div className="form-group">
-            <div className="translation-ref-header">
-              <label htmlFor="param-placeholder">Placeholder</label>
-              <span className="translation-ref-badge">translation ref</span>
-            </div>
-            <div className="translation-ref-field">
-              <input
-                id="param-placeholder"
-                type="text"
-                className="collection-selector"
-                value={(parameters.placeholder as string | undefined) ?? ''}
-                onChange={(e) => updateParam('placeholder', e.target.value)}
-                placeholder="translation_symbol"
-              />
-              <button
-                type="button"
-                className="btn-secondary btn-small btn-translate"
-                disabled
-                title="Coming soon"
-              >
-                Add Translation
-              </button>
-            </div>
+            <TranslationField
+              label="Placeholder"
+              collectionId={collectionId ?? ''}
+              entitySymbol={entitySymbol}
+              accessToken={accessToken}
+              value={paramToRef(parameters.placeholder, entitySymbol)}
+              onChange={(ref) => updateParam('placeholder', ref?.translation_symbol ?? undefined)}
+              translations={translations}
+              onManageSaved={onManageSaved}
+            />
           </div>
           <div className="form-group">
             <label>
@@ -151,52 +156,28 @@ export default function QuestionTypeSpecificParams({
             />
           </div>
           <div className="form-group">
-            <div className="translation-ref-header">
-              <label htmlFor="param-min-label">Minimum label</label>
-              <span className="translation-ref-badge">translation ref</span>
-            </div>
-            <div className="translation-ref-field">
-              <input
-                id="param-min-label"
-                type="text"
-                className="collection-selector"
-                value={(parameters.min_label as string | undefined) ?? ''}
-                onChange={(e) => updateParam('min_label', e.target.value)}
-                placeholder="translation_symbol"
-              />
-              <button
-                type="button"
-                className="btn-secondary btn-small btn-translate"
-                disabled
-                title="Coming soon"
-              >
-                Add Translation
-              </button>
-            </div>
+            <TranslationField
+              label="Minimum label"
+              collectionId={collectionId ?? ''}
+              entitySymbol={entitySymbol}
+              accessToken={accessToken}
+              value={paramToRef(parameters.min_label, entitySymbol)}
+              onChange={(ref) => updateParam('min_label', ref?.translation_symbol ?? undefined)}
+              translations={translations}
+              onManageSaved={onManageSaved}
+            />
           </div>
           <div className="form-group">
-            <div className="translation-ref-header">
-              <label htmlFor="param-max-label">Maximum label</label>
-              <span className="translation-ref-badge">translation ref</span>
-            </div>
-            <div className="translation-ref-field">
-              <input
-                id="param-max-label"
-                type="text"
-                className="collection-selector"
-                value={(parameters.max_label as string | undefined) ?? ''}
-                onChange={(e) => updateParam('max_label', e.target.value)}
-                placeholder="translation_symbol"
-              />
-              <button
-                type="button"
-                className="btn-secondary btn-small btn-translate"
-                disabled
-                title="Coming soon"
-              >
-                Add Translation
-              </button>
-            </div>
+            <TranslationField
+              label="Maximum label"
+              collectionId={collectionId ?? ''}
+              entitySymbol={entitySymbol}
+              accessToken={accessToken}
+              value={paramToRef(parameters.max_label, entitySymbol)}
+              onChange={(ref) => updateParam('max_label', ref?.translation_symbol ?? undefined)}
+              translations={translations}
+              onManageSaved={onManageSaved}
+            />
           </div>
         </div>
       );
@@ -210,6 +191,11 @@ export default function QuestionTypeSpecificParams({
               options={ensureOptions(parameters.options)}
               onChange={(opts) => updateParam('options', opts)}
               valueType={valueType}
+              collectionId={collectionId}
+              entitySymbol={entitySymbol}
+              accessToken={accessToken}
+              translations={translations}
+              onManageSaved={onManageSaved}
             />
           </div>
         </div>
@@ -224,6 +210,11 @@ export default function QuestionTypeSpecificParams({
               options={ensureOptions(parameters.options)}
               onChange={(opts) => updateParam('options', opts)}
               valueType={valueType}
+              collectionId={collectionId}
+              entitySymbol={entitySymbol}
+              accessToken={accessToken}
+              translations={translations}
+              onManageSaved={onManageSaved}
             />
           </div>
           <div className="form-group">
@@ -268,6 +259,11 @@ export default function QuestionTypeSpecificParams({
               options={ensureOptions(parameters.options)}
               onChange={(opts) => updateParam('options', opts)}
               valueType={valueType}
+              collectionId={collectionId}
+              entitySymbol={entitySymbol}
+              accessToken={accessToken}
+              translations={translations}
+              onManageSaved={onManageSaved}
             />
           </div>
         </div>

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from 'react';
-import type { AdminForm, AdminCollection, AdminSection, FormSection } from '@/lib/api';
+import { useState, useEffect, useCallback } from 'react';
+import type { AdminForm, AdminCollection, AdminSection, FormSection, Translation, TranslationRef } from '@/lib/api';
+import TranslationField from '../components/TranslationField';
 import SectionAttachmentEditor from './SectionAttachmentEditor';
 import CollectionSelector from '../collections/CollectionSelector';
 import InlineCollectionCreator from '../questions/InlineCollectionCreator';
@@ -51,6 +52,30 @@ export default function FormForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [allTranslations, setAllTranslations] = useState<Translation[]>([]);
+  // Initialize from existing translations in submission order ([0]=Title, [1]=Description)
+  const [titleTranslation, setTitleTranslation] = useState<TranslationRef | null>(
+    form?.translations?.[0] ?? null,
+  );
+  const [descriptionTranslation, setDescriptionTranslation] = useState<TranslationRef | null>(
+    form?.translations?.[1] ?? null,
+  );
+
+  const refreshTranslations = useCallback(async () => {
+    if (!collectionId) return;
+    try {
+      const res = await fetch(
+        `/api/admin/translations?collection_id=${encodeURIComponent(collectionId)}`,
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      );
+      const data = (await (res.ok ? res.json() : Promise.resolve([]))) as Translation[];
+      setAllTranslations(data);
+    } catch {
+      setAllTranslations([]);
+    }
+  }, [collectionId, accessToken]);
+
+  useEffect(() => { refreshTranslations(); }, [refreshTranslations]);
 
   function handleCollectionCreated(created: AdminCollection) {
     setLocalCollections((prev) => [...prev, created]);
@@ -97,7 +122,7 @@ export default function FormForm({
         form_sections: formSections,
         formulas: formulaIds,
         form_organisations: form?.form_organisations ?? [],
-        translations: form?.translations ?? [],
+        translations: [titleTranslation, descriptionTranslation].filter((t): t is TranslationRef => t !== null),
       };
 
       const url = isEdit
@@ -211,24 +236,30 @@ export default function FormForm({
         </div>
       )}
 
-      {!isReadOnly && (
-        <div className="form-group" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            className="btn-secondary btn-small"
-            disabled
-            title="Coming soon"
-          >
-            Translations
-          </button>
-          <button
-            type="button"
-            className="btn-secondary btn-small"
-            disabled
-            title="Coming soon"
-          >
-            Test Mode
-          </button>
+      {!isReadOnly && collectionId && (
+        <div className="form-group translation-fields-group">
+          <TranslationField
+            label="Form Title"
+            collectionId={collectionId}
+            entitySymbol={symbol.trim() || form?.form_symbol || ''}
+            accessToken={accessToken}
+            value={titleTranslation ?? undefined}
+            onChange={(ref) => setTitleTranslation(ref)}
+            readOnly={isReadOnly}
+            translations={allTranslations}
+            onManageSaved={refreshTranslations}
+          />
+          <TranslationField
+            label="Description"
+            collectionId={collectionId}
+            entitySymbol={symbol.trim() || form?.form_symbol || ''}
+            accessToken={accessToken}
+            value={descriptionTranslation ?? undefined}
+            onChange={(ref) => setDescriptionTranslation(ref)}
+            readOnly={isReadOnly}
+            translations={allTranslations}
+            onManageSaved={refreshTranslations}
+          />
         </div>
       )}
 
