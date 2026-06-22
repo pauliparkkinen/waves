@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import type { AdminForm, AdminCollection, AdminSection, FormSection, Translation, TranslationRef } from '@/lib/api';
-import TranslationEditorPopup from '../components/TranslationEditorPopup';
+import type { AdminForm, AdminCollection, AdminSection, FormSection, TranslationRef } from '@/lib/api';
+import TranslationField from '../components/TranslationField';
 import SectionAttachmentEditor from './SectionAttachmentEditor';
 import CollectionSelector from '../collections/CollectionSelector';
 import InlineCollectionCreator from '../questions/InlineCollectionCreator';
@@ -52,10 +52,8 @@ export default function FormForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [showTranslationPopup, setShowTranslationPopup] = useState(false);
-  const [translationRefs, setTranslationRefs] = useState<TranslationRef[]>(
-    form?.translations ?? [],
-  );
+  const [titleTranslation, setTitleTranslation] = useState<TranslationRef | null>(null);
+  const [descriptionTranslation, setDescriptionTranslation] = useState<TranslationRef | null>(null);
 
   function handleCollectionCreated(created: AdminCollection) {
     setLocalCollections((prev) => [...prev, created]);
@@ -102,7 +100,7 @@ export default function FormForm({
         form_sections: formSections,
         formulas: formulaIds,
         form_organisations: form?.form_organisations ?? [],
-        translations: translationRefs,
+        translations: [titleTranslation, descriptionTranslation].filter((t): t is TranslationRef => t !== null),
       };
 
       const url = isEdit
@@ -217,22 +215,25 @@ export default function FormForm({
       )}
 
       {!isReadOnly && (
-        <div className="form-group" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            className="btn-secondary btn-small"
-            onClick={() => setShowTranslationPopup(true)}
-          >
-            Translations ({translationRefs.length})
-          </button>
-          <button
-            type="button"
-            className="btn-secondary btn-small"
-            disabled
-            title="Coming soon"
-          >
-            Test Mode
-          </button>
+        <div className="form-group translation-fields-group">
+          <TranslationField
+            label="Form Title"
+            collectionId={collectionId ?? ''}
+            entitySymbol={symbol.trim() || form?.form_symbol || ''}
+            accessToken={accessToken}
+            value={titleTranslation ?? undefined}
+            onChange={(ref) => setTitleTranslation(ref)}
+            readOnly={isReadOnly}
+          />
+          <TranslationField
+            label="Description"
+            collectionId={collectionId ?? ''}
+            entitySymbol={symbol.trim() || form?.form_symbol || ''}
+            accessToken={accessToken}
+            value={descriptionTranslation ?? undefined}
+            onChange={(ref) => setDescriptionTranslation(ref)}
+            readOnly={isReadOnly}
+          />
         </div>
       )}
 
@@ -260,25 +261,6 @@ export default function FormForm({
             {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </button>
         </div>
-      )}
-
-      {showTranslationPopup && (
-        <TranslationEditorPopup
-          collectionId={collectionId ?? ''}
-          accessToken={accessToken}
-          onSave={(translations) => {
-            const entitySymbol = symbol.trim() || form?.form_symbol;
-            if (!entitySymbol) return;
-            setTranslationRefs(
-              translations.map((t) => ({
-                translation_symbol: t.symbol,
-                symbol: entitySymbol,
-              })),
-            );
-            setShowTranslationPopup(false);
-          }}
-          onCancel={() => setShowTranslationPopup(false)}
-        />
       )}
 
       {showInlineCreator && (

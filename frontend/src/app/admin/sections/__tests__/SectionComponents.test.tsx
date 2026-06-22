@@ -22,6 +22,19 @@ vi.mock('next/navigation', () => ({
 const mockFetch = vi.fn();
 globalThis.fetch = mockFetch;
 
+function mockGetOk(times = 1) {
+  for (let i = 0; i < times; i++) {
+    mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]), text: () => Promise.resolve('') });
+  }
+}
+
+function mockTranslationFetch() {
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    json: async () => [],
+  });
+}
+
 beforeEach(() => {
   mockFetch.mockReset();
 });
@@ -294,6 +307,8 @@ describe('SectionForm', () => {
 
   describe('given create mode', () => {
     it('when rendered, then shows "Create Section" heading', () => {
+      mockTranslationFetch();
+      mockTranslationFetch();
       render(
         <SectionForm
           collections={mockCollections}
@@ -309,6 +324,8 @@ describe('SectionForm', () => {
 
   describe('given edit mode with a section', () => {
     it('when rendered, then shows "Edit Section" heading', () => {
+      mockTranslationFetch();
+      mockTranslationFetch();
       render(
         <SectionForm
           section={mockSection}
@@ -325,6 +342,8 @@ describe('SectionForm', () => {
 
   describe('given empty section_symbol', () => {
     it('when submitted, then shows validation error', async () => {
+      mockTranslationFetch();
+      mockTranslationFetch();
       render(
         <SectionForm
           collections={mockCollections}
@@ -343,6 +362,9 @@ describe('SectionForm', () => {
 
   describe('given valid input on create', () => {
     it('when submitted, then calls POST /api/admin/sections with status draft', async () => {
+      mockTranslationFetch();
+      mockTranslationFetch();
+      mockTranslationFetch(); // refreshFormulas
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockSection),
@@ -391,6 +413,9 @@ describe('SectionForm', () => {
 
   describe('given valid input on edit', () => {
     it('when submitted, then calls PUT on the correct section ID', async () => {
+      mockTranslationFetch();
+      mockTranslationFetch();
+      mockTranslationFetch(); // refreshFormulas
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockSection),
@@ -427,6 +452,8 @@ describe('SectionForm', () => {
 
   describe('given a short symbol', () => {
     it('when submitted, then shows symbol length validation error', async () => {
+      mockTranslationFetch();
+      mockTranslationFetch();
       render(
         <SectionForm
           collections={mockCollections}
@@ -448,6 +475,8 @@ describe('SectionForm', () => {
 
   describe('given an invalid symbol pattern', () => {
     it('when submitted, then shows symbol pattern validation error', async () => {
+      mockTranslationFetch();
+      mockTranslationFetch();
       render(
         <SectionForm
           collections={mockCollections}
@@ -471,6 +500,8 @@ describe('SectionForm', () => {
 
   describe('given missing collection', () => {
     it('when submitted, then shows collection validation error', async () => {
+      mockTranslationFetch();
+      mockTranslationFetch();
       render(
         <SectionForm
           collections={mockCollections}
@@ -493,6 +524,9 @@ describe('SectionForm', () => {
 
   describe('given valid form with API error (400)', () => {
     it('when submitted, then shows error banner', async () => {
+      mockTranslationFetch();
+      mockTranslationFetch();
+      mockTranslationFetch(); // refreshFormulas
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -523,6 +557,9 @@ describe('SectionForm', () => {
 
   describe('given valid form with network error', () => {
     it('when submitted, then shows generic error message', async () => {
+      mockTranslationFetch();
+      mockTranslationFetch();
+      mockTranslationFetch(); // refreshFormulas
       mockFetch.mockRejectedValueOnce(new TypeError('Network error'));
 
       render(
@@ -1001,6 +1038,8 @@ describe('SectionList', () => {
 describe('QuestionAttachmentEditor with create button', () => {
   describe('given available questions', () => {
     it('when + New Question button is clicked, then shows QuestionForm in a modal', () => {
+      mockTranslationFetch();
+      mockTranslationFetch();
       render(
         <QuestionAttachmentEditor
           questions={mockQuestions}
@@ -1016,6 +1055,8 @@ describe('QuestionAttachmentEditor with create button', () => {
     });
 
     it('when Cancel is clicked in modal, then hides modal', () => {
+      mockTranslationFetch();
+      mockTranslationFetch();
       render(
         <QuestionAttachmentEditor
           questions={mockQuestions}
@@ -1047,6 +1088,9 @@ describe('QuestionAttachmentEditor with create button', () => {
         },
       ];
 
+      mockTranslationFetch();
+      mockTranslationFetch();
+      mockTranslationFetch(); // QuestionForm's refreshFormulas
       // First call: QuestionForm's POST on save
       mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(updatedQuestions[3]), text: () => Promise.resolve('') });
       // Second call: refetchQuestions after save
