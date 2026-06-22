@@ -90,18 +90,8 @@ export default function OptionsEditor({
     <div className="options-editor">
       {options.map((opt, i) => (
         <div key={opt.id ?? i} className="option-card">
-          <div className="option-card-header">
-            <span className="option-order">Option {i + 1}</span>
-            <button
-              type="button"
-              className="btn-danger btn-small"
-              onClick={() => handleRemove(i)}
-              aria-label={`Remove option ${i + 1}`}
-            >
-              Remove
-            </button>
-          </div>
-          <div className="option-card-body">
+          <span className="option-order">{i + 1}</span>
+          <div className="option-label-field">
             <TranslationField
               label="Label"
               collectionId={collectionId ?? ''}
@@ -115,40 +105,46 @@ export default function OptionsEditor({
               onChange={(ref) => handleLabelChange(i, ref)}
               translations={translations}
             />
-            <div className="form-group" style={{ marginTop: '0.5rem' }}>
-              <label htmlFor={`option-value-${i}`}>Value</label>
-              <input
-                id={`option-value-${i}`}
-                type="text"
-                className={`option-value-input${(() => {
-                  const result = isValidOptionValue(opt.value, valueType);
-                  return result.valid ? '' : ' has-error';
-                })()}`}
-                value={opt.value}
-                onChange={(e) => handleValueChange(i, e.target.value)}
-                placeholder="Value"
-                aria-label={`Option ${i + 1} value`}
-                aria-invalid={!isValidOptionValue(opt.value, valueType).valid}
-              />
-              {(() => {
-                const result = isValidOptionValue(opt.value, valueType);
-                return !result.valid ? (
-                  <span className="inline-error" style={{ fontSize: '0.75rem' }}>
-                    {result.message}
-                  </span>
-                ) : null;
-              })()}
-            </div>
           </div>
+          <div className="option-value-wrap">
+            <input
+              type="text"
+              className={`option-value-input${(() => {
+                const result = isValidOptionValue(opt.value, valueType);
+                return result.valid ? '' : ' has-error';
+              })()}`}
+              value={opt.value}
+              onChange={(e) => handleValueChange(i, e.target.value)}
+              placeholder="Value"
+              aria-label={`Option ${i + 1} value`}
+              aria-invalid={!isValidOptionValue(opt.value, valueType).valid}
+            />
+            {(() => {
+              const result = isValidOptionValue(opt.value, valueType);
+              return !result.valid ? (
+                <span className="inline-error" style={{ fontSize: '0.75rem' }}>
+                  {result.message}
+                </span>
+              ) : null;
+            })()}
+          </div>
+          <button
+            type="button"
+            className="btn-danger btn-small"
+            onClick={() => handleRemove(i)}
+            aria-label={`Remove option ${i + 1}`}
+          >
+            Remove
+          </button>
         </div>
       ))}
-      <div style={{ marginTop: '0.75rem' }}>
+      <div className="option-add-row">
         <button
           type="button"
           className="btn-secondary btn-small btn-add-option"
           onClick={handleAdd}
         >
-          Add Option
+          + Add Option
         </button>
       </div>
     </div>

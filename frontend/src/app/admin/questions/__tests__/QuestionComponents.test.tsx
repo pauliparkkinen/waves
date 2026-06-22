@@ -118,8 +118,10 @@ describe('OptionsEditor', () => {
       ];
       mockGetOk(3); // TranslationField fetch for each option card
       render(<OptionsEditor options={options} onChange={vi.fn()} {...optionsEditorBaseProps} />);
-      const orderLabels = screen.getAllByText(/^Option \d+$/).map((el) => el.textContent);
-      expect(orderLabels).toEqual(['Option 1', 'Option 2', 'Option 3']);
+      const orderNumbers = screen.getAllByText(/^\d+$/).filter(
+        (el) => el.classList.contains('option-order'),
+      ).map((el) => el.textContent);
+      expect(orderNumbers).toEqual(['1', '2', '3']);
     });
   });
 
