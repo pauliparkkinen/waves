@@ -225,11 +225,11 @@ export default function FormForm({
         </div>
       )}
 
-      {!isReadOnly && (
+      {!isReadOnly && collectionId && (
         <div className="form-group translation-fields-group">
           <TranslationField
             label="Form Title"
-            collectionId={collectionId ?? ''}
+            collectionId={collectionId}
             entitySymbol={symbol.trim() || form?.form_symbol || ''}
             accessToken={accessToken}
             value={titleTranslation ?? undefined}
@@ -239,7 +239,7 @@ export default function FormForm({
           />
           <TranslationField
             label="Description"
-            collectionId={collectionId ?? ''}
+            collectionId={collectionId}
             entitySymbol={symbol.trim() || form?.form_symbol || ''}
             accessToken={accessToken}
             value={descriptionTranslation ?? undefined}

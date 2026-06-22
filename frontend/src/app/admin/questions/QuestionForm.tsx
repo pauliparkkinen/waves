@@ -260,24 +260,28 @@ export default function QuestionForm({
         )}
       </div>
 
-      <TranslationField
-        label="Title"
-        collectionId={collectionId ?? ''}
-        entitySymbol={symbol.trim() || question?.question_symbol || ''}
-        accessToken={accessToken}
-        value={titleTranslation ?? undefined}
-        onChange={(ref) => setTitleTranslation(ref)}
-        translations={allTranslations}
-      />
-      <TranslationField
-        label="Description"
-        collectionId={collectionId ?? ''}
-        entitySymbol={symbol.trim() || question?.question_symbol || ''}
-        accessToken={accessToken}
-        value={descriptionTranslation ?? undefined}
-        onChange={(ref) => setDescriptionTranslation(ref)}
-        translations={allTranslations}
-      />
+      {collectionId && (
+        <>
+          <TranslationField
+            label="Title"
+            collectionId={collectionId}
+            entitySymbol={symbol.trim() || question?.question_symbol || ''}
+            accessToken={accessToken}
+            value={titleTranslation ?? undefined}
+            onChange={(ref) => setTitleTranslation(ref)}
+            translations={allTranslations}
+          />
+          <TranslationField
+            label="Description"
+            collectionId={collectionId}
+            entitySymbol={symbol.trim() || question?.question_symbol || ''}
+            accessToken={accessToken}
+            value={descriptionTranslation ?? undefined}
+            onChange={(ref) => setDescriptionTranslation(ref)}
+            translations={allTranslations}
+          />
+        </>
+      )}
 
       {/* Section 2: Type Selector */}
       <div className="form-group">
