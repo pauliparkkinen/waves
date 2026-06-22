@@ -36,8 +36,8 @@ export default function TranslationField({
   const [fetchError, setFetchError] = useState<string | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  const fetchTranslations = useCallback(async () => {
-    if (externalTranslations) {
+  const fetchTranslations = useCallback(async (force = false) => {
+    if (!force && externalTranslations) {
       return;
     }
     if (!collectionId) return;
@@ -197,10 +197,8 @@ export default function TranslationField({
           accessToken={accessToken}
           onSave={(_translations) => {
             // Translations are saved server-side by TranslationEditorPopup.
-            // We re-fetch to get the updated list of symbols for the dropdown.
-            if (!externalTranslations) {
-              fetchTranslations();
-            }
+            // Force-refetch to pick up newly created translations.
+            fetchTranslations(true);
             setShowPopup(false);
           }}
           onCancel={() => setShowPopup(false)}
