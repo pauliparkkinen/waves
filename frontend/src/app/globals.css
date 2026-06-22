@@ -539,6 +539,7 @@ button {
 
 .option-label-field .translation-field-controls {
   gap: 0.25rem;
+  align-items: center;
 }
 
 .option-label-field .translation-field-search-input {
