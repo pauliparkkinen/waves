@@ -2,9 +2,9 @@
   "id": "TASK-20",
   "title": "Create QMS documents and tasks for form_view",
   "description": "Create tasks, risks, requirements, threats and other documents for the form_view feature in design/user_interfaces/common/features/form_view.md.",
-  "status": "Ready-to-review",
+  "status": "Approved",
   "creationDate": "2026-06-22T12:48:21.598Z",
-  "updateDate": "2026-06-22T14:49:04.396Z",
+  "updateDate": "2026-06-22T15:02:12.199Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -19,6 +19,14 @@
       "changedBy": "Pauli Parkkinen",
       "changedAt": "2026-06-22T14:49:04.396Z",
       "comment": "QMS documents and implementation tasks created and reviewed for form_view feature."
+    },
+    {
+      "fromStatus": "Ready-to-review",
+      "toStatus": "Approved",
+      "changedBy": "Pauli Parkkinen",
+      "changedAt": "2026-06-22T15:02:12.199Z",
+      "approvedBy": "Pauli Parkkinen",
+      "approvedAt": "2026-06-22T15:02:12.199Z"
     }
   ],
   "changeHistory": [
