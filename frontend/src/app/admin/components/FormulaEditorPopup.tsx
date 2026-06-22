@@ -342,7 +342,7 @@ export default function FormulaEditorPopup({
       const matchedFormula = availableFormulas.find((f) => f.symbol === name);
       return {
         formula_reference_id: crypto.randomUUID(),
-        symbol: `$${name}`,
+        symbol: name,
         type: (def?.kind === 'formula' ? 'formula' : 'activity') as FormulaReferenceType,
         referenced_formula_id: matchedFormula?.formula_id,
       };
