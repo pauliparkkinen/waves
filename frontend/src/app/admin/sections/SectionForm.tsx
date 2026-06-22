@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import type { AdminSection, AdminCollection, AdminQuestion, SectionQuestion, Formula } from '@/lib/api';
+import type { AdminSection, AdminCollection, AdminQuestion, SectionQuestion, Formula, Translation, TranslationRef } from '@/lib/api';
+import TranslationEditorPopup from '../components/TranslationEditorPopup';
 import QuestionAttachmentEditor from './QuestionAttachmentEditor';
 import CollectionSelector from '../collections/CollectionSelector';
 import InlineCollectionCreator from '../questions/InlineCollectionCreator';
@@ -53,6 +54,10 @@ export default function SectionForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [showTranslationPopup, setShowTranslationPopup] = useState(false);
+  const [translationRefs, setTranslationRefs] = useState<TranslationRef[]>(
+    section?.translations ?? [],
+  );
 
   function validate(): boolean {
     const errors: Record<string, string> = {};
@@ -118,7 +123,7 @@ export default function SectionForm({
         ...(isEdit ? {} : { status: 'draft' as const }),
         condition_formula_id: conditionFormulaId,
         section_questions: sectionQuestions,
-        translations: section?.translations ?? [],
+        translations: translationRefs,
       };
 
       const url = isEdit
@@ -281,10 +286,9 @@ export default function SectionForm({
           <button
             type="button"
             className="btn-secondary btn-small"
-            disabled
-            title="Coming soon"
+            onClick={() => setShowTranslationPopup(true)}
           >
-            Translations
+            Translations ({translationRefs.length})
           </button>
         </div>
       )}
@@ -313,6 +317,25 @@ export default function SectionForm({
             {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </button>
         </div>
+      )}
+
+      {showTranslationPopup && (
+        <TranslationEditorPopup
+          collectionId={collectionId ?? ''}
+          accessToken={accessToken}
+          onSave={(translations) => {
+            const entitySymbol = symbol.trim() || section?.section_symbol;
+            if (!entitySymbol) return;
+            setTranslationRefs(
+              translations.map((t) => ({
+                translation_symbol: t.symbol,
+                symbol: entitySymbol,
+              })),
+            );
+            setShowTranslationPopup(false);
+          }}
+          onCancel={() => setShowTranslationPopup(false)}
+        />
       )}
 
       {showInlineCreator && (

@@ -76,12 +76,3 @@ export type Form = {
   translations: TranslationRef[];
 };
 
-export type Translation = {
-  translation_id: string;
-  collection_id: string;
-  symbol: string;
-  locale_code: string;
-  value: string;
-  version: number;
-  status: PublishStatus;
-};

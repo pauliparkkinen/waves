@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { AdminQuestion, AdminCollection, QuestionType, Formula } from "@/lib/api";
+import type { AdminQuestion, AdminCollection, QuestionType, Formula, Translation, TranslationRef } from "@/lib/api";
+import TranslationEditorPopup from "../components/TranslationEditorPopup";
 import CollectionSelector from "../collections/CollectionSelector";
 import QuestionTypeSpecificParams from "./QuestionTypeSpecificParams";
 import InlineCollectionCreator from "./InlineCollectionCreator";
@@ -58,6 +59,10 @@ export default function QuestionForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [showTranslationPopup, setShowTranslationPopup] = useState(false);
+  const [translationRefs, setTranslationRefs] = useState<TranslationRef[]>(
+    question?.translations ?? [],
+  );
 
   function validate(): boolean {
     const errors: Record<string, string> = {};
@@ -127,7 +132,7 @@ export default function QuestionForm({
         parameters,
         condition_formula_id: conditionFormulaId,
         value_type: valueType,
-        translations: question?.translations ?? [],
+        translations: translationRefs,
       };
 
       const url = isEdit
@@ -250,10 +255,9 @@ export default function QuestionForm({
         <button
           type="button"
           className="btn-secondary btn-small"
-          disabled
-          title="Coming soon"
+          onClick={() => setShowTranslationPopup(true)}
         >
-          Translations
+          Translations ({translationRefs.length})
         </button>
       </div>
 
@@ -422,6 +426,25 @@ export default function QuestionForm({
           {saving ? "Saving..." : isEdit ? "Update" : "Create"}
         </button>
       </div>
+
+      {showTranslationPopup && (
+        <TranslationEditorPopup
+          collectionId={collectionId ?? ''}
+          accessToken={accessToken}
+          onSave={(translations) => {
+            const entitySymbol = symbol.trim() || question?.question_symbol;
+            if (!entitySymbol) return;
+            setTranslationRefs(
+              translations.map((t) => ({
+                translation_symbol: t.symbol,
+                symbol: entitySymbol,
+              })),
+            );
+            setShowTranslationPopup(false);
+          }}
+          onCancel={() => setShowTranslationPopup(false)}
+        />
+      )}
 
       {/* Inline Collection Creator Modal */}
       {showInlineCreator && (

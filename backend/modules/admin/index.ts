@@ -17,6 +17,9 @@ import { InMemoryFormRepository } from './repositories/form.repository.js';
 import { createFormulaRouter } from './controllers/formula.controller.js';
 import { FormulaService } from './services/formula.service.js';
 import { InMemoryFormulaRepository } from './repositories/formula.repository.js';
+import { createTranslationRouter } from './controllers/translation.controller.js';
+import { TranslationService } from './services/translation.service.js';
+import { InMemoryTranslationRepository } from './repositories/translation.repository.js';
 
 const adminRepository = new InMemoryAdminRepository();
 const adminService = new AdminService(adminRepository);
@@ -30,6 +33,8 @@ const formRepository = new InMemoryFormRepository();
 const formService = new FormService(formRepository, sectionRepository);
 const formulaRepository = new InMemoryFormulaRepository();
 const formulaService = new FormulaService(formulaRepository, questionRepository);
+const translationRepository = new InMemoryTranslationRepository();
+const translationService = new TranslationService(translationRepository);
 
 const router = new Hono();
 router.route('/', createAdminRouter(adminService));
@@ -38,4 +43,5 @@ router.route('/questions', createQuestionRouter(questionService));
 router.route('/sections', createSectionRouter(sectionService));
 router.route('/forms', createFormRouter(formService));
 router.route('/formulas', createFormulaRouter(formulaService));
+router.route('/translations', createTranslationRouter(translationService));
 export default router;

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import type { AdminForm, AdminCollection, AdminSection, FormSection } from '@/lib/api';
+import type { AdminForm, AdminCollection, AdminSection, FormSection, Translation, TranslationRef } from '@/lib/api';
+import TranslationEditorPopup from '../components/TranslationEditorPopup';
 import SectionAttachmentEditor from './SectionAttachmentEditor';
 import CollectionSelector from '../collections/CollectionSelector';
 import InlineCollectionCreator from '../questions/InlineCollectionCreator';
@@ -51,6 +52,10 @@ export default function FormForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [showTranslationPopup, setShowTranslationPopup] = useState(false);
+  const [translationRefs, setTranslationRefs] = useState<TranslationRef[]>(
+    form?.translations ?? [],
+  );
 
   function handleCollectionCreated(created: AdminCollection) {
     setLocalCollections((prev) => [...prev, created]);
@@ -97,7 +102,7 @@ export default function FormForm({
         form_sections: formSections,
         formulas: formulaIds,
         form_organisations: form?.form_organisations ?? [],
-        translations: form?.translations ?? [],
+        translations: translationRefs,
       };
 
       const url = isEdit
@@ -216,10 +221,9 @@ export default function FormForm({
           <button
             type="button"
             className="btn-secondary btn-small"
-            disabled
-            title="Coming soon"
+            onClick={() => setShowTranslationPopup(true)}
           >
-            Translations
+            Translations ({translationRefs.length})
           </button>
           <button
             type="button"
@@ -256,6 +260,25 @@ export default function FormForm({
             {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </button>
         </div>
+      )}
+
+      {showTranslationPopup && (
+        <TranslationEditorPopup
+          collectionId={collectionId ?? ''}
+          accessToken={accessToken}
+          onSave={(translations) => {
+            const entitySymbol = symbol.trim() || form?.form_symbol;
+            if (!entitySymbol) return;
+            setTranslationRefs(
+              translations.map((t) => ({
+                translation_symbol: t.symbol,
+                symbol: entitySymbol,
+              })),
+            );
+            setShowTranslationPopup(false);
+          }}
+          onCancel={() => setShowTranslationPopup(false)}
+        />
       )}
 
       {showInlineCreator && (

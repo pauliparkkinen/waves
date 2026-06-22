@@ -144,6 +144,33 @@ export type Formula = {
 export type CreateFormulaInput = Omit<Formula, 'formula_id'>;
 export type UpdateFormulaInput = Partial<Omit<Formula, 'formula_id'>>;
 
+// ── Translation Types ──────────────────────────────────────────────────────────
+
+export type Translation = {
+  translation_id: string;
+  collection_id: string;
+  symbol: string;
+  locale_code: string;
+  value: string;
+  version: number;
+  status: PublishStatus;
+};
+
+export type CreateTranslationInput = {
+  collection_id: string;
+  symbol: string;
+  locale_code: string;
+  value: string;
+  status: PublishStatus;
+};
+
+export type UpdateTranslationInput = Partial<{
+  symbol: string;
+  locale_code: string;
+  value: string;
+  status: PublishStatus;
+}>;
+
 // ── Collections ──────────────────────────────────────────────────────────────
 
 export async function listCollections(
@@ -534,5 +561,84 @@ export async function deleteFormula(
   if (res.status === 404) return false;
   if (!res.ok)
     throw new Error(`Backend DELETE /admin/formulas/${id} returned ${res.status}`);
+  return true;
+}
+
+// ── Translations ──────────────────────────────────────────────────────────────
+
+export async function listTranslations(
+  collectionId?: string,
+  accessToken?: string
+): Promise<Translation[]> {
+  const url = collectionId
+    ? `${BACKEND_URL}/admin/translations?collection_id=${encodeURIComponent(collectionId)}`
+    : `${BACKEND_URL}/admin/translations`;
+  const res = await fetch(url, {
+    headers: authHeaders(accessToken),
+    cache: 'no-store',
+  });
+  if (!res.ok)
+    throw new Error(`Backend /admin/translations returned ${res.status}`);
+  return res.json() as Promise<Translation[]>;
+}
+
+export async function getTranslation(
+  id: string,
+  accessToken?: string
+): Promise<Translation | null> {
+  const res = await fetch(`${BACKEND_URL}/admin/translations/${id}`, {
+    headers: authHeaders(accessToken),
+    cache: 'no-store',
+  });
+  if (res.status === 404) return null;
+  if (!res.ok)
+    throw new Error(`Backend /admin/translations/${id} returned ${res.status}`);
+  return res.json() as Promise<Translation>;
+}
+
+export async function createTranslation(
+  data: CreateTranslationInput,
+  accessToken?: string
+): Promise<Translation> {
+  const res = await fetch(`${BACKEND_URL}/admin/translations`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders(accessToken) },
+    body: JSON.stringify(data),
+    cache: 'no-store',
+  });
+  if (!res.ok)
+    throw new Error(`Backend POST /admin/translations returned ${res.status}`);
+  return res.json() as Promise<Translation>;
+}
+
+export async function updateTranslation(
+  id: string,
+  data: UpdateTranslationInput,
+  accessToken?: string
+): Promise<Translation | null> {
+  const res = await fetch(`${BACKEND_URL}/admin/translations/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authHeaders(accessToken) },
+    body: JSON.stringify(data),
+    cache: 'no-store',
+  });
+  if (res.status === 404) return null;
+  if (!res.ok)
+    throw new Error(`Backend PUT /admin/translations/${id} returned ${res.status}`);
+  return res.json() as Promise<Translation>;
+}
+
+export async function deleteTranslation(
+  id: string,
+  accessToken?: string
+): Promise<boolean> {
+  const res = await fetch(`${BACKEND_URL}/admin/translations/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(accessToken),
+    cache: 'no-store',
+  });
+  if (res.status === 404) return false;
+  if (!res.ok)
+    throw new Error(`Backend DELETE /admin/translations/${id} returned ${res.status}`);
   return true;
 }
