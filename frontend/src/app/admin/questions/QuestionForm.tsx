@@ -289,6 +289,7 @@ export default function QuestionForm({
             type={type}
             parameters={parameters}
             onChange={setParameters}
+            valueType={valueType}
           />
           {fieldErrors.parameters && (
             <p className="inline-error" role="alert">

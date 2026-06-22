@@ -6,9 +6,25 @@ type Option = { label: string; value: string; order_index: number; id?: string }
 type OptionsEditorProps = {
   options: Option[];
   onChange: (options: Option[]) => void;
+  valueType?: string;
 };
 
-export default function OptionsEditor({ options, onChange }: OptionsEditorProps) {
+function isValidOptionValue(value: string, valueType: string | undefined): { valid: boolean; message?: string } {
+  if (!valueType || valueType === 'string') return { valid: true };
+  if (valueType === 'number') {
+    if (value === '') return { valid: true };
+    const num = Number(value);
+    if (isNaN(num)) return { valid: false, message: 'Must be a number' };
+    return { valid: true };
+  }
+  if (valueType === 'boolean') {
+    if (value === '' || value === 'true' || value === 'false') return { valid: true };
+    return { valid: false, message: 'Must be "true" or "false"' };
+  }
+  return { valid: true };
+}
+
+export default function OptionsEditor({ options, onChange, valueType }: OptionsEditorProps) {
   function handleLabelChange(index: number, label: string) {
     const updated = options.map((opt, i) =>
       i === index ? { ...opt, label } : opt,
@@ -89,16 +105,30 @@ export default function OptionsEditor({ options, onChange }: OptionsEditorProps)
                    </span>
                  </div>
                </td>
-               <td>
-                 <input
-                   type="text"
-                   className="option-value-input"
-                   value={opt.value}
-                   onChange={(e) => handleValueChange(i, e.target.value)}
-                   placeholder="Value"
-                   aria-label={`Option ${i + 1} value`}
-                 />
-               </td>
+                <td>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                    <input
+                      type="text"
+                      className={`option-value-input${(() => {
+                        const result = isValidOptionValue(opt.value, valueType);
+                        return result.valid ? '' : ' has-error';
+                      })()}`}
+                      value={opt.value}
+                      onChange={(e) => handleValueChange(i, e.target.value)}
+                      placeholder="Value"
+                      aria-label={`Option ${i + 1} value`}
+                      aria-invalid={!isValidOptionValue(opt.value, valueType).valid}
+                    />
+                    {(() => {
+                      const result = isValidOptionValue(opt.value, valueType);
+                      return !result.valid ? (
+                        <span className="inline-error" style={{ fontSize: '0.75rem' }}>
+                          {result.message}
+                        </span>
+                      ) : null;
+                    })()}
+                  </div>
+                </td>
                <td>
                  <div style={{ display: 'flex', gap: '0.25rem' }}>
                    <button

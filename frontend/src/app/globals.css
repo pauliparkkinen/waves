@@ -549,6 +549,10 @@ button {
   border-color: transparent;
 }
 
+.option-value-input.has-error {
+  border-color: #dc2626;
+}
+
 .btn-add-option {
   margin-top: 0.5rem;
 }

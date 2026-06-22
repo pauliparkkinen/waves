@@ -8,6 +8,7 @@ type QuestionTypeSpecificParamsProps = {
   type: QuestionType;
   parameters: Record<string, unknown>;
   onChange: (parameters: Record<string, unknown>) => void;
+  valueType?: string;
 };
 
 function isValidOption(
@@ -32,6 +33,7 @@ export default function QuestionTypeSpecificParams({
   type,
   parameters,
   onChange,
+  valueType,
 }: QuestionTypeSpecificParamsProps) {
   const updateParam = useCallback(
     (key: string, value: unknown) => {
@@ -207,6 +209,7 @@ export default function QuestionTypeSpecificParams({
             <OptionsEditor
               options={ensureOptions(parameters.options)}
               onChange={(opts) => updateParam('options', opts)}
+              valueType={valueType}
             />
           </div>
         </div>
@@ -220,6 +223,7 @@ export default function QuestionTypeSpecificParams({
             <OptionsEditor
               options={ensureOptions(parameters.options)}
               onChange={(opts) => updateParam('options', opts)}
+              valueType={valueType}
             />
           </div>
           <div className="form-group">
@@ -263,6 +267,7 @@ export default function QuestionTypeSpecificParams({
             <OptionsEditor
               options={ensureOptions(parameters.options)}
               onChange={(opts) => updateParam('options', opts)}
+              valueType={valueType}
             />
           </div>
         </div>
