@@ -140,7 +140,13 @@ export default function TranslationField({
           {isDropdownOpen && (
             <div className="translation-field-dropdown" id="translation-field-dropdown" role="listbox" aria-label={`Available translations for ${label}`}>
               {filteredSymbols.length === 0 ? (
-                <div className="translation-field-dropdown-empty">No translations match &quot;{searchQuery}&quot;</div>
+                <div className="translation-field-dropdown-empty">
+                  {searchQuery
+                    ? `No translations match "${searchQuery}"`
+                    : uniqueSymbols.length === 0
+                      ? 'No translations yet. Click "Manage" to create one.'
+                      : 'No translations available.'}
+                </div>
               ) : (
                 filteredSymbols.map((sym, i) => {
                   const localeCodes = allTranslations.filter((t) => t.symbol === sym).map((t) => t.locale_code);
