@@ -12,6 +12,7 @@ type TranslationFieldProps = {
   value?: TranslationRef;
   onChange: (ref: TranslationRef | null) => void;
   readOnly?: boolean;
+  translations?: Translation[];
 };
 
 export default function TranslationField({
@@ -22,8 +23,11 @@ export default function TranslationField({
   value,
   onChange,
   readOnly,
+  translations: externalTranslations,
 }: TranslationFieldProps) {
-  const [allTranslations, setAllTranslations] = useState<Translation[]>([]);
+  const [allTranslations, setAllTranslations] = useState<Translation[]>(
+    externalTranslations ?? [],
+  );
   const [uniqueSymbols, setUniqueSymbols] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -33,6 +37,9 @@ export default function TranslationField({
   const searchRef = useRef<HTMLDivElement>(null);
 
   const fetchTranslations = useCallback(async () => {
+    if (externalTranslations) {
+      return;
+    }
     if (!collectionId) return;
     try {
       const res = await fetch(
@@ -48,9 +55,17 @@ export default function TranslationField({
     } catch (err) {
       setFetchError(err instanceof Error ? err.message : 'Failed to fetch translations');
     }
-  }, [collectionId, accessToken]);
+  }, [collectionId, accessToken, externalTranslations]);
 
   useEffect(() => { fetchTranslations(); }, [fetchTranslations]);
+
+  useEffect(() => {
+    if (externalTranslations) {
+      setAllTranslations(externalTranslations);
+      const symbols = [...new Set(externalTranslations.map((t: Translation) => t.symbol))];
+      setUniqueSymbols(symbols);
+    }
+  }, [externalTranslations]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -177,7 +192,9 @@ export default function TranslationField({
           onSave={(_translations) => {
             // Translations are saved server-side by TranslationEditorPopup.
             // We re-fetch to get the updated list of symbols for the dropdown.
-            fetchTranslations();
+            if (!externalTranslations) {
+              fetchTranslations();
+            }
             setShowPopup(false);
           }}
           onCancel={() => setShowPopup(false)}

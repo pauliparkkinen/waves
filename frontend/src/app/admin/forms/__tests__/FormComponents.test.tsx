@@ -26,13 +26,6 @@ function mockGetOk(times = 1) {
   }
 }
 
-function mockTranslationFetch() {
-  mockFetch.mockResolvedValueOnce({
-    ok: true,
-    json: async () => [],
-  });
-}
-
 beforeEach(() => {
   mockFetch.mockReset();
 });
@@ -240,8 +233,7 @@ describe('SectionAttachmentEditor', () => {
 
   describe('given available sections with create button', () => {
     it('when + New Section button is clicked, then shows SectionForm in a modal', () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <SectionAttachmentEditor
           sections={mockSections}
@@ -257,8 +249,7 @@ describe('SectionAttachmentEditor', () => {
     });
 
     it('when Cancel is clicked in modal, then hides modal', () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <SectionAttachmentEditor
           sections={mockSections}
@@ -287,9 +278,8 @@ describe('SectionAttachmentEditor', () => {
         },
       ];
 
-      mockTranslationFetch();
-      mockTranslationFetch();
-      mockTranslationFetch(); // SectionForm's refreshFormulas
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // refreshFormulas
       // First call: SectionForm's POST on save
       mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(updatedSections[3]), text: () => Promise.resolve('') });
       // Second call: refetchSections after save
@@ -332,8 +322,7 @@ describe('FormForm', () => {
 
   describe('given create mode', () => {
     it('when rendered, then shows "Create Form" heading', () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <FormForm
           collections={mockCollections}
@@ -349,8 +338,8 @@ describe('FormForm', () => {
 
   describe('given edit mode with a form', () => {
     it('when rendered, then shows "Edit Form" heading', () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // FormulaList fetch
       const mockForm: AdminForm = {
         collection_id: 'col-1',
         form_id: 'form-1',
@@ -378,8 +367,7 @@ describe('FormForm', () => {
 
   describe('given empty form_symbol', () => {
     it('when submitted, then shows validation error', async () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <FormForm
           collections={mockCollections}
@@ -398,8 +386,7 @@ describe('FormForm', () => {
 
   describe('given a short symbol', () => {
     it('when submitted, then shows symbol length validation error', async () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <FormForm
           collections={mockCollections}
@@ -421,8 +408,7 @@ describe('FormForm', () => {
 
   describe('given an invalid symbol pattern', () => {
     it('when submitted, then shows symbol pattern validation error', async () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <FormForm
           collections={mockCollections}
@@ -446,8 +432,7 @@ describe('FormForm', () => {
 
   describe('given missing collection', () => {
     it('when submitted, then shows collection validation error', async () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <FormForm
           collections={mockCollections}
@@ -469,9 +454,8 @@ describe('FormForm', () => {
 
   describe('given valid input on create', () => {
     it('when submitted, then calls POST /api/admin/forms with status draft', async () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
-      mockTranslationFetch(); // FormulaList fetch
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // FormulaList fetch
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({}),
@@ -519,9 +503,8 @@ describe('FormForm', () => {
 
   describe('given valid input on edit', () => {
     it('when submitted, then calls PUT on the correct form ID', async () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
-      mockTranslationFetch(); // FormulaList fetch
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // FormulaList fetch
       const mockForm: AdminForm = {
         collection_id: 'col-1',
         form_id: 'form-1',
@@ -569,9 +552,8 @@ describe('FormForm', () => {
 
   describe('given valid form with API error (400)', () => {
     it('when submitted, then shows error banner', async () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
-      mockTranslationFetch(); // FormulaList fetch
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // FormulaList fetch
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -602,9 +584,8 @@ describe('FormForm', () => {
 
   describe('given valid form with network error', () => {
     it('when submitted, then shows generic error message', async () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
-      mockTranslationFetch(); // FormulaList fetch
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // FormulaList fetch
       mockFetch.mockRejectedValueOnce(new TypeError('Network error'));
 
       render(
@@ -633,8 +614,7 @@ describe('FormForm', () => {
 
   describe('given create mode', () => {
     it('when rendered, then shows + New Collection button', () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <FormForm
           collections={mockCollections}
@@ -650,6 +630,7 @@ describe('FormForm', () => {
 
   describe('given readOnly mode', () => {
     it('when rendered, then shows View Form heading and Close button', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       const mockForm: AdminForm = {
         collection_id: 'col-1',
         form_id: 'form-1',
@@ -790,6 +771,8 @@ describe('FormList', () => {
 
   describe('given forms', () => {
     it('when Edit clicked on draft latest, then shows inline form in table row', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // FormulaList fetch
       render(
         <FormList
           initialForms={mockForms}
@@ -1038,6 +1021,7 @@ describe('FormList', () => {
 
   describe('given a published form', () => {
     it('when View is clicked, then shows read-only form', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <FormList
           initialForms={mockForms}

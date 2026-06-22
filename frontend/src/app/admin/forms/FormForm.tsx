@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import type { AdminForm, AdminCollection, AdminSection, FormSection, TranslationRef } from '@/lib/api';
+import { useState, useEffect } from 'react';
+import type { AdminForm, AdminCollection, AdminSection, FormSection, Translation, TranslationRef } from '@/lib/api';
 import TranslationField from '../components/TranslationField';
 import SectionAttachmentEditor from './SectionAttachmentEditor';
 import CollectionSelector from '../collections/CollectionSelector';
@@ -52,8 +52,19 @@ export default function FormForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [allTranslations, setAllTranslations] = useState<Translation[]>([]);
   const [titleTranslation, setTitleTranslation] = useState<TranslationRef | null>(null);
   const [descriptionTranslation, setDescriptionTranslation] = useState<TranslationRef | null>(null);
+
+  useEffect(() => {
+    if (!collectionId) return;
+    fetch(`/api/admin/translations?collection_id=${encodeURIComponent(collectionId)}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: Translation[]) => setAllTranslations(data))
+      .catch(() => setAllTranslations([]));
+  }, [collectionId, accessToken]);
 
   function handleCollectionCreated(created: AdminCollection) {
     setLocalCollections((prev) => [...prev, created]);
@@ -224,6 +235,7 @@ export default function FormForm({
             value={titleTranslation ?? undefined}
             onChange={(ref) => setTitleTranslation(ref)}
             readOnly={isReadOnly}
+            translations={allTranslations}
           />
           <TranslationField
             label="Description"
@@ -233,6 +245,7 @@ export default function FormForm({
             value={descriptionTranslation ?? undefined}
             onChange={(ref) => setDescriptionTranslation(ref)}
             readOnly={isReadOnly}
+            translations={allTranslations}
           />
         </div>
       )}

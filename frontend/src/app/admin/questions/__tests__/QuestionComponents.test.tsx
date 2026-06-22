@@ -23,13 +23,6 @@ function mockGetOk(times = 1) {
   }
 }
 
-function mockTranslationFetch() {
-  mockFetch.mockResolvedValueOnce({
-    ok: true,
-    json: async () => [],
-  });
-}
-
 beforeEach(() => {
   mockFetch.mockReset();
 });
@@ -285,8 +278,7 @@ describe('QuestionForm', () => {
 
   describe('given create mode', () => {
     it('when rendered, then shows "Create Question" heading', () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           collections={mockCollections}
@@ -301,8 +293,7 @@ describe('QuestionForm', () => {
 
   describe('given edit mode with a question', () => {
     it('when rendered, then shows "Edit Question" heading and pre-fills data', () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           question={mockQuestion}
@@ -320,8 +311,7 @@ describe('QuestionForm', () => {
 
   describe('given empty form', () => {
     it('when submitted, then shows validation errors for required fields', async () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           collections={mockCollections}
@@ -339,8 +329,7 @@ describe('QuestionForm', () => {
 
   describe('given a short symbol', () => {
     it('when submitted, then shows symbol length validation error', async () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           collections={mockCollections}
@@ -358,8 +347,7 @@ describe('QuestionForm', () => {
 
   describe('given an invalid symbol', () => {
     it('when submitted, then shows symbol pattern validation error', async () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           collections={mockCollections}
@@ -379,8 +367,7 @@ describe('QuestionForm', () => {
 
   describe('given type radio buttons', () => {
     it('when a radio is clicked, then that type is selected', () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           collections={mockCollections}
@@ -397,8 +384,7 @@ describe('QuestionForm', () => {
 
   describe('given form with symbol and type but no collection', () => {
     it('when submitted, then shows collection required error', async () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           collections={mockCollections}
@@ -416,9 +402,8 @@ describe('QuestionForm', () => {
 
   describe('given valid create form', () => {
     it('when submitted, then calls POST /api/admin/questions with correct body', async () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
-      mockTranslationFetch(); // refreshFormulas
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // refreshFormulas
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockQuestion),
@@ -454,9 +439,8 @@ describe('QuestionForm', () => {
 
   describe('given valid edit form', () => {
     it('when submitted, then calls PUT /api/admin/questions/:id with correct body', async () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
-      mockTranslationFetch(); // refreshFormulas
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // refreshFormulas
       const editQuestion: AdminQuestion = {
         ...mockQuestion,
         question_id: 'q-1',
@@ -496,8 +480,7 @@ describe('QuestionForm', () => {
 
   describe('given create form with type selected', () => {
     it('when type is selected, then type-specific params section appears', () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           collections={mockCollections}
@@ -514,8 +497,7 @@ describe('QuestionForm', () => {
 
   describe('given create form', () => {
     it('when + New Collection is clicked, then shows InlineCollectionCreator modal', () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionForm
           collections={mockCollections}
@@ -532,8 +514,7 @@ describe('QuestionForm', () => {
 
   describe('given create form with valid data', () => {
     it('when Cancel is clicked, then calls onCancel', () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       const onCancel = vi.fn();
       render(
         <QuestionForm
@@ -550,9 +531,8 @@ describe('QuestionForm', () => {
 
   describe('given valid form with API error', () => {
     it('when submitted, then shows error banner', async () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
-      mockTranslationFetch(); // refreshFormulas
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // refreshFormulas
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -579,9 +559,8 @@ describe('QuestionForm', () => {
 
   describe('given valid form with network error', () => {
     it('when submitted, then shows generic error message', async () => {
-      mockTranslationFetch();
-      mockTranslationFetch();
-      mockTranslationFetch(); // refreshFormulas
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // refreshFormulas
       mockFetch.mockRejectedValueOnce(new TypeError('Network error'));
 
       render(
@@ -707,6 +686,7 @@ describe('QuestionList', () => {
 
   describe('given questions with data', () => {
     it('when Edit is clicked on a row, then renders QuestionForm for that question', () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // parent fetches translations once
       render(
         <QuestionList
           initialQuestions={mockQuestions}

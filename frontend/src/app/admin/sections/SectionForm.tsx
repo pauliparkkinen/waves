@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import type { AdminSection, AdminCollection, AdminQuestion, SectionQuestion, Formula, TranslationRef } from '@/lib/api';
+import type { AdminSection, AdminCollection, AdminQuestion, SectionQuestion, Formula, Translation, TranslationRef } from '@/lib/api';
 import TranslationField from '../components/TranslationField';
 import QuestionAttachmentEditor from './QuestionAttachmentEditor';
 import CollectionSelector from '../collections/CollectionSelector';
@@ -54,8 +54,19 @@ export default function SectionForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [allTranslations, setAllTranslations] = useState<Translation[]>([]);
   const [titleTranslation, setTitleTranslation] = useState<TranslationRef | null>(null);
   const [descriptionTranslation, setDescriptionTranslation] = useState<TranslationRef | null>(null);
+
+  useEffect(() => {
+    if (!collectionId) return;
+    fetch(`/api/admin/translations?collection_id=${encodeURIComponent(collectionId)}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: Translation[]) => setAllTranslations(data))
+      .catch(() => setAllTranslations([]));
+  }, [collectionId, accessToken]);
 
   function validate(): boolean {
     const errors: Record<string, string> = {};
@@ -289,6 +300,7 @@ export default function SectionForm({
             value={titleTranslation ?? undefined}
             onChange={(ref) => setTitleTranslation(ref)}
             readOnly={isReadOnly}
+            translations={allTranslations}
           />
           <TranslationField
             label="Description"
@@ -298,6 +310,7 @@ export default function SectionForm({
             value={descriptionTranslation ?? undefined}
             onChange={(ref) => setDescriptionTranslation(ref)}
             readOnly={isReadOnly}
+            translations={allTranslations}
           />
         </div>
       )}

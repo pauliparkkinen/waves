@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { AdminQuestion, AdminCollection, QuestionType, Formula, TranslationRef } from "@/lib/api";
+import type { AdminQuestion, AdminCollection, QuestionType, Formula, Translation, TranslationRef } from "@/lib/api";
 import TranslationField from "../components/TranslationField";
 import CollectionSelector from "../collections/CollectionSelector";
 import QuestionTypeSpecificParams from "./QuestionTypeSpecificParams";
@@ -59,6 +59,7 @@ export default function QuestionForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [allTranslations, setAllTranslations] = useState<Translation[]>([]);
   const [titleTranslation, setTitleTranslation] = useState<TranslationRef | null>(null);
   const [descriptionTranslation, setDescriptionTranslation] = useState<TranslationRef | null>(null);
 
@@ -183,6 +184,16 @@ export default function QuestionForm({
   }
 
   useEffect(() => {
+    if (!collectionId) return;
+    fetch(`/api/admin/translations?collection_id=${encodeURIComponent(collectionId)}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: Translation[]) => setAllTranslations(data))
+      .catch(() => setAllTranslations([]));
+  }, [collectionId, accessToken]);
+
+  useEffect(() => {
     refreshFormulas();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collectionId, accessToken]);
@@ -256,6 +267,7 @@ export default function QuestionForm({
         accessToken={accessToken}
         value={titleTranslation ?? undefined}
         onChange={(ref) => setTitleTranslation(ref)}
+        translations={allTranslations}
       />
       <TranslationField
         label="Description"
@@ -264,6 +276,7 @@ export default function QuestionForm({
         accessToken={accessToken}
         value={descriptionTranslation ?? undefined}
         onChange={(ref) => setDescriptionTranslation(ref)}
+        translations={allTranslations}
       />
 
       {/* Section 2: Type Selector */}
