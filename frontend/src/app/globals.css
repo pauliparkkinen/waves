@@ -1301,6 +1301,15 @@ button {
   border-color: transparent;
 }
 
+.translation-field-preview {
+  font-size: 0.8rem;
+  color: #6b7280;
+  padding: 0.2rem 0.5rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .translation-field-clear {
   position: absolute;
   right: 0.5rem;

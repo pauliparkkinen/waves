@@ -138,6 +138,16 @@ export default function TranslationField({
               </button>
             )}
           </div>
+          {value && !searchQuery && !isDropdownOpen && (() => {
+            const symTranslations = allTranslations.filter((t) => t.symbol === value.translation_symbol);
+            const english = symTranslations.find((t) => t.locale_code === 'en');
+            const preview = english ?? symTranslations[0];
+            return preview ? (
+              <div className="translation-field-preview">
+                {preview.value}
+              </div>
+            ) : null;
+          })()}
 
           {isDropdownOpen && (
             <div className="translation-field-dropdown" id="translation-field-dropdown" role="listbox" aria-label={`Available translations for ${label}`}>
