@@ -1,0 +1,20 @@
+{
+  "id": "TMITIG-5",
+  "title": "HTTPS Enforcement and Payload Integrity for Form Responses",
+  "description": "All API communication for form responses uses HTTPS with TLS 1.3. Backend validates request payload integrity using checksums and schema validation for each question response. Database access to form response tables is restricted to the backend service account. All modifications to form responses are logged with before/after values for audit. Submitted responses are immutable at the database level.",
+  "status": "Draft",
+  "creationDate": "2026-06-22T13:00:00.000Z",
+  "updateDate": "2026-06-22T13:00:00.000Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T13:00:00.000Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [],
+  "linkedThreat": "THREAT-5",
+  "linkedRequirement": "REQ-18"
+}

@@ -4,7 +4,9 @@ Stored value of computed output of "formula".
 
 # Parameters
 
-formula_id -- Id of the formula
+collection_id -- Id of the collection the form is in
+formula_symbol -- Symbol of the formula
+formula_version -- The version of the formula
 entity_type -- "user"
 entity_id -- Id of the entity, for instance the user. 
 value -- The calculated value of the formula

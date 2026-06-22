@@ -1,0 +1,70 @@
+{
+  "id": "TASK-20",
+  "title": "Create QMS documents and tasks for form_view",
+  "description": "Create tasks, risks, requirements, threats and other documents for the form_view feature in design/user_interfaces/common/features/form_view.md.",
+  "status": "Approved",
+  "creationDate": "2026-06-22T12:48:21.598Z",
+  "updateDate": "2026-06-22T15:02:12.199Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "pauli",
+      "changedAt": "2026-06-22T12:48:21.598Z",
+      "comment": "Initial creation"
+    },
+    {
+      "fromStatus": "Draft",
+      "toStatus": "Ready-to-review",
+      "changedBy": "Pauli Parkkinen",
+      "changedAt": "2026-06-22T14:49:04.396Z",
+      "comment": "QMS documents and implementation tasks created and reviewed for form_view feature."
+    },
+    {
+      "fromStatus": "Ready-to-review",
+      "toStatus": "Approved",
+      "changedBy": "Pauli Parkkinen",
+      "changedAt": "2026-06-22T15:02:12.199Z",
+      "approvedBy": "Pauli Parkkinen",
+      "approvedAt": "2026-06-22T15:02:12.199Z"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [
+        "FEAT-3"
+      ],
+      "changedBy": "pauli",
+      "changedAt": "2026-06-22T13:00:00.000Z",
+      "comment": "Corrected linked features: form_view is a UI feature (FEAT-3), not FEAT-1"
+    },
+    {
+      "field": "significance",
+      "oldValue": null,
+      "newValue": "patch",
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:57:01.828Z",
+      "mode": "set"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-3"
+      ],
+      "newValue": [
+        "FEAT-4"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T14:30:20.010Z",
+      "mode": "set"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-4"
+  ],
+  "significance": "patch"
+}

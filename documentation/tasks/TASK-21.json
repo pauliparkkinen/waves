@@ -1,0 +1,44 @@
+{
+  "id": "TASK-21",
+  "title": "Backend: Form Response Module (Data Model, CRUD, Formula Values)",
+  "description": "Create a new backend module modules/form-response/ implementing the form response data model and API. This includes: Form Response Group CRUD (create, read, list, update), Form Response CRUD scoped to a group, Question Response CRUD with per-answer persistence, Formula value storage and computation service that evaluates registered formulas from responses, Schema validation and payload integrity checks on all write endpoints, and versioned references to form/section/question definitions at time of filling. Reference models: design/definitions/form_response/ files. Implements REQ-18 (Form Response Data Persistence). Mitigates TMITIG-5 (HTTPS Enforcement and Payload Integrity — backend schema validation part).",
+  "status": "Draft",
+  "creationDate": "2026-06-22T14:40:45.613Z",
+  "updateDate": "2026-06-22T14:50:44.191Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-22T14:40:45.613Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [
+        "FEAT-4"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T14:41:31.347Z",
+      "mode": "set"
+    },
+    {
+      "field": "status",
+      "oldValue": "Ready-to-review",
+      "newValue": "Draft",
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T14:50:44.191Z",
+      "mode": "set",
+      "comment": "Reverted to Draft — only TASK-20 should be in review"
+    }
+  ],
+  "significance": "patch",
+  "linkedFeatures": [
+    "FEAT-4"
+  ]
+}

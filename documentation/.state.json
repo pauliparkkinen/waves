@@ -1,13 +1,13 @@
 {
   "counters": {
-    "FEAT": 4,
-    "REQ": 18,
+    "FEAT": 5,
+    "REQ": 23,
     "TEST": 1,
-    "TASK": 20,
-    "RISK": 4,
-    "THREAT": 5,
-    "RMITIG": 4,
-    "TMITIG": 5
+    "TASK": 25,
+    "RISK": 6,
+    "THREAT": 7,
+    "RMITIG": 6,
+    "TMITIG": 7
   },
   "deviceVersion": {
     "npi": 0,

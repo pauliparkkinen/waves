@@ -1,0 +1,46 @@
+{
+  "id": "REQ-22",
+  "title": "Form Submission and Immutability",
+  "description": "The form submission workflow must require user confirmation that they have reviewed their answers, display a warning that answers cannot be modified after submission, enforce immutability of submitted responses, and clearly indicate any uncompleted sections with links for easy access before submission.",
+  "status": "Draft",
+  "creationDate": "2026-06-22T12:51:48.041Z",
+  "updateDate": "2026-06-22T12:52:20.252Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-22T12:51:48.041Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [
+        "FEAT-3"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-3"
+      ],
+      "newValue": [
+        "FEAT-4"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T14:30:20.010Z",
+      "mode": "set"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-4"
+  ]
+}

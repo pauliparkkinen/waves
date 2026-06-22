@@ -1,0 +1,20 @@
+{
+  "id": "TMITIG-6",
+  "title": "Data Minimization and Access Control for Medical Data",
+  "description": "Form response data is pseudonymized where possible, separating identifiable patient information from clinical response data. API endpoints enforce scoped access so users can only access responses for patients within their authorized scope. Database encryption at rest protects stored responses. Network traffic uses HTTPS. Audit logging tracks all access to form response data.",
+  "status": "Draft",
+  "creationDate": "2026-06-22T13:00:00.000Z",
+  "updateDate": "2026-06-22T13:00:00.000Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T13:00:00.000Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [],
+  "linkedThreat": "THREAT-6",
+  "linkedRequirement": "REQ-21"
+}

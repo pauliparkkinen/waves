@@ -1,0 +1,46 @@
+{
+  "id": "REQ-21",
+  "title": "Multi-Role Form Access and Delegation",
+  "description": "The form view must support multiple access modes: filling on behalf of a patient by another user, review mode for patients, fillers, and authorized HCPs where answers cannot be modified, and preview mode for administrators to preview form definitions. Access control must enforce role-based permissions.",
+  "status": "Draft",
+  "creationDate": "2026-06-22T12:51:43.685Z",
+  "updateDate": "2026-06-22T12:52:20.252Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-22T12:51:43.685Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [
+        "FEAT-3"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-3"
+      ],
+      "newValue": [
+        "FEAT-4"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T14:30:20.010Z",
+      "mode": "set"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-4"
+  ]
+}
