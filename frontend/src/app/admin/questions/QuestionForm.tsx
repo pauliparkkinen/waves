@@ -60,8 +60,13 @@ export default function QuestionForm({
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [allTranslations, setAllTranslations] = useState<Translation[]>([]);
-  const [titleTranslation, setTitleTranslation] = useState<TranslationRef | null>(null);
-  const [descriptionTranslation, setDescriptionTranslation] = useState<TranslationRef | null>(null);
+  // Initialize from existing translations in submission order ([0]=Title, [1]=Description)
+  const [titleTranslation, setTitleTranslation] = useState<TranslationRef | null>(
+    question?.translations?.[0] ?? null,
+  );
+  const [descriptionTranslation, setDescriptionTranslation] = useState<TranslationRef | null>(
+    question?.translations?.[1] ?? null,
+  );
 
   function validate(): boolean {
     const errors: Record<string, string> = {};

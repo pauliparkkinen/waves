@@ -55,8 +55,13 @@ export default function SectionForm({
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [allTranslations, setAllTranslations] = useState<Translation[]>([]);
-  const [titleTranslation, setTitleTranslation] = useState<TranslationRef | null>(null);
-  const [descriptionTranslation, setDescriptionTranslation] = useState<TranslationRef | null>(null);
+  // Initialize from existing translations in submission order ([0]=Title, [1]=Description)
+  const [titleTranslation, setTitleTranslation] = useState<TranslationRef | null>(
+    section?.translations?.[0] ?? null,
+  );
+  const [descriptionTranslation, setDescriptionTranslation] = useState<TranslationRef | null>(
+    section?.translations?.[1] ?? null,
+  );
 
   const refreshTranslations = useCallback(async () => {
     if (!collectionId) return;
