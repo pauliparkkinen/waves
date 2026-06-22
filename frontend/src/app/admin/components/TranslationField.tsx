@@ -151,7 +151,9 @@ export default function TranslationField({
                 </div>
               ) : (
                 filteredSymbols.map((sym, i) => {
-                  const localeCodes = allTranslations.filter((t) => t.symbol === sym).map((t) => t.locale_code);
+                  const symTranslations = allTranslations.filter((t) => t.symbol === sym);
+                  const english = symTranslations.find((t) => t.locale_code === 'en');
+                  const preview = english ?? symTranslations[0];
                   return (
                     <button
                       key={sym}
@@ -168,7 +170,7 @@ export default function TranslationField({
                       }}
                     >
                       <span className="translation-field-item-symbol">{sym}</span>
-                      <span className="translation-field-item-locales">{localeCodes.join(', ')}</span>
+                      <span className="translation-field-item-preview">{preview?.value ?? ''}</span>
                     </button>
                   );
                 })

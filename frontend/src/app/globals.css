@@ -1370,10 +1370,15 @@ button {
   color: #111827;
 }
 
-.translation-field-item-locales {
-  font-size: 0.75rem;
-  color: #9ca3af;
+.translation-field-item-preview {
+  font-size: 0.8rem;
+  color: #6b7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+  text-align: right;
+  margin-left: 0.5rem;
 }
 
 .translation-field-manage-btn {
