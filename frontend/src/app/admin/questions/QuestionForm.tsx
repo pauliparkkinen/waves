@@ -316,6 +316,10 @@ export default function QuestionForm({
             parameters={parameters}
             onChange={setParameters}
             valueType={valueType}
+            collectionId={collectionId}
+            entitySymbol={symbol.trim() || question?.question_symbol || ''}
+            accessToken={accessToken}
+            translations={allTranslations}
           />
           {fieldErrors.parameters && (
             <p className="inline-error" role="alert">

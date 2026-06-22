@@ -1,5 +1,7 @@
 'use client';
 
+import type { Translation, TranslationRef } from '@/lib/api';
+import TranslationField from '../components/TranslationField';
 
 type Option = { label: string; value: string; order_index: number; id?: string };
 
@@ -7,6 +9,10 @@ type OptionsEditorProps = {
   options: Option[];
   onChange: (options: Option[]) => void;
   valueType?: string;
+  collectionId?: string;
+  entitySymbol: string;
+  accessToken: string;
+  translations: Translation[];
 };
 
 function isValidOptionValue(value: string, valueType: string | undefined): { valid: boolean; message?: string } {
@@ -24,17 +30,25 @@ function isValidOptionValue(value: string, valueType: string | undefined): { val
   return { valid: true };
 }
 
-export default function OptionsEditor({ options, onChange, valueType }: OptionsEditorProps) {
-  function handleLabelChange(index: number, label: string) {
+export default function OptionsEditor({
+  options,
+  onChange,
+  valueType,
+  collectionId,
+  entitySymbol,
+  accessToken,
+  translations,
+}: OptionsEditorProps) {
+  function handleValueChange(index: number, value: string) {
     const updated = options.map((opt, i) =>
-      i === index ? { ...opt, label } : opt,
+      i === index ? { ...opt, value } : opt,
     );
     onChange(updated);
   }
 
-  function handleValueChange(index: number, value: string) {
+  function handleLabelChange(index: number, ref: TranslationRef | null) {
     const updated = options.map((opt, i) =>
-      i === index ? { ...opt, value } : opt,
+      i === index ? { ...opt, label: ref?.translation_symbol ?? '' } : opt,
     );
     onChange(updated);
   }
@@ -74,86 +88,60 @@ export default function OptionsEditor({ options, onChange, valueType }: OptionsE
 
   return (
     <div className="options-editor">
-      <table className="options-table" aria-label="Question options">
-         <thead>
-           <tr>
-             <th>Order</th>
-             <th>Label <span className="translation-ref-badge">T</span></th>
-             <th>Value</th>
-             <th></th>
-           </tr>
-         </thead>
-         <tbody>
-           {options.map((opt, i) => (
-             <tr key={opt.id ?? i} className="options-row">
-               <td className="option-order">{i + 1}</td>
-               <td>
-                 <div className="translation-ref-field">
-                   <input
-                     type="text"
-                     className="option-label-input"
-                     value={opt.label}
-                     onChange={(e) => handleLabelChange(i, e.target.value)}
-                     placeholder="translation_symbol"
-                     aria-label={`Option ${i + 1} label (translation ref)`}
-                   />
-                   <span
-                     className={`translation-ref-badge${opt.label ? ' active' : ''}`}
-                     title="Translation reference symbol"
-                   >
-                     T
-                   </span>
-                 </div>
-               </td>
-                <td>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                    <input
-                      type="text"
-                      className={`option-value-input${(() => {
-                        const result = isValidOptionValue(opt.value, valueType);
-                        return result.valid ? '' : ' has-error';
-                      })()}`}
-                      value={opt.value}
-                      onChange={(e) => handleValueChange(i, e.target.value)}
-                      placeholder="Value"
-                      aria-label={`Option ${i + 1} value`}
-                      aria-invalid={!isValidOptionValue(opt.value, valueType).valid}
-                    />
-                    {(() => {
-                      const result = isValidOptionValue(opt.value, valueType);
-                      return !result.valid ? (
-                        <span className="inline-error" style={{ fontSize: '0.75rem' }}>
-                          {result.message}
-                        </span>
-                      ) : null;
-                    })()}
-                  </div>
-                </td>
-               <td>
-                 <div style={{ display: 'flex', gap: '0.25rem' }}>
-                   <button
-                     type="button"
-                     className="btn-secondary btn-small btn-translate"
-                     disabled
-                     title="Coming soon"
-                     aria-label={`Translate option ${i + 1}`}
-                   >
-                     T
-                   </button>
-                   <button
-                     type="button"
-                     className="btn-danger btn-small"
-                     onClick={() => handleRemove(i)}
-                     aria-label={`Remove option ${i + 1}`}
-                   >
-                     Remove
-                   </button>
-                 </div>
-               </td>
-             </tr>
-           ))}
-         </tbody>
-      </table>
+      {options.map((opt, i) => (
+        <div key={opt.id ?? i} className="option-card">
+          <div className="option-card-header">
+            <span className="option-order">Option {i + 1}</span>
+            <button
+              type="button"
+              className="btn-danger btn-small"
+              onClick={() => handleRemove(i)}
+              aria-label={`Remove option ${i + 1}`}
+            >
+              Remove
+            </button>
+          </div>
+          <div className="option-card-body">
+            <TranslationField
+              label="Label"
+              collectionId={collectionId ?? ''}
+              entitySymbol={entitySymbol}
+              accessToken={accessToken}
+              value={
+                opt.label
+                  ? { translation_symbol: opt.label, symbol: entitySymbol }
+                  : undefined
+              }
+              onChange={(ref) => handleLabelChange(i, ref)}
+              translations={translations}
+            />
+            <div className="form-group" style={{ marginTop: '0.5rem' }}>
+              <label htmlFor={`option-value-${i}`}>Value</label>
+              <input
+                id={`option-value-${i}`}
+                type="text"
+                className={`option-value-input${(() => {
+                  const result = isValidOptionValue(opt.value, valueType);
+                  return result.valid ? '' : ' has-error';
+                })()}`}
+                value={opt.value}
+                onChange={(e) => handleValueChange(i, e.target.value)}
+                placeholder="Value"
+                aria-label={`Option ${i + 1} value`}
+                aria-invalid={!isValidOptionValue(opt.value, valueType).valid}
+              />
+              {(() => {
+                const result = isValidOptionValue(opt.value, valueType);
+                return !result.valid ? (
+                  <span className="inline-error" style={{ fontSize: '0.75rem' }}>
+                    {result.message}
+                  </span>
+                ) : null;
+              })()}
+            </div>
+          </div>
+        </div>
+      ))}
       <div style={{ marginTop: '0.75rem' }}>
         <button
           type="button"

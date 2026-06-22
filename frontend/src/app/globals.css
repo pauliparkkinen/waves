@@ -499,39 +499,37 @@ button {
 
 .options-editor {
   margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.options-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
+.option-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  background: #fafafa;
 }
 
-.options-table th {
-  text-align: left;
-  padding: 0.5rem 0.4rem;
-  border-bottom: 1px solid #e5e7eb;
-  font-weight: 600;
-  color: #6b7280;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.options-table td {
-  padding: 0.4rem;
-  border-bottom: 1px solid #e5e7eb;
-  vertical-align: middle;
+.option-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
 }
 
 .option-order {
-  text-align: center;
-  font-weight: 500;
-  color: #6b7280;
-  width: 2.5rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #374151;
 }
 
-.option-label-input,
+.option-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .option-value-input {
   width: 100%;
   border: 1px solid #d1d5db;
@@ -540,9 +538,9 @@ button {
   font-size: 0.85rem;
   color: #111827;
   background: #fff;
+  box-sizing: border-box;
 }
 
-.option-label-input:focus,
 .option-value-input:focus {
   outline: 2px solid #2563eb;
   outline-offset: -1px;
@@ -622,59 +620,6 @@ button {
 
 .inline-edit-container.table-cell + tr td {
   padding-top: 1rem;
-}
-
-/* ── Translation Reference Fields ────────────────────────────────────────── */
-
-.translation-ref-field {
-  display: flex;
-  gap: 0.35rem;
-  align-items: center;
-}
-
-.translation-ref-field input {
-  flex: 1;
-}
-
-.translation-ref-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: #6b7280;
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
-  border-radius: 0.25rem;
-  padding: 0.1rem 0.35rem;
-  margin-left: 0.25rem;
-  white-space: nowrap;
-}
-
-.translation-ref-badge.active {
-  color: #1d4ed8;
-  background: #eff6ff;
-  border-color: #93c5fd;
-}
-
-.btn-translate {
-  font-size: 0.75rem;
-  padding: 0.2rem 0.5rem;
-  white-space: nowrap;
-}
-
-.translation-ref-header {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 0.35rem;
-}
-
-.translation-ref-header .translation-ref-badge {
-  font-size: 0.65rem;
 }
 
 /* ── Section Editor ───────────────────────────────────────────────────────── */
