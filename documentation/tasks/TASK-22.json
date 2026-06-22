@@ -4,7 +4,7 @@
   "description": "Implement role-based access control, audit logging, and submission workflow for form responses in the modules/form-response/ backend module. This includes: Role-based access enforcement (patient, HCP, delegate, admin) with permission checks per endpoint, On-behalf-of filling with delegation authorization, Review mode access control (read-only for authorized parties), Audit logging for all response modifications (user, role, action, timestamp, before/after values), Data scoping to isolate user responses, Submission workflow with Draft to Submitted status transition, Immutability enforcement after submission (reject modifications), and Prevention of concurrent edits with optimistic locking. Implements REQ-21 (Multi-Role Form Access and Delegation) and REQ-22 (Form Submission and Immutability). Mitigates RISK-5 (RMITIG-5: Role-Based Access Control and Audit Logging) and THREAT-6 (TMITIG-6: Data Minimization and Access Control — scoping part).",
   "status": "Draft",
   "creationDate": "2026-06-22T14:40:42.286Z",
-  "updateDate": "2026-06-22T14:40:42.286Z",
+  "updateDate": "2026-06-22T14:50:44.191Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -26,6 +26,15 @@
       "changedBy": "discovery-agent",
       "changedAt": "2026-06-22T14:41:31.347Z",
       "mode": "set"
+    },
+    {
+      "field": "status",
+      "oldValue": "Ready-to-review",
+      "newValue": "Draft",
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T14:50:44.191Z",
+      "mode": "set",
+      "comment": "Reverted to Draft — only TASK-20 should be in review"
     }
   ],
   "significance": "patch",
