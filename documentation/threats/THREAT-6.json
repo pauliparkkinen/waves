@@ -1,0 +1,77 @@
+{
+  "id": "THREAT-6",
+  "title": "Information Disclosure of Patient Form Responses",
+  "description": "An attacker could gain access to submitted form responses containing sensitive medical data through API vulnerabilities, insufficient access controls, insecure data storage, or interception of network traffic. This could lead to privacy violations and non-compliance with healthcare data protection regulations.",
+  "status": "Draft",
+  "creationDate": "2026-06-22T12:51:37.266Z",
+  "updateDate": "2026-06-22T12:52:20.252Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-22T12:51:37.266Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [
+        "FEAT-3"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "strideClassifications",
+      "oldValue": [],
+      "newValue": [
+        "InformationDisclosure"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "probabilityBefore",
+      "oldValue": 1,
+      "newValue": 3,
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "probabilityAfter",
+      "oldValue": 1,
+      "newValue": 1,
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-3"
+      ],
+      "newValue": [
+        "FEAT-4"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T14:30:20.010Z",
+      "mode": "set"
+    }
+  ],
+  "strideClassifications": [
+    "InformationDisclosure"
+  ],
+  "probabilityBefore": 3,
+  "probabilityAfter": 1,
+  "linkedFeatures": [
+    "FEAT-4"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "REQ-18",
+  "title": "Form Response Data Persistence",
+  "description": "The system must store form responses (form response groups, individual form responses, question responses, and formula values) in a structured data model that supports saving, resuming, and reviewing form filling sessions. Each form response group can contain multiple form responses, each with multiple question responses. All response data must be versioned against the form definitions at time of filling.",
+  "status": "Draft",
+  "creationDate": "2026-06-22T12:51:12.708Z",
+  "updateDate": "2026-06-22T12:52:20.252Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-22T12:51:12.708Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [
+        "FEAT-3"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-3"
+      ],
+      "newValue": [
+        "FEAT-4"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T14:30:20.010Z",
+      "mode": "set"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-4"
+  ]
+}

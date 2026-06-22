@@ -1,0 +1,28 @@
+{
+  "id": "FEAT-4",
+  "title": "Form View",
+  "description": "The form view feature provides a unified interface for filling one or more forms (form response groups), reviewing submitted form answers in the same format as filled, and previewing form/section/question definitions in the form editor. It supports sequential section navigation with completion summaries, immediate answer persistence, save-and-resume, role-based access (filling on behalf of patient, review by authorized HCPs, preview by admins), and a submission workflow with immutability enforcement. The feature spans all three user interfaces: patient (filling own forms), HCP (filling/reviewing on behalf), and admin (previewing form definitions).",
+  "status": "Draft",
+  "creationDate": "2026-06-22T14:29:48.995Z",
+  "updateDate": "2026-06-22T14:29:48.995Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-22T14:29:48.995Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "riskLevel",
+      "oldValue": "0",
+      "newValue": "1",
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T14:30:20.010Z",
+      "mode": "set"
+    }
+  ],
+  "riskLevel": "1"
+}

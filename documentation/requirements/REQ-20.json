@@ -1,0 +1,46 @@
+{
+  "id": "REQ-20",
+  "title": "Immediate Answer Synchronization",
+  "description": "All question responses must be saved to the backend immediately upon completion of the answering action. This ensures that form completion can continue where left off in case of session interruption. Each response is persisted individually without requiring a manual save action.",
+  "status": "Draft",
+  "creationDate": "2026-06-22T12:51:38.898Z",
+  "updateDate": "2026-06-22T12:52:20.252Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-22T12:51:38.898Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [
+        "FEAT-3"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-3"
+      ],
+      "newValue": [
+        "FEAT-4"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T14:30:20.010Z",
+      "mode": "set"
+    }
+  ],
+  "linkedFeatures": [
+    "FEAT-4"
+  ]
+}

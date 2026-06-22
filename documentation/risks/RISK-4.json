@@ -1,0 +1,82 @@
+{
+  "id": "RISK-4",
+  "title": "Data Loss During Form Filling",
+  "description": "Risk that question responses are lost due to network failure, session timeout, or backend error during form filling, potentially requiring the patient to re-enter data or losing completed responses entirely. This could lead to patient frustration, loss of clinical data, or incorrect medical decisions based on incomplete information.",
+  "status": "Draft",
+  "creationDate": "2026-06-22T12:51:10.796Z",
+  "updateDate": "2026-06-22T12:52:20.252Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-22T12:51:10.796Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [
+        "FEAT-3"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "hazardousSituation",
+      "oldValue": "",
+      "newValue": "A patient loses completed question responses due to network failure or session timeout during form filling, requiring re-entry of clinical data or resulting in incomplete submissions. This could lead to delayed treatment decisions based on incomplete patient information.",
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "severity",
+      "oldValue": 1,
+      "newValue": 3,
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "probabilityBefore",
+      "oldValue": 1,
+      "newValue": 4,
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "probabilityAfter",
+      "oldValue": 1,
+      "newValue": 2,
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-3"
+      ],
+      "newValue": [
+        "FEAT-4"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T14:30:20.010Z",
+      "mode": "set"
+    }
+  ],
+  "hazardousSituation": "A patient loses completed question responses due to network failure or session timeout during form filling, requiring re-entry of clinical data or resulting in incomplete submissions. This could lead to delayed treatment decisions based on incomplete patient information.",
+  "severity": 3,
+  "probabilityBefore": 4,
+  "probabilityAfter": 2,
+  "linkedFeatures": [
+    "FEAT-4"
+  ]
+}

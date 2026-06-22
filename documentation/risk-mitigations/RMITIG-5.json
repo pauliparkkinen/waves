@@ -1,0 +1,20 @@
+{
+  "id": "RMITIG-5",
+  "title": "Role-Based Access Control and Audit Logging for Form Responses",
+  "description": "Access to form responses is enforced through role-based permissions at the API layer and database level. Each form response is scoped to a specific patient user. Filling on behalf requires explicit delegation permission. Review mode enforces read-only access. All access to form responses is logged in an audit trail including user ID, role, action type, timestamp, and accessed response ID.",
+  "status": "Draft",
+  "creationDate": "2026-06-22T13:00:00.000Z",
+  "updateDate": "2026-06-22T13:00:00.000Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T13:00:00.000Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [],
+  "linkedRisk": "RISK-5",
+  "linkedRequirement": "REQ-21"
+}

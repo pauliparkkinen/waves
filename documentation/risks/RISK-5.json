@@ -1,0 +1,82 @@
+{
+  "id": "RISK-5",
+  "title": "Unauthorized Access to Form Responses",
+  "description": "Risk that a user without proper authorization accesses, modifies, or submits form responses belonging to another patient. This includes unauthorized persons filling forms on behalf of a patient, unauthorized review of submitted responses, or privilege escalation allowing access to responses outside the user's scope.",
+  "status": "Draft",
+  "creationDate": "2026-06-22T12:51:32.479Z",
+  "updateDate": "2026-06-22T12:52:20.252Z",
+  "statusHistory": [
+    {
+      "fromStatus": null,
+      "toStatus": "Draft",
+      "changedBy": "unknown",
+      "changedAt": "2026-06-22T12:51:32.479Z",
+      "comment": "Initial creation"
+    }
+  ],
+  "changeHistory": [
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-1"
+      ],
+      "newValue": [
+        "FEAT-3"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "hazardousSituation",
+      "oldValue": "",
+      "newValue": "An unauthorized user gains access to another patient's form responses, either viewing sensitive medical data or submitting responses in the patient's name. This could lead to privacy violations, incorrect treatment decisions based on falsified data, or non-compliance with healthcare regulations.",
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "severity",
+      "oldValue": 1,
+      "newValue": 4,
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "probabilityBefore",
+      "oldValue": 1,
+      "newValue": 3,
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "probabilityAfter",
+      "oldValue": 1,
+      "newValue": 1,
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T12:52:20.252Z",
+      "mode": "set"
+    },
+    {
+      "field": "linkedFeatures",
+      "oldValue": [
+        "FEAT-3"
+      ],
+      "newValue": [
+        "FEAT-4"
+      ],
+      "changedBy": "discovery-agent",
+      "changedAt": "2026-06-22T14:30:20.010Z",
+      "mode": "set"
+    }
+  ],
+  "hazardousSituation": "An unauthorized user gains access to another patient's form responses, either viewing sensitive medical data or submitting responses in the patient's name. This could lead to privacy violations, incorrect treatment decisions based on falsified data, or non-compliance with healthcare regulations.",
+  "severity": 4,
+  "probabilityBefore": 3,
+  "probabilityAfter": 1,
+  "linkedFeatures": [
+    "FEAT-4"
+  ]
+}
