@@ -1295,6 +1295,11 @@ button {
   box-sizing: border-box;
 }
 
+.translation-field-search-input::placeholder {
+  color: #374151;
+  opacity: 1;
+}
+
 .translation-field-search-input:focus {
   outline: 2px solid #2563eb;
   outline-offset: -1px;
