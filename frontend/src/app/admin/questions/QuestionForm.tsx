@@ -48,6 +48,9 @@ export default function QuestionForm({
   const [conditionFormulaId, setConditionFormulaId] = useState<
     string | undefined
   >(question?.condition_formula_id);
+  const [valueType, setValueType] = useState<string | undefined>(
+    question?.value_type,
+  );
   const [localCollections, setLocalCollections] = useState(collections);
   const [formulasInCollection, setFormulasInCollection] = useState<Formula[]>([]);
   const [editingFormulaId, setEditingFormulaId] = useState<string | null>(null);
@@ -123,6 +126,7 @@ export default function QuestionForm({
         version: question?.version ?? 1,
         parameters,
         condition_formula_id: conditionFormulaId,
+        value_type: valueType,
         translations: question?.translations ?? [],
       };
 
@@ -294,7 +298,58 @@ export default function QuestionForm({
         </div>
       )}
 
-      {/* Section 4: Visibility Condition */}
+      {/* Section 4: Value Type (for formula usage) */}
+      <div className="form-group">
+        <label>Value Type</label>
+        <p className="form-group-note">
+          Set how this question's value is treated in formulas.
+          Range questions are automatically treated as numbers.
+        </p>
+        <div className="formula-output-type-group">
+          <label>
+            <input
+              type="radio"
+              name="value-type"
+              value=""
+              checked={valueType === undefined}
+              onChange={() => setValueType(undefined)}
+            />
+            Auto-detect
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="value-type"
+              value="number"
+              checked={valueType === 'number'}
+              onChange={() => setValueType('number')}
+            />
+            Number
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="value-type"
+              value="boolean"
+              checked={valueType === 'boolean'}
+              onChange={() => setValueType('boolean')}
+            />
+            Boolean
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="value-type"
+              value="string"
+              checked={valueType === 'string'}
+              onChange={() => setValueType('string')}
+            />
+            String
+          </label>
+        </div>
+      </div>
+
+      {/* Section 5: Visibility Condition */}
       <div className="form-group">
         <label>Visibility Condition</label>
         <div className="collection-selector-row">

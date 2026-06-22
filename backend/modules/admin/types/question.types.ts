@@ -52,6 +52,7 @@ export type Question = {
   question_symbol: string;
   condition_formula_id?: string;
   type: QuestionType;
+  value_type?: 'number' | 'boolean' | 'string';
   version: number;
   parameters: Record<string, unknown>;
   created_at: string;

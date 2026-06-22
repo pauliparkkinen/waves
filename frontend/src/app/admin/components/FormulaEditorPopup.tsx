@@ -142,10 +142,19 @@ export default function FormulaEditorPopup({
 
         setAvailableFormulas(formulas);
 
+        function resolveQuestionValueType(
+          q: AdminQuestion
+        ): 'number' | 'boolean' | 'unknown' {
+          if (q.value_type === 'number') return 'number';
+          if (q.value_type === 'boolean') return 'boolean';
+          if (q.type === 'range') return 'number';
+          return 'unknown';
+        }
+
         const defs: VariableDef[] = [
           ...questions.map((q) => ({
             name: q.question_symbol,
-            type: 'unknown' as const,
+            type: resolveQuestionValueType(q),
             kind: 'activity' as const,
           })),
           ...formulas.map((f) => ({

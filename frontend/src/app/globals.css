@@ -1167,3 +1167,9 @@ button {
   width: 100%;
   max-width: 20rem;
 }
+
+.form-group-note {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0.25rem 0 0.5rem;
+}

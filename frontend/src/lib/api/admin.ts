@@ -87,6 +87,7 @@ export type AdminQuestion = {
   question_symbol: string;
   condition_formula_id?: string;
   type: QuestionType;
+  value_type?: 'number' | 'boolean' | 'string';
   version: number;
   parameters: QuestionParameters;
   created_at: string;

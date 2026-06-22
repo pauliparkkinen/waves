@@ -4,6 +4,7 @@ export type ValidationResult = { valid: boolean; errors: ValidationError[] };
 export type ValidationError = { field: string; message: string };
 
 const VALID_QUESTION_TYPES: QuestionType[] = ['free-text', 'range', 'select', 'multiselect', 'radio'];
+const VALID_VALUE_TYPES = ['number', 'boolean', 'string'];
 
 export class QuestionValidationError extends Error {
   constructor(public readonly errors: ValidationError[]) {
@@ -196,6 +197,13 @@ export function validateQuestionInput(data: unknown): void {
     addError(errors, 'type', `type must be one of: ${VALID_QUESTION_TYPES.join(', ')}`);
   }
 
+  // value_type
+  if ('value_type' in data) {
+    if (!isString(data.value_type) || !VALID_VALUE_TYPES.includes(data.value_type)) {
+      addError(errors, 'value_type', 'value_type must be one of: number, boolean, string');
+    }
+  }
+
   // version
   if (!('version' in data) || typeof data.version !== 'number' || (data.version as number) < 1) {
     addError(errors, 'version', 'version is required and must be >= 1');
@@ -258,6 +266,12 @@ export function validateQuestionUpdateInput(data: unknown): void {
   if ('type' in data) {
     if (!isString(data.type) || !VALID_QUESTION_TYPES.includes(data.type as QuestionType)) {
       addError(errors, 'type', `type must be one of: ${VALID_QUESTION_TYPES.join(', ')}`);
+    }
+  }
+
+  if ('value_type' in data) {
+    if (!isString(data.value_type) || !VALID_VALUE_TYPES.includes(data.value_type)) {
+      addError(errors, 'value_type', 'value_type must be one of: number, boolean, string');
     }
   }
 
