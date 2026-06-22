@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { AdminForm, AdminCollection, AdminSection, FormSection, Translation, TranslationRef } from '@/lib/api';
 import TranslationField from '../components/TranslationField';
 import SectionAttachmentEditor from './SectionAttachmentEditor';
@@ -56,15 +56,21 @@ export default function FormForm({
   const [titleTranslation, setTitleTranslation] = useState<TranslationRef | null>(null);
   const [descriptionTranslation, setDescriptionTranslation] = useState<TranslationRef | null>(null);
 
-  useEffect(() => {
+  const refreshTranslations = useCallback(async () => {
     if (!collectionId) return;
-    fetch(`/api/admin/translations?collection_id=${encodeURIComponent(collectionId)}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data: Translation[]) => setAllTranslations(data))
-      .catch(() => setAllTranslations([]));
+    try {
+      const res = await fetch(
+        `/api/admin/translations?collection_id=${encodeURIComponent(collectionId)}`,
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      );
+      const data = (await (res.ok ? res.json() : Promise.resolve([]))) as Translation[];
+      setAllTranslations(data);
+    } catch {
+      setAllTranslations([]);
+    }
   }, [collectionId, accessToken]);
+
+  useEffect(() => { refreshTranslations(); }, [refreshTranslations]);
 
   function handleCollectionCreated(created: AdminCollection) {
     setLocalCollections((prev) => [...prev, created]);
@@ -236,6 +242,7 @@ export default function FormForm({
             onChange={(ref) => setTitleTranslation(ref)}
             readOnly={isReadOnly}
             translations={allTranslations}
+            onManageSaved={refreshTranslations}
           />
           <TranslationField
             label="Description"
@@ -246,6 +253,7 @@ export default function FormForm({
             onChange={(ref) => setDescriptionTranslation(ref)}
             readOnly={isReadOnly}
             translations={allTranslations}
+            onManageSaved={refreshTranslations}
           />
         </div>
       )}

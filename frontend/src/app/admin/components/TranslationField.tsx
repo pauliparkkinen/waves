@@ -13,6 +13,7 @@ type TranslationFieldProps = {
   onChange: (ref: TranslationRef | null) => void;
   readOnly?: boolean;
   translations?: Translation[];
+  onManageSaved?: () => void;
 };
 
 export default function TranslationField({
@@ -24,6 +25,7 @@ export default function TranslationField({
   onChange,
   readOnly,
   translations: externalTranslations,
+  onManageSaved,
 }: TranslationFieldProps) {
   const [allTranslations, setAllTranslations] = useState<Translation[]>(
     externalTranslations ?? [],
@@ -197,8 +199,10 @@ export default function TranslationField({
           accessToken={accessToken}
           onSave={(_translations) => {
             // Translations are saved server-side by TranslationEditorPopup.
-            // Force-refetch to pick up newly created translations.
+            // Force-refetch to pick up newly created translations,
+            // then notify parent so all TranslationFields update.
             fetchTranslations(true);
+            onManageSaved?.();
             setShowPopup(false);
           }}
           onCancel={() => setShowPopup(false)}

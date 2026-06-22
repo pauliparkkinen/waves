@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { AdminQuestion, AdminCollection, QuestionType, Formula, Translation, TranslationRef } from "@/lib/api";
 import TranslationField from "../components/TranslationField";
 import CollectionSelector from "../collections/CollectionSelector";
@@ -183,15 +183,21 @@ export default function QuestionForm({
     }
   }
 
-  useEffect(() => {
+  const refreshTranslations = useCallback(async () => {
     if (!collectionId) return;
-    fetch(`/api/admin/translations?collection_id=${encodeURIComponent(collectionId)}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data: Translation[]) => setAllTranslations(data))
-      .catch(() => setAllTranslations([]));
+    try {
+      const res = await fetch(
+        `/api/admin/translations?collection_id=${encodeURIComponent(collectionId)}`,
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      );
+      const data = (await (res.ok ? res.json() : Promise.resolve([]))) as Translation[];
+      setAllTranslations(data);
+    } catch {
+      setAllTranslations([]);
+    }
   }, [collectionId, accessToken]);
+
+  useEffect(() => { refreshTranslations(); }, [refreshTranslations]);
 
   useEffect(() => {
     refreshFormulas();
@@ -270,6 +276,7 @@ export default function QuestionForm({
             value={titleTranslation ?? undefined}
             onChange={(ref) => setTitleTranslation(ref)}
             translations={allTranslations}
+            onManageSaved={refreshTranslations}
           />
           <TranslationField
             label="Description"
@@ -279,6 +286,7 @@ export default function QuestionForm({
             value={descriptionTranslation ?? undefined}
             onChange={(ref) => setDescriptionTranslation(ref)}
             translations={allTranslations}
+            onManageSaved={refreshTranslations}
           />
         </>
       )}
@@ -320,6 +328,7 @@ export default function QuestionForm({
             entitySymbol={symbol.trim() || question?.question_symbol || ''}
             accessToken={accessToken}
             translations={allTranslations}
+            onManageSaved={refreshTranslations}
           />
           {fieldErrors.parameters && (
             <p className="inline-error" role="alert">

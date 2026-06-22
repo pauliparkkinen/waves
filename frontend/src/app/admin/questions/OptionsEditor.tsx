@@ -13,6 +13,7 @@ type OptionsEditorProps = {
   entitySymbol: string;
   accessToken: string;
   translations: Translation[];
+  onManageSaved?: () => void;
 };
 
 function isValidOptionValue(value: string, valueType: string | undefined): { valid: boolean; message?: string } {
@@ -38,6 +39,7 @@ export default function OptionsEditor({
   entitySymbol,
   accessToken,
   translations,
+  onManageSaved,
 }: OptionsEditorProps) {
   function handleValueChange(index: number, value: string) {
     const updated = options.map((opt, i) =>
@@ -104,6 +106,7 @@ export default function OptionsEditor({
               }
               onChange={(ref) => handleLabelChange(i, ref)}
               translations={translations}
+              onManageSaved={onManageSaved}
             />
           </div>
           <div className="option-value-wrap">

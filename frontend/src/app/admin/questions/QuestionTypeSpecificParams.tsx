@@ -14,6 +14,7 @@ type QuestionTypeSpecificParamsProps = {
   entitySymbol: string;
   accessToken: string;
   translations: Translation[];
+  onManageSaved?: () => void;
 };
 
 function isValidOption(
@@ -49,6 +50,7 @@ export default function QuestionTypeSpecificParams({
   entitySymbol,
   accessToken,
   translations,
+  onManageSaved,
 }: QuestionTypeSpecificParamsProps) {
   const updateParam = useCallback(
     (key: string, value: unknown) => {
@@ -96,6 +98,7 @@ export default function QuestionTypeSpecificParams({
               value={paramToRef(parameters.placeholder, entitySymbol)}
               onChange={(ref) => updateParam('placeholder', ref?.translation_symbol ?? undefined)}
               translations={translations}
+              onManageSaved={onManageSaved}
             />
           </div>
           <div className="form-group">
@@ -161,6 +164,7 @@ export default function QuestionTypeSpecificParams({
               value={paramToRef(parameters.min_label, entitySymbol)}
               onChange={(ref) => updateParam('min_label', ref?.translation_symbol ?? undefined)}
               translations={translations}
+              onManageSaved={onManageSaved}
             />
           </div>
           <div className="form-group">
@@ -172,6 +176,7 @@ export default function QuestionTypeSpecificParams({
               value={paramToRef(parameters.max_label, entitySymbol)}
               onChange={(ref) => updateParam('max_label', ref?.translation_symbol ?? undefined)}
               translations={translations}
+              onManageSaved={onManageSaved}
             />
           </div>
         </div>
@@ -190,6 +195,7 @@ export default function QuestionTypeSpecificParams({
               entitySymbol={entitySymbol}
               accessToken={accessToken}
               translations={translations}
+              onManageSaved={onManageSaved}
             />
           </div>
         </div>
@@ -208,6 +214,7 @@ export default function QuestionTypeSpecificParams({
               entitySymbol={entitySymbol}
               accessToken={accessToken}
               translations={translations}
+              onManageSaved={onManageSaved}
             />
           </div>
           <div className="form-group">
@@ -256,6 +263,7 @@ export default function QuestionTypeSpecificParams({
               entitySymbol={entitySymbol}
               accessToken={accessToken}
               translations={translations}
+              onManageSaved={onManageSaved}
             />
           </div>
         </div>

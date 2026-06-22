@@ -1163,6 +1163,8 @@ button {
 }
 
 .translations-list {
+  max-height: 18rem;
+  overflow-y: auto;
   margin-bottom: 1rem;
 }
 
