@@ -43,6 +43,22 @@ export default function FormulaEditorPopup({
     'number' | 'boolean' | 'unknown' | null
   >(null);
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  const filteredVariables = variableDefs.filter(
+    (v) =>
+      v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      `$${v.name}`.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
+  const sortedFiltered = [...filteredVariables].sort((a, b) => {
+    if (a.kind !== b.kind) return a.kind === 'activity' ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -91,6 +107,16 @@ export default function FormulaEditorPopup({
     return () => {
       document.removeEventListener('keydown', handleTab);
     };
+  }, []);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -531,24 +557,147 @@ export default function FormulaEditorPopup({
         {variableDefs.length > 0 && (
           <div className="form-group">
             <label>Variables</label>
-            <div className="formula-variables-panel">
-              {variableDefs.map((def) => (
-                <div key={def.name} className="formula-variable-row">
-                  <span>
-                    <span className="formula-variable-name">${def.name}</span>
-                    <span className="formula-variable-type-badge">
-                      {def.type}
-                    </span>
-                  </span>
+            <div className="formula-variable-search" ref={searchRef}>
+              <div className="formula-variable-search-input-wrapper">
+                <input
+                  type="text"
+                  className="formula-variable-search-input"
+                  placeholder="Search variables... (e.g. $revenue)"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setIsDropdownOpen(true);
+                    setHighlightedIndex(-1);
+                  }}
+                  onFocus={() => setIsDropdownOpen(true)}
+                  onKeyDown={(e) => {
+                    if (!isDropdownOpen) return;
+
+                    if (e.key === 'ArrowDown') {
+                      e.preventDefault();
+                      setHighlightedIndex((prev) =>
+                        prev < sortedFiltered.length - 1 ? prev + 1 : 0,
+                      );
+                    } else if (e.key === 'ArrowUp') {
+                      e.preventDefault();
+                      setHighlightedIndex((prev) =>
+                        prev > 0 ? prev - 1 : sortedFiltered.length - 1,
+                      );
+                    } else if (e.key === 'Enter' && highlightedIndex >= 0) {
+                      e.preventDefault();
+                      const selected = sortedFiltered[highlightedIndex];
+                      if (selected) {
+                        insertAtCursor(`$${selected.name}`);
+                        setIsDropdownOpen(false);
+                        setSearchQuery('');
+                      }
+                    } else if (e.key === 'Escape') {
+                      setIsDropdownOpen(false);
+                    }
+                  }}
+                  aria-label="Search variables"
+                  aria-expanded={isDropdownOpen}
+                  aria-autocomplete="list"
+                  aria-controls="variable-dropdown-list"
+                  role="combobox"
+                />
+                {searchQuery && (
                   <button
                     type="button"
-                    className="btn-secondary btn-small formula-variable-insert-btn"
-                    onClick={() => insertAtCursor(`$${def.name}`)}
+                    className="formula-variable-search-clear"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setHighlightedIndex(-1);
+                      setIsDropdownOpen(true);
+                    }}
+                    aria-label="Clear search"
                   >
-                    Insert
+                    &times;
                   </button>
+                )}
+              </div>
+
+              {isDropdownOpen && (
+                <div
+                  id="variable-dropdown-list"
+                  className="formula-variable-dropdown"
+                  role="listbox"
+                  aria-label="Available variables"
+                >
+                  {sortedFiltered.length === 0 ? (
+                    <div className="formula-variable-dropdown-empty">
+                      No variables match &quot;{searchQuery}&quot;
+                    </div>
+                  ) : (
+                    (() => {
+                      const activities = sortedFiltered.filter(v => v.kind === 'activity');
+                      const formulas = sortedFiltered.filter(v => v.kind === 'formula');
+                      let idx = -1;
+
+                      return (
+                        <>
+                          {activities.length > 0 && (
+                            <>
+                              <div className="formula-variable-dropdown-group-label">Questions</div>
+                              {activities.map((def) => {
+                                idx++;
+                                const i = idx;
+                                return (
+                                  <button
+                                    key={def.name}
+                                    type="button"
+                                    className={`formula-variable-dropdown-item ${highlightedIndex === i ? 'highlighted' : ''}`}
+                                    role="option"
+                                    aria-selected={highlightedIndex === i}
+                                    onMouseEnter={() => setHighlightedIndex(i)}
+                                    onMouseDown={(e) => {
+                                      e.preventDefault();
+                                      insertAtCursor(`$${def.name}`);
+                                      setIsDropdownOpen(false);
+                                      setSearchQuery('');
+                                    }}
+                                  >
+                                    <span className="formula-variable-name">${def.name}</span>
+                                    <span className="formula-variable-type-badge">{def.type}</span>
+                                  </button>
+                                );
+                              })}
+                            </>
+                          )}
+                          {formulas.length > 0 && (
+                            <>
+                              <div className="formula-variable-dropdown-group-label">Formulas</div>
+                              {formulas.map((def) => {
+                                idx++;
+                                const i = idx;
+                                return (
+                                  <button
+                                    key={def.name}
+                                    type="button"
+                                    className={`formula-variable-dropdown-item ${highlightedIndex === i ? 'highlighted' : ''}`}
+                                    role="option"
+                                    aria-selected={highlightedIndex === i}
+                                    onMouseEnter={() => setHighlightedIndex(i)}
+                                    onMouseDown={(e) => {
+                                      e.preventDefault();
+                                      insertAtCursor(`$${def.name}`);
+                                      setIsDropdownOpen(false);
+                                      setSearchQuery('');
+                                    }}
+                                  >
+                                    <span className="formula-variable-name">${def.name}</span>
+                                    <span className="formula-variable-type-badge">{def.type}</span>
+                                  </button>
+                                );
+                              })}
+                            </>
+                          )}
+                        </>
+                      );
+                    })()
+                  )}
                 </div>
-              ))}
+              )}
             </div>
           </div>
         )}
