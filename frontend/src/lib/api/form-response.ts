@@ -142,6 +142,21 @@ export async function saveQuestionResponse(
   return res.json() as Promise<QuestionResponse>;
 }
 
+export async function getQuestionResponses(
+  formResponseId: string,
+  accessToken?: string
+): Promise<QuestionResponse[]> {
+  const res = await fetch(
+    `${BACKEND_URL}/form-response/responses/${formResponseId}/questions`,
+    { headers: authHeaders(accessToken), cache: "no-store" }
+  );
+  if (!res.ok)
+    throw new Error(
+      `Backend GET /form-response/responses/${formResponseId}/questions returned ${res.status}`
+    );
+  return res.json() as Promise<QuestionResponse[]>;
+}
+
 export async function submitFormResponseGroup(
   groupId: string,
   accessToken?: string

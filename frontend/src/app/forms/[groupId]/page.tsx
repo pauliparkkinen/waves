@@ -1,6 +1,5 @@
 import { auth } from '@/auth';
-import { getFormResponseGroup } from '@/lib/api/form-response';
-import type { FormResponse, QuestionResponse } from '@/lib/api/form-response';
+import { loadFormViewData, findFirstUnansweredSection } from '@/lib/api/load-form-view-data';
 import dynamic from 'next/dynamic';
 
 const FormViewPageClient = dynamic(
@@ -9,40 +8,51 @@ const FormViewPageClient = dynamic(
 
 export default async function FormFillPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ groupId: string }>;
+  searchParams?: Promise<{ patientId?: string }>;
 }) {
   const { groupId } = await params;
+  const resolvedSearchParams = await searchParams;
+  const patientIdParam = resolvedSearchParams?.patientId;
+
   const session = await auth();
   const accessToken = session?.accessToken;
 
-  const formResponseGroup = await getFormResponseGroup(groupId, accessToken);
+  // Detect if user has HCP role
+  const userRoles = session?.roles ?? [];
+  const isHcp = userRoles.includes('hcp') || userRoles.includes('HCP') || userRoles.includes('healthcare') || userRoles.includes('Healthcare');
 
-  const formResponses: FormResponse[] = formResponseGroup.form_responses.map((fr) => ({
-    form_response_id: fr.form_response_id,
-    form_response_group_id: groupId,
-    collection_id: '',
-    form_symbol: fr.form_symbol,
-    form_version: fr.form_version,
-    user_id: '',
-    filling_user_id: '',
-    status: fr.status,
-    started_timestamp: fr.started_timestamp,
-    submitted_timestamp: fr.submitted_timestamp,
-    question_responses: [],
-  }));
+  const {
+    formResponseGroup,
+    formResponses,
+    questionResponsesMap,
+    formDefinitions,
+    sectionDefinitions,
+    questionDefinitions,
+  } = await loadFormViewData(groupId, accessToken);
+
+  const initialSectionSymbol = findFirstUnansweredSection(
+    sectionDefinitions,
+    questionResponsesMap,
+    formDefinitions,
+  );
 
   return (
     <FormViewPageClient
       initialData={{
         formResponseGroup,
-        formDefinitions: [],
+        formDefinitions,
         formResponses,
-        questionResponses: new Map<string, QuestionResponse>(),
-        sectionDefinitions: [],
-        questionDefinitions: [],
+        questionResponses: questionResponsesMap,
+        sectionDefinitions,
+        questionDefinitions,
         mode: 'fill',
         locale: 'en',
+        initialSectionSymbol,
+        isHcp,
+        selectedPatientId: patientIdParam,
       }}
       accessToken={accessToken}
     />

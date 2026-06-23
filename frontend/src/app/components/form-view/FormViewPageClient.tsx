@@ -1,6 +1,15 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
+import { FormViewProvider } from './FormViewProvider';
+import FormViewLayout from './FormViewLayout';
+import FormHeader from './FormHeader';
+import ProgressTracker from './ProgressTracker';
+import FormNavigation from './FormNavigation';
+import { SectionRenderer } from './SectionRenderer';
+import { FormCompletion } from './FormCompletion';
+import { SubmissionDialog } from './SubmissionDialog';
+import { PatientSelector } from './PatientSelector';
 import type {
   FormResponseGroup,
   FormDefinition,
@@ -9,13 +18,6 @@ import type {
   SectionDefinition,
   QuestionDefinition,
 } from '@/lib/api/form-response';
-import { FormViewProvider } from './FormViewProvider';
-import FormViewLayout from './FormViewLayout';
-import FormHeader from './FormHeader';
-import ProgressTracker from './ProgressTracker';
-import FormNavigation from './FormNavigation';
-import { SectionRenderer } from './SectionRenderer';
-import { FormCompletion } from './FormCompletion';
 
 type ViewMode = 'fill' | 'review' | 'preview';
 
@@ -29,50 +31,85 @@ interface FormViewPageClientProps {
     questionDefinitions: QuestionDefinition[];
     mode: ViewMode;
     locale: string;
+    initialSectionSymbol?: string | null;
+    isHcp?: boolean;
+    selectedPatientId?: string;
   };
-  onSubmit?: () => void;
   accessToken?: string;
 }
 
 export default function FormViewPageClient({
   initialData,
-  onSubmit,
   accessToken,
 }: FormViewPageClientProps) {
-  const handleSubmit = useCallback(async () => {
-    const groupId = initialData.formResponseGroup.form_response_group_id;
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isSubmitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [currentPatientId, setCurrentPatientId] = useState<string | undefined>(
+    initialData.selectedPatientId,
+  );
+
+  const submitActionRef = useRef<(() => Promise<void>) | null>(null);
+
+  const groupId = initialData.formResponseGroup.form_response_group_id;
+
+  const handleSelectPatient = useCallback((patientId: string) => {
+    setCurrentPatientId(patientId);
+  }, []);
+
+  const handleOpenDialog = useCallback(() => {
+    setDialogOpen(true);
+    setSubmitError(null);
+  }, []);
+
+  const handleCloseDialog = useCallback(() => {
+    if (!isSubmitting) {
+      setDialogOpen(false);
+    }
+  }, [isSubmitting]);
+
+  const handleConfirmSubmit = useCallback(async () => {
     if (!groupId) return;
+    setSubmitting(true);
+    setSubmitError(null);
 
     try {
-      const res = await fetch(`/api/form-response/groups/${groupId}/submit`, {
-        method: 'POST',
-        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(
-          (data && typeof data === 'object' && 'error' in data
-            ? (data as { error: string }).error
-            : undefined) ?? `Submit failed (${res.status})`,
-        );
-      }
+      await submitActionRef.current?.();
+      window.location.href = `/forms/${groupId}/review`;
     } catch (err) {
-      console.error('Submit failed', err);
+      setSubmitError(err instanceof Error ? err.message : 'Submit failed');
+      setSubmitting(false);
     }
+  }, [groupId]);
 
-    onSubmit?.();
-  }, [initialData.formResponseGroup.form_response_group_id, accessToken, onSubmit]);
+  // If HCP and no patient selected, show patient selector
+  if (initialData.isHcp && !currentPatientId) {
+    return (
+      <PatientSelector
+        onSelectPatient={handleSelectPatient}
+        locale={initialData.locale}
+      />
+    );
+  }
 
   return (
-    <FormViewProvider initialData={initialData} accessToken={accessToken}>
+    <FormViewProvider initialData={initialData} accessToken={accessToken} submitActionRef={submitActionRef}>
       <FormViewLayout
         header={<FormHeader />}
         progress={<ProgressTracker />}
         navigation={<FormNavigation />}
       >
-        <SectionRenderer />
-        <FormCompletion onSubmit={handleSubmit} />
+        <SectionRenderer disabled={initialData.mode === 'review' || initialData.mode === 'preview'} />
+        {initialData.mode === 'fill' && <FormCompletion onSubmit={handleOpenDialog} />}
       </FormViewLayout>
+      <SubmissionDialog
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+        onSubmit={handleConfirmSubmit}
+        isSubmitting={isSubmitting}
+        error={submitError}
+        locale={initialData.locale}
+      />
     </FormViewProvider>
   );
 }

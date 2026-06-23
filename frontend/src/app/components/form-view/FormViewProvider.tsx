@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useCallback, useMemo, useState, useEffect, useRef } from 'react';
+import { retryWithBackoff } from '@/lib/api/retry';
 import type {
   FormResponseGroup,
   FormDefinition,
@@ -40,6 +41,7 @@ export type FormViewState = {
   saveStatus: SaveStatus;
   mode: ViewMode;
   locale: string;
+  failedSaves: Map<string, { questionSymbol: string; value: string | number | boolean | string[] }>;
 };
 
 export type FormViewActions = {
@@ -53,6 +55,7 @@ export type FormViewActions = {
   setLocale: (locale: string) => void;
   setError: (error: string | null) => void;
   submitFormResponseGroup: () => Promise<void>;
+  retryFailedSave: (questionSymbol: string) => Promise<void>;
 };
 
 type FormViewContextValue = FormViewState & FormViewActions;
@@ -101,12 +104,14 @@ interface FormViewProviderProps {
     questionDefinitions: QuestionDefinition[];
     mode: ViewMode;
     locale: string;
+    initialSectionSymbol?: string | null;
   };
   accessToken?: string;
   children: React.ReactNode;
+  submitActionRef?: React.MutableRefObject<(() => Promise<void>) | null>;
 }
 
-export function FormViewProvider({ initialData, accessToken, children }: FormViewProviderProps) {
+export function FormViewProvider({ initialData, accessToken, children, submitActionRef }: FormViewProviderProps) {
   const [isLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formResponseGroup] = useState(initialData.formResponseGroup);
@@ -114,12 +119,23 @@ export function FormViewProvider({ initialData, accessToken, children }: FormVie
   const [formResponses] = useState(initialData.formResponses);
   const [questionResponses, setQuestionResponses] = useState(initialData.questionResponses);
   const [currentFormIndex, setCurrentFormIndex] = useState(0);
-  const [currentSectionSymbol, setCurrentSectionSymbol] = useState<string | null>(null);
+  const [currentSectionSymbol, setCurrentSectionSymbol] = useState<string | null>(initialData.initialSectionSymbol ?? null);
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [mode] = useState(initialData.mode);
   const [locale, setLocale] = useState(initialData.locale);
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [failedSaves, setFailedSaves] = useState<Map<string, { questionSymbol: string; value: string | number | boolean | string[] }>>(new Map());
+  const debounceTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const questionDefinitionsRef = useRef(initialData.questionDefinitions);
+
+  useEffect(() => {
+    return () => {
+      for (const timer of debounceTimersRef.current.values()) {
+        clearTimeout(timer);
+      }
+      debounceTimersRef.current.clear();
+    };
+  }, []);
 
   const formOrder = useMemo(() => {
     const base = computeFormOrder(
@@ -158,7 +174,7 @@ export function FormViewProvider({ initialData, accessToken, children }: FormVie
     if (!currentSectionSymbol && formOrder.length > 0 && formOrder[0].sections.length > 0) {
       setCurrentSectionSymbol(formOrder[0].sections[0].sectionSymbol);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [formOrder, currentSectionSymbol]);
 
   const saveAnswer = useCallback(
     async (questionSymbol: string, value: string | number | boolean | string[]) => {
@@ -173,22 +189,44 @@ export function FormViewProvider({ initialData, accessToken, children }: FormVie
 
       setSaveStatus('saving');
       try {
-        const res = await fetch(`/api/form-response/responses/${formResponseId}/questions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-          },
-          body: JSON.stringify(body),
+        await retryWithBackoff(async () => {
+          const res = await fetch(`/api/form-response/responses/${formResponseId}/questions`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+            },
+            body: JSON.stringify(body),
+          });
+          if (!res.ok) throw new Error('Save failed');
         });
-        if (!res.ok) throw new Error('Save failed');
         setSaveStatus('saved');
-        setTimeout(() => setSaveStatus('idle'), 2000);
+        // Clear from failed saves if previously failed
+        setFailedSaves((prev) => {
+          const next = new Map(prev);
+          next.delete(questionSymbol);
+          return next;
+        });
       } catch {
         setSaveStatus('error');
+        // Store in failed saves for manual retry
+        setFailedSaves((prev) => {
+          const next = new Map(prev);
+          next.set(questionSymbol, { questionSymbol, value });
+          return next;
+        });
       }
     },
     [formResponses, accessToken],
+  );
+
+  const retryFailedSave = useCallback(
+    async (questionSymbol: string) => {
+      const failed = failedSaves.get(questionSymbol);
+      if (!failed) return;
+      await saveAnswer(questionSymbol, failed.value);
+    },
+    [failedSaves, saveAnswer],
   );
 
   const onAnswer = useCallback(
@@ -196,12 +234,17 @@ export function FormViewProvider({ initialData, accessToken, children }: FormVie
       setQuestionResponses((prev) => {
         const next = new Map(prev);
         const existing = next.get(questionSymbol);
+        const qDef = questionDefinitionsRef.current.find((q) => q.question_symbol === questionSymbol);
+        if (!qDef) {
+          console.warn(`Question definition not found for "${questionSymbol}", using default version 1`);
+        }
+        const question_version = existing?.question_version ?? qDef?.version ?? 1;
         next.set(questionSymbol, {
           ...(existing ?? {
             form_response_id: formResponses[0]?.form_response_id ?? '',
             collection_id: formResponses[0]?.collection_id ?? '',
             question_symbol: questionSymbol,
-            question_version: 1,
+            question_version,
           }),
           response_value_text:
             typeof value === 'string'
@@ -215,8 +258,15 @@ export function FormViewProvider({ initialData, accessToken, children }: FormVie
         return next;
       });
 
-      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-      debounceTimerRef.current = setTimeout(() => saveAnswer(questionSymbol, value), 500);
+      const existingTimer = debounceTimersRef.current.get(questionSymbol);
+      if (existingTimer) clearTimeout(existingTimer);
+      debounceTimersRef.current.set(
+        questionSymbol,
+        setTimeout(() => {
+          debounceTimersRef.current.delete(questionSymbol);
+          saveAnswer(questionSymbol, value);
+        }, 500),
+      );
     },
     [formResponses, saveAnswer],
   );
@@ -253,25 +303,37 @@ export function FormViewProvider({ initialData, accessToken, children }: FormVie
     const groupId = formResponseGroup.form_response_group_id;
     if (!groupId) return;
 
-    setSaveStatus('saving');
-    try {
-      const res = await fetch(`/api/form-response/groups/${groupId}/submit`, {
-        method: 'POST',
-        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(
-          (data && typeof data === 'object' && 'error' in data
-            ? (data as { error: string }).error
-            : undefined) ?? `Submit failed (${res.status})`,
-        );
-      }
-      setSaveStatus('saved');
-    } catch {
-      setSaveStatus('error');
+    if (failedSaves.size > 0) {
+      setError('Some answers failed to save. Please retry before submitting.');
+      throw new Error('Some answers failed to save. Please retry before submitting.');
     }
-  }, [formResponseGroup, accessToken]);
+
+    setSaveStatus('saving');
+    const res = await fetch(`/api/form-response/groups/${groupId}/submit`, {
+      method: 'POST',
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      throw new Error(
+        (data && typeof data === 'object' && 'error' in data
+          ? (data as { error: string }).error
+          : undefined) ?? `Submit failed (${res.status})`,
+      );
+    }
+    setSaveStatus('saved');
+  }, [formResponseGroup, accessToken, failedSaves, setError]);
+
+  useEffect(() => {
+    if (submitActionRef) {
+      submitActionRef.current = submitFormResponseGroupAction;
+    }
+    return () => {
+      if (submitActionRef) {
+        submitActionRef.current = null;
+      }
+    };
+  }, [submitActionRef, submitFormResponseGroupAction]);
 
   const value = useMemo<FormViewContextValue>(
     () => ({
@@ -286,6 +348,7 @@ export function FormViewProvider({ initialData, accessToken, children }: FormVie
       completedSections,
       formOrder,
       saveStatus,
+      failedSaves,
       mode,
       locale,
       onAnswer,
@@ -298,6 +361,7 @@ export function FormViewProvider({ initialData, accessToken, children }: FormVie
       setLocale,
       setError,
       submitFormResponseGroup: submitFormResponseGroupAction,
+      retryFailedSave,
     }),
     [
       isLoading,
@@ -311,6 +375,7 @@ export function FormViewProvider({ initialData, accessToken, children }: FormVie
       completedSections,
       formOrder,
       saveStatus,
+      failedSaves,
       mode,
       locale,
       onAnswer,
@@ -323,6 +388,7 @@ export function FormViewProvider({ initialData, accessToken, children }: FormVie
       setLocale,
       setError,
       submitFormResponseGroupAction,
+      retryFailedSave,
     ],
   );
 

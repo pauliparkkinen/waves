@@ -12,6 +12,7 @@ type Props = {
   isIncomplete: boolean;
   onContinue: () => void;
   autoFocus?: boolean;
+  readOnly?: boolean;
 };
 
 function formatAnswer(
@@ -27,7 +28,7 @@ function formatAnswer(
   return '';
 }
 
-export function SectionSummary({ section, isIncomplete, onContinue, autoFocus = false }: Props) {
+export function SectionSummary({ section, isIncomplete, onContinue, autoFocus = false, readOnly = false }: Props) {
   const { questionResponses, reopenSection, locale } = useFormView();
   const strings = getFormViewStrings(locale);
   const summaryRef = useRef<HTMLDivElement>(null);
@@ -79,21 +80,23 @@ export function SectionSummary({ section, isIncomplete, onContinue, autoFocus = 
                     {answer || <em>{strings.summary.noAnswer}</em>}
                   </span>
                 </div>
-                <button
-                  type="button"
-                  className="summary__edit btn-small btn-secondary"
-                  onClick={() => reopenSection(section.sectionSymbol)}
-                  aria-label={`Edit ${questionText}`}
-                >
-                  {strings.section.edit}
-                </button>
+                {!readOnly && (
+                  <button
+                    type="button"
+                    className="summary__edit btn-small btn-secondary"
+                    onClick={() => reopenSection(section.sectionSymbol)}
+                    aria-label={`Edit ${questionText}`}
+                  >
+                    {strings.section.edit}
+                  </button>
+                )}
               </div>
             );
           })}
         </div>
       )}
 
-      {isIncomplete && (
+      {!readOnly && isIncomplete && (
         <div className="section__controls">
           <button
             type="button"

@@ -2,6 +2,42 @@ import { NextResponse } from "next/server";
 
 const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:3000";
 
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ formResponseId: string }> }
+) {
+  try {
+    const { formResponseId } = await params;
+    const authHeader = request.headers.get("Authorization") ?? "";
+
+    const res = await fetch(
+      `${BACKEND_URL}/form-response/responses/${formResponseId}/questions`,
+      {
+        headers: authHeader ? { Authorization: authHeader } : {},
+      }
+    );
+
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      const errMsg =
+        (data && typeof data === "object" && "error" in data
+          ? (data as { error: string }).error
+          : undefined) ??
+        `Fetch question responses failed (${res.status})`;
+      return NextResponse.json({ error: errMsg }, { status: res.status });
+    }
+
+    return NextResponse.json(data);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("Fetch question responses proxy error:", message);
+    return NextResponse.json(
+      { error: `Failed to connect to backend: ${message}` },
+      { status: 502 }
+    );
+  }
+}
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ formResponseId: string }> }

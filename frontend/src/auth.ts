@@ -29,12 +29,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (profile) {
         const p = profile as Record<string, unknown>;
         token.organisationId = (p.organisation_id as string) ?? (p.org_id as string) ?? undefined;
+
+        // Extract roles from the OIDC profile
+        // Keycloak: p.realm_access?.roles
+        // Zitadel: p.roles
+        const realmAccess = p.realm_access as { roles?: string[] } | undefined;
+        const roles = realmAccess?.roles ?? (p.roles as string[] | undefined) ?? [];
+        token.roles = roles;
       }
       return token;
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken as string | undefined;
       session.organisationId = token.organisationId as string | undefined;
+      session.roles = token.roles as string[] | undefined;
       return session;
     },
   },
