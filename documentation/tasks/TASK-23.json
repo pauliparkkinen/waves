@@ -1,10 +1,10 @@
 {
   "id": "TASK-23",
   "title": "Frontend: Form View Navigation and Section Rendering",
-  "description": "Implement the core form view navigation component for the frontend. This component handles sequential form/section presentation across all three UIs (patient, hcp, admin). Includes: Sequential section navigation (one section at a time, next/previous controls), Question renderers for all types (multi-select, select-one, free-text, range), Section summary component showing completed answers with reopen capability, Clear visual separation of forms and sections, Incomplete section indicator with visual cues, One-section-at-a-time enforcement (closing current opens summary), Localization support via form definition translations, Progress tracking across multiple forms in a form response group, and WCAG 2.2 compliant keyboard navigation and screen reader support. Implements REQ-19 (Sequential Form Navigation) and REQ-14/REQ-15/REQ-16/REQ-17 (accessibility requirements).",
-  "status": "Draft",
+  "description": "Implement the core form view navigation component for the frontend. This component handles sequential form/section presentation across all three UIs (patient, hcp, admin). Includes: Sequential section navigation (one section at a time, next/previous controls), Question renderers for all types (multi-select, select-one, free-text, range), Section summary component showing completed answers with reopen capability, Clear visual separation of forms and sections, Incomplete section indicator with visual cues, One-section-at-a-time enforcement (closing current opens summary), Localization support via form definition translations, Progress tracking across multiple forms in a form response group, and WCAG 2.2 compliant keyboard navigation and screen reader support. Implements REQ-19 (Sequential Form Navigation) and REQ-14/REQ-15/REQ-16/REQ-17 (accessibility requirements). Full implementation plan: frontend/documentation/tasks/BUILD-003-form-view.md",
+  "status": "Ready-to-review",
   "creationDate": "2026-06-22T14:40:41.021Z",
-  "updateDate": "2026-06-22T14:50:44.191Z",
+  "updateDate": "2026-06-23T14:56:25.665Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -12,6 +12,20 @@
       "changedBy": "unknown",
       "changedAt": "2026-06-22T14:40:41.022Z",
       "comment": "Initial creation"
+    },
+    {
+      "fromStatus": "Draft",
+      "toStatus": "Plan-ready",
+      "changedBy": "Pauli Parkkinen",
+      "changedAt": "2026-06-23T14:56:23.461Z",
+      "comment": "Detailed implementation plan created in BUILD-003-form-view.md"
+    },
+    {
+      "fromStatus": "Plan-ready",
+      "toStatus": "Ready-to-review",
+      "changedBy": "Pauli Parkkinen",
+      "changedAt": "2026-06-23T14:56:25.665Z",
+      "comment": "Implementation plan is complete and ready for review"
     }
   ],
   "changeHistory": [
@@ -35,6 +49,14 @@
       "changedAt": "2026-06-22T14:50:44.191Z",
       "mode": "set",
       "comment": "Reverted to Draft — only TASK-20 should be in review"
+    },
+    {
+      "field": "description",
+      "oldValue": "Implement the core form view navigation component for the frontend. This component handles sequential form/section presentation across all three UIs (patient, hcp, admin). Includes: Sequential section navigation (one section at a time, next/previous controls), Question renderers for all types (multi-select, select-one, free-text, range), Section summary component showing completed answers with reopen capability, Clear visual separation of forms and sections, Incomplete section indicator with visual cues, One-section-at-a-time enforcement (closing current opens summary), Localization support via form definition translations, Progress tracking across multiple forms in a form response group, and WCAG 2.2 compliant keyboard navigation and screen reader support. Implements REQ-19 (Sequential Form Navigation) and REQ-14/REQ-15/REQ-16/REQ-17 (accessibility requirements).",
+      "newValue": "Implement the core form view navigation component for the frontend. This component handles sequential form/section presentation across all three UIs (patient, hcp, admin). Includes: Sequential section navigation (one section at a time, next/previous controls), Question renderers for all types (multi-select, select-one, free-text, range), Section summary component showing completed answers with reopen capability, Clear visual separation of forms and sections, Incomplete section indicator with visual cues, One-section-at-a-time enforcement (closing current opens summary), Localization support via form definition translations, Progress tracking across multiple forms in a form response group, and WCAG 2.2 compliant keyboard navigation and screen reader support. Implements REQ-19 (Sequential Form Navigation) and REQ-14/REQ-15/REQ-16/REQ-17 (accessibility requirements). Full implementation plan: frontend/documentation/tasks/BUILD-003-form-view.md",
+      "changedBy": "Pauli Parkkinen",
+      "changedAt": "2026-06-23T14:56:21.090Z",
+      "mode": "set"
     }
   ],
   "significance": "patch",
