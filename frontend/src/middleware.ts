@@ -2,5 +2,5 @@
 export { auth as middleware } from "@/auth";
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*"],
+  matcher: ["/dashboard/:path*", "/admin/:path*", "/forms/:path*"],
 };

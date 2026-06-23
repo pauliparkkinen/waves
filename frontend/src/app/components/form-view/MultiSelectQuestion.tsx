@@ -1,0 +1,80 @@
+'use client';
+
+import React, { useCallback } from 'react';
+import type { QuestionDefinition, QuestionResponse } from '@/lib/api/form-response';
+
+type Props = {
+  question: QuestionDefinition;
+  currentValue: QuestionResponse | undefined;
+  onAnswer: (value: QuestionResponse) => void;
+  locale: string;
+  disabled: boolean;
+  error?: string;
+};
+
+export function MultiSelectQuestion({
+  question,
+  currentValue,
+  onAnswer,
+  locale,
+  disabled,
+  error,
+}: Props) {
+  const options = (question.parameters?.options as string[] | undefined) ?? [];
+
+  const selectedValues = (() => {
+    if (!currentValue) return [];
+    const text = currentValue.response_value_text;
+    if (!text) return [];
+    try {
+      const parsed = JSON.parse(text);
+      if (Array.isArray(parsed)) return parsed as string[];
+    } catch {
+      return [];
+    }
+    return [];
+  })();
+
+  const handleToggle = useCallback(
+    (option: string) => {
+      const next = selectedValues.includes(option)
+        ? selectedValues.filter((v: string) => v !== option)
+        : [...selectedValues, option];
+      onAnswer({
+        form_response_id: currentValue?.form_response_id ?? '',
+        collection_id: currentValue?.collection_id ?? '',
+        question_symbol: question.question_symbol,
+        question_version: question.version,
+        response_value_text: JSON.stringify(next),
+        response_value_number: undefined,
+        response_value_boolean: undefined,
+      });
+    },
+    [selectedValues, onAnswer, currentValue, question.question_symbol, question.version],
+  );
+
+  const legendText = question.translations?.[locale] ?? question.question_symbol;
+
+  return (
+    <fieldset disabled={disabled} aria-invalid={!!error}>
+      <legend className="sr-only">{legendText}</legend>
+      {options.map((option) => {
+        const checked = selectedValues.includes(option);
+        const id = `multi-${question.question_symbol}-${option}`;
+        return (
+          <div key={option}>
+            <input
+              type="checkbox"
+              id={id}
+              checked={checked}
+              onChange={() => handleToggle(option)}
+              aria-checked={checked}
+              disabled={disabled}
+            />
+            <label htmlFor={id}>{option}</label>
+          </div>
+        );
+      })}
+    </fieldset>
+  );
+}

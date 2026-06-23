@@ -15,6 +15,26 @@ export type { TestGreeting, TestRecord } from "./test";
 export { getTestStatus, getTestRecords } from "./test";
 
 export type {
+  FormResponseStatus,
+  FormResponseGroup,
+  FormResponseSummary,
+  FormResponse,
+  QuestionResponse,
+  FormDefinition,
+  FormSectionRef,
+  SectionDefinition,
+  SectionQuestionRef,
+  QuestionDefinition,
+} from "./form-response";
+
+export {
+  getFormResponseGroup,
+  getFormDefinitions,
+  saveQuestionResponse,
+  submitFormResponseGroup,
+} from "./form-response";
+
+export type {
   PublishStatus,
   TranslationRef,
   CollectionPermission,
