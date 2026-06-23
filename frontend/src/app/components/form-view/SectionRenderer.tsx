@@ -50,7 +50,7 @@ export function SectionRenderer() {
     .find((s) => s.sectionSymbol === currentSectionSymbol);
 
   if (!currentSection) {
-    return <p className="error-message">Section not found.</p>;
+    return <p className="error-message">{formViewStrings.section.sectionNotFound}</p>;
   }
 
   const isCompleted = completedSections.has(currentSectionSymbol);

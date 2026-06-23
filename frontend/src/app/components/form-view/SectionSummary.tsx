@@ -19,7 +19,7 @@ function formatAnswer(questionResponses: Map<string, QuestionResponse>, question
   if (!r) return '';
   if (r.response_value_text !== undefined) return r.response_value_text;
   if (r.response_value_number !== undefined) return String(r.response_value_number);
-  if (r.response_value_boolean !== undefined) return r.response_value_boolean ? 'Yes' : 'No';
+  if (r.response_value_boolean !== undefined) return r.response_value_boolean ? formViewStrings.section.booleanYes : formViewStrings.section.booleanNo;
   return '';
 }
 
@@ -51,7 +51,7 @@ export function SectionSummary({ section, isIncomplete, onContinue, autoFocus = 
             </>
           ) : (
             <>
-              <span aria-label="Completed">&#10003;</span> {sectionTitle}
+              <span aria-label={formViewStrings.section.completedAriaLabel}>&#10003;</span> {sectionTitle}
             </>
           )}
         </h3>
@@ -71,7 +71,7 @@ export function SectionSummary({ section, isIncomplete, onContinue, autoFocus = 
                 <div>
                   <strong>{questionText}</strong>
                   <span className="summary__answer">
-                    {answer || <em>No answer</em>}
+                    {answer || <em>{formViewStrings.summary.noAnswer}</em>}
                   </span>
                 </div>
                 <button

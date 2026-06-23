@@ -68,7 +68,7 @@ export function FormCompletion({ onSubmit }: Props) {
                   </>
                 ) : (
                   <>
-                    <span aria-label="Completed">&#10003;</span> {section.sectionTitle}
+                    <span aria-label={formViewStrings.section.completedAriaLabel}>&#10003;</span> {section.sectionTitle}
                   </>
                 )}
               </h3>

@@ -2,6 +2,7 @@
 
 import React, { useCallback } from 'react';
 import { useFormView } from './FormViewProvider';
+import { formViewStrings } from '@/lib/translations/form-view';
 
 interface FormNavigationProps {
   onNavigate?: (sectionSymbol: string) => void;
@@ -92,7 +93,7 @@ export default function FormNavigation({ onNavigate }: FormNavigationProps) {
   const isLast = currentIndex >= sections.length - 1;
 
   return (
-    <nav className="form-view__section-nav" aria-label="Form sections">
+    <nav className="form-view__section-nav" aria-label={formViewStrings.navigation.navLabel}>
       {sections.map((section, index) => {
         const isActive = section.sectionSymbol === currentSectionSymbol;
         const isCompleted = completedSections.has(section.sectionSymbol);
@@ -103,19 +104,19 @@ export default function FormNavigation({ onNavigate }: FormNavigationProps) {
         let itemClass = 'form-view__section-item';
 
         if (isActive) {
-          statusLabel = 'Current section';
+          statusLabel = formViewStrings.navigation.currentSectionLabel;
           icon = '';
           itemClass += ' form-view__section-item--active';
         } else if (isCompleted) {
-          statusLabel = 'Completed section';
+          statusLabel = formViewStrings.navigation.completedSectionLabel;
           icon = '\u2713';
           itemClass += ' form-view__section-item--completed';
         } else if (isAccessible) {
-          statusLabel = 'Incomplete section';
+          statusLabel = formViewStrings.navigation.incompleteSectionLabel;
           icon = '\u26A0';
           itemClass += ' form-view__section-item--incomplete';
         } else {
-          statusLabel = 'Upcoming section';
+          statusLabel = formViewStrings.navigation.upcomingSectionLabel;
           icon = '';
           itemClass += ' form-view__section-item--upcoming';
         }
@@ -140,13 +141,13 @@ export default function FormNavigation({ onNavigate }: FormNavigationProps) {
               </span>
             )}
             {showWarning && !isActive && (
-              <span aria-label="Warning" className="form-view__section-icon-warning">
+              <span aria-label={formViewStrings.section.warningAriaLabel} className="form-view__section-icon-warning">
                 {icon}
               </span>
             )}
             <span>{section.sectionTitle}</span>
             {section.isIncomplete && !isActive && !isCompleted && isAccessible && (
-              <span className="form-view__incomplete-badge" aria-label="Incomplete">
+              <span className="form-view__incomplete-badge" aria-label={formViewStrings.section.incompleteAriaLabel}>
                 {'\u26A0'}
               </span>
             )}
@@ -158,18 +159,18 @@ export default function FormNavigation({ onNavigate }: FormNavigationProps) {
         <button
           onClick={handlePrevious}
           disabled={isFirst || isSaving}
-          aria-label="Previous section"
+          aria-label={formViewStrings.navigation.previousSectionLabel}
           className="btn-secondary"
         >
-          Previous
+          {formViewStrings.navigation.previous}
         </button>
         <button
           onClick={handleNext}
           disabled={isLast || isSaving || !isSectionAccessible(currentIndex + 1)}
-          aria-label="Next section"
+          aria-label={formViewStrings.navigation.nextSectionLabel}
           className="btn-primary"
         >
-          Next
+          {formViewStrings.navigation.next}
         </button>
       </div>
     </nav>
