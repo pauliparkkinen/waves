@@ -7,6 +7,12 @@ import {
   FormResponseSubmissionError,
   FormResponseAuthorizationError,
 } from '../types/form-response.types.js';
+import { audit } from '../../../src/utils/audit.js';
+import type { AuthUser } from '../../../src/types/auth.types.js';
+
+// ---------------------------------------------------------------------------
+// Error mapping
+// ---------------------------------------------------------------------------
 
 function handleServiceError(c: Context, e: unknown): Response {
   if (e instanceof FormResponseValidationError) {
@@ -27,13 +33,36 @@ function handleServiceError(c: Context, e: unknown): Response {
   return c.json({ error: e instanceof Error ? e.message : 'Internal server error' }, 500);
 }
 
+// ---------------------------------------------------------------------------
+// Auth helpers
+// ---------------------------------------------------------------------------
+
+function getUser(c: Context): AuthUser | undefined {
+  return c.get('user');
+}
+
+function hasAnyReadPermission(user: AuthUser): boolean {
+  return (
+    user.permissions.includes('form:response:read:own') ||
+    user.permissions.includes('form:response:read:org') ||
+    user.permissions.includes('form:response:read:delegate')
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Router factory
+// ---------------------------------------------------------------------------
+
 export function createQuestionResponseRouter(service: IFormResponseService): Hono {
   const router = new Hono();
 
   // GET /form-response/responses/:responseId/questions
   router.get('/', (c) => {
-    const user = c.get('user');
+    const user = getUser(c);
     if (!user) return c.json({ error: 'Authentication required' }, 401);
+    if (!hasAnyReadPermission(user)) {
+      return c.json({ error: 'Insufficient permissions' }, 403);
+    }
     try {
       const responseId = c.req.param('responseId')!;
       const questions = service.listQuestionResponses(responseId, user);
@@ -45,12 +74,15 @@ export function createQuestionResponseRouter(service: IFormResponseService): Hon
 
   // POST /form-response/responses/:responseId/questions
   router.post('/', async (c) => {
-    const user = c.get('user');
+    const user = getUser(c);
     if (!user) return c.json({ error: 'Authentication required' }, 401);
     try {
       const responseId = c.req.param('responseId')!;
       const body = await c.req.json();
-      const question = service.createQuestionResponse({ ...body, form_response_id: responseId }, user);
+      const question = service.createQuestionResponse(
+        { ...body, form_response_id: responseId },
+        user,
+      );
       return c.json(question, 201);
     } catch (e) {
       return handleServiceError(c, e);
@@ -59,7 +91,7 @@ export function createQuestionResponseRouter(service: IFormResponseService): Hon
 
   // PUT /form-response/responses/:responseId/questions/:questionSymbol
   router.put('/:questionSymbol', async (c) => {
-    const user = c.get('user');
+    const user = getUser(c);
     if (!user) return c.json({ error: 'Authentication required' }, 401);
     try {
       const responseId = c.req.param('responseId')!;
@@ -85,7 +117,7 @@ export function createQuestionResponseRouter(service: IFormResponseService): Hon
 
   // DELETE /form-response/responses/:responseId/questions/:questionSymbol
   router.delete('/:questionSymbol', async (c) => {
-    const user = c.get('user');
+    const user = getUser(c);
     if (!user) return c.json({ error: 'Authentication required' }, 401);
     try {
       const responseId = c.req.param('responseId')!;

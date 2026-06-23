@@ -1,24 +1,14 @@
-import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { AuthUser } from '../../../../src/types/auth.types.js';
 import type { IFormResponseGroupRepository } from '../../repositories/form-response-group.repository.js';
 import type { IFormResponseRepository } from '../../repositories/form-response.repository.js';
 import type { IQuestionResponseRepository } from '../../repositories/question-response.repository.js';
 import { FormResponseService } from '../../services/form-response.service.js';
 import {
-  FormResponseAuthorizationError,
   FormResponseImmutabilityError,
   FormResponseSubmissionError,
 } from '../../types/form-response.types.js';
 import type { CreateFormResponseInput, FormResponse } from '../../types/form-response.types.js';
-
-// Mock the audit module — use vi.hoisted to ensure the variable is available when vi.mock factory runs
-const mockAudit = vi.hoisted(() => ({
-  authSuccess: vi.fn(),
-  authFailure: vi.fn(),
-  authDenied: vi.fn(),
-  access: vi.fn(),
-}));
-vi.mock('../../../../src/utils/audit.js', () => ({ audit: mockAudit }));
 
 // ---- Fixtures ----
 
@@ -40,12 +30,7 @@ const delegateUser: AuthUser = {
 
 const adminUser: AuthUser = {
   sub: 'admin-1',
-  permissions: ['form:response:admin', 'admin:manage'],
-};
-
-const noPermUser: AuthUser = {
-  sub: 'no-perm',
-  permissions: [],
+  permissions: ['form:response:admin'],
 };
 
 function makeCreateInput(overrides: Partial<CreateFormResponseInput> = {}): CreateFormResponseInput {
@@ -62,18 +47,9 @@ function makeCreateInput(overrides: Partial<CreateFormResponseInput> = {}): Crea
 }
 
 function makeRepoMocks() {
-  // Use separate mock functions so we can access .mockReturnValue() directly
-  const mockGroupList = vi.fn().mockReturnValue([]) as Mock & IFormResponseGroupRepository['list'];
-  const mockGroupGet = vi.fn().mockReturnValue(undefined) as Mock & IFormResponseGroupRepository['get'];
-  const mockGroupCreate = vi.fn().mockImplementation((input: any) => ({ form_response_group_id: 'frg-new', ...input }));
-  const mockGroupDelete = vi.fn().mockReturnValue(true);
-
-  const mockList = vi.fn().mockReturnValue([]) as Mock & IFormResponseRepository['list'];
-  const mockListByUserId = vi.fn().mockReturnValue([]) as Mock & IFormResponseRepository['listByUserId'];
-  const mockListByOrg = vi.fn().mockReturnValue([]) as Mock & IFormResponseRepository['listByOrganizationId'];
-  const mockListByFiller = vi.fn().mockReturnValue([]) as Mock & IFormResponseRepository['listByFillingUserId'];
-  const mockGet = vi.fn().mockReturnValue(undefined) as Mock & IFormResponseRepository['get'];
-  const mockCreate = vi.fn().mockImplementation((input): ReturnType<IFormResponseRepository['create']> => ({
+  const mockList = vi.fn<(groupId?: string) => FormResponse[]>();
+  const mockGet = vi.fn<(id: string) => FormResponse | undefined>();
+  const mockCreate = vi.fn().mockImplementation((input: CreateFormResponseInput): FormResponse => ({
     form_response_id: 'fr-1',
     form_response_group_id: input.form_response_group_id,
     collection_id: input.collection_id,
@@ -86,40 +62,22 @@ function makeRepoMocks() {
     version: 1,
     started_timestamp: new Date().toISOString(),
   }));
-  const mockUpdate = vi.fn<(id: string, input: any) => ReturnType<IFormResponseRepository['update']>>().mockImplementation(
-    (id: string, input: any) => {
-      if (id === 'nonexistent') return undefined;
-      return {
-        form_response_id: id,
-        form_response_group_id: 'frg-1',
-        collection_id: 'coll-1',
-        form_symbol: 'form-a',
-        form_version: 1,
-        organization_id: 'org-1',
-        user_id: 'patient-1',
-        filling_user_id: 'patient-1',
-        status: input.status ?? 'Draft',
-        version: 2,
-        started_timestamp: new Date().toISOString(),
-        submitted_timestamp: input.submitted_timestamp,
-      } as FormResponse;
-    },
-  );
-  const mockDelete = vi.fn().mockReturnValue(true);
+  const mockUpdate = vi.fn<(id: string, input: any) => FormResponse | undefined>();
+  const mockDelete = vi.fn<(id: string) => boolean>();
 
   const groupRepo: IFormResponseGroupRepository = {
-    list: mockGroupList,
-    get: mockGroupGet,
-    create: mockGroupCreate,
+    list: vi.fn().mockReturnValue([]),
+    get: vi.fn().mockReturnValue(undefined),
+    create: vi.fn().mockImplementation((input: any) => ({ form_response_group_id: 'frg-new', ...input })),
     update: vi.fn(),
-    delete: mockGroupDelete,
+    delete: vi.fn().mockReturnValue(true),
   };
 
   const formResponseRepo: IFormResponseRepository = {
     list: mockList,
-    listByUserId: mockListByUserId,
-    listByOrganizationId: mockListByOrg,
-    listByFillingUserId: mockListByFiller,
+    listByUserId: vi.fn().mockReturnValue([]),
+    listByOrganizationId: vi.fn().mockReturnValue([]),
+    listByFillingUserId: vi.fn().mockReturnValue([]),
     get: mockGet,
     create: mockCreate,
     update: mockUpdate,
@@ -130,26 +88,14 @@ function makeRepoMocks() {
     listByFormResponse: vi.fn().mockReturnValue([]),
     get: vi.fn().mockReturnValue(undefined),
     getByFormResponseAndSymbol: vi.fn().mockReturnValue(undefined),
-    create: vi.fn().mockImplementation((input) => ({ question_response_id: 'qr-1', ...input })),
-    update: vi.fn().mockImplementation((id, input) => {
-      if (id === 'nonexistent') return undefined;
-      return { question_response_id: id, form_response_id: 'fr-1', collection_id: 'coll-1', question_symbol: 'q-1', question_version: 1, ...input };
-    }),
-    upsert: vi.fn().mockImplementation((input) => ({ question_response_id: 'qr-1', ...input })),
+    create: vi.fn().mockImplementation((input: any) => ({ question_response_id: 'qr-1', ...input })),
+    update: vi.fn(),
+    upsert: vi.fn().mockImplementation((input: any) => ({ question_response_id: 'qr-1', ...input })),
     delete: vi.fn().mockReturnValue(true),
     deleteByFormResponse: vi.fn(),
   };
 
-  return {
-    groupRepo,
-    formResponseRepo,
-    questionRepo,
-    // Expose mock functions for direct access
-    mockList,
-    mockGet,
-    mockUpdate,
-    mockDelete,
-  };
+  return { groupRepo, formResponseRepo, questionRepo, mockList, mockGet, mockUpdate, mockDelete };
 }
 
 function createService(mocks: ReturnType<typeof makeRepoMocks>): FormResponseService {
@@ -167,44 +113,20 @@ describe('FormResponseService', () => {
   });
 
   // ================================================================
-  // Form Response Groups (admin only)
+  // Form Response Groups (no permission checks — handled by controller)
   // ================================================================
 
   describe('createGroup', () => {
-    describe('given an admin user', () => {
-      it('creates a group and returns it', () => {
-        const result = service.createGroup({}, adminUser);
-        expect(result.form_response_group_id).toBe('frg-new');
-        expect(mocks.groupRepo.create).toHaveBeenCalledOnce();
-      });
-    });
-
-    describe('given a non-admin user', () => {
-      it('throws FormResponseAuthorizationError', () => {
-        expect(() => service.createGroup({}, patientUser)).toThrow(FormResponseAuthorizationError);
-        expect(() => service.createGroup({}, noPermUser)).toThrow(FormResponseAuthorizationError);
-      });
-    });
-
-    describe('given no user', () => {
-      it('throws FormResponseAuthorizationError', () => {
-        expect(() => service.createGroup({}, undefined)).toThrow(FormResponseAuthorizationError);
-      });
+    it('creates a group and returns it', () => {
+      const result = service.createGroup({});
+      expect(result.form_response_group_id).toBe('frg-new');
     });
   });
 
   describe('listGroups', () => {
-    describe('given an admin user', () => {
-      it('returns all groups', () => {
-        service.listGroups(adminUser);
-        expect(mocks.groupRepo.list).toHaveBeenCalledOnce();
-      });
-    });
-
-    describe('given a non-admin user', () => {
-      it('throws FormResponseAuthorizationError', () => {
-        expect(() => service.listGroups(patientUser)).toThrow(FormResponseAuthorizationError);
-      });
+    it('returns all groups', () => {
+      service.listGroups();
+      expect(mocks.groupRepo.list).toHaveBeenCalledOnce();
     });
   });
 
@@ -213,120 +135,68 @@ describe('FormResponseService', () => {
   // ================================================================
 
   describe('listResponses', () => {
-    describe('given a patient user (read:own)', () => {
-      it('scopes responses to their own user_id', () => {
-        mocks.mockList.mockReturnValue([
-          { form_response_id: 'fr-1', user_id: 'patient-1', organization_id: 'org-1', filling_user_id: 'patient-1' },
-          { form_response_id: 'fr-2', user_id: 'other-patient', organization_id: 'org-1', filling_user_id: 'other-patient' },
-        ] as any);
+    it('scopes to own user_id for patient (read:own)', () => {
+      mocks.mockList.mockReturnValue([
+        { form_response_id: 'fr-1', user_id: 'patient-1', organization_id: 'org-1', filling_user_id: 'patient-1' },
+        { form_response_id: 'fr-2', user_id: 'other-patient', organization_id: 'org-1', filling_user_id: 'other-patient' },
+      ] as any);
 
-        const result = service.listResponses('frg-1', patientUser);
-        expect(result).toHaveLength(1);
-        expect(result[0].form_response_id).toBe('fr-1');
-      });
-
-      it('returns empty array when no own responses exist', () => {
-        const result = service.listResponses('frg-1', patientUser);
-        expect(result).toHaveLength(0);
-      });
+      const result = service.listResponses('frg-1', patientUser);
+      expect(result).toHaveLength(1);
+      expect(result[0].form_response_id).toBe('fr-1');
     });
 
-    describe('given an HCP user (read:org)', () => {
-      it('scopes responses to their organization', () => {
-        mocks.mockList.mockReturnValue([
-          { form_response_id: 'fr-1', user_id: 'patient-1', organization_id: 'org-1', filling_user_id: 'patient-1' },
-          { form_response_id: 'fr-2', user_id: 'patient-2', organization_id: 'org-2', filling_user_id: 'patient-2' },
-        ] as any);
+    it('scopes to organization for HCP (read:org)', () => {
+      mocks.mockList.mockReturnValue([
+        { form_response_id: 'fr-1', user_id: 'patient-1', organization_id: 'org-1', filling_user_id: 'patient-1' },
+        { form_response_id: 'fr-2', user_id: 'patient-2', organization_id: 'org-2', filling_user_id: 'patient-2' },
+      ] as any);
 
-        const result = service.listResponses('frg-1', hcpUser);
-        expect(result).toHaveLength(1);
-        expect(result[0].organization_id).toBe('org-1');
-      });
+      const result = service.listResponses('frg-1', hcpUser);
+      expect(result).toHaveLength(1);
+      expect(result[0].organization_id).toBe('org-1');
     });
 
-    describe('given a delegate user (read:delegate)', () => {
-      it('scopes responses to their filling_user_id', () => {
-        mocks.mockList.mockReturnValue([
-          { form_response_id: 'fr-1', user_id: 'patient-1', organization_id: 'org-1', filling_user_id: 'delegate-1' },
-          { form_response_id: 'fr-2', user_id: 'patient-2', organization_id: 'org-1', filling_user_id: 'patient-2' },
-        ] as any);
+    it('scopes to filling_user_id for delegate (read:delegate)', () => {
+      mocks.mockList.mockReturnValue([
+        { form_response_id: 'fr-1', user_id: 'patient-1', organization_id: 'org-1', filling_user_id: 'delegate-1' },
+        { form_response_id: 'fr-2', user_id: 'patient-2', organization_id: 'org-1', filling_user_id: 'patient-2' },
+      ] as any);
 
-        const result = service.listResponses('frg-1', delegateUser);
-        expect(result).toHaveLength(1);
-        expect(result[0].filling_user_id).toBe('delegate-1');
-      });
+      const result = service.listResponses('frg-1', delegateUser);
+      expect(result).toHaveLength(1);
+      expect(result[0].filling_user_id).toBe('delegate-1');
     });
 
-    describe('given an admin user', () => {
-      it('returns all responses without scoping', () => {
-        mocks.mockList.mockReturnValue([
-          { form_response_id: 'fr-1', user_id: 'patient-1' },
-          { form_response_id: 'fr-2', user_id: 'patient-2' },
-        ] as any);
+    it('returns all responses for admin (no scoping)', () => {
+      mocks.mockList.mockReturnValue([
+        { form_response_id: 'fr-1', user_id: 'patient-1' },
+        { form_response_id: 'fr-2', user_id: 'patient-2' },
+      ] as any);
 
-        const result = service.listResponses('frg-1', adminUser);
-        expect(result).toHaveLength(2);
-      });
+      const result = service.listResponses('frg-1', adminUser);
+      expect(result).toHaveLength(2);
     });
 
-    describe('given a user with no read permissions', () => {
-      it('throws FormResponseAuthorizationError', () => {
-        expect(() => service.listResponses('frg-1', noPermUser)).toThrow(FormResponseAuthorizationError);
-      });
+    it('returns empty array for user with no read permissions', () => {
+      const noPermUser: AuthUser = { sub: 'none', permissions: [] };
+      const result = service.listResponses('frg-1', noPermUser);
+      expect(result).toHaveLength(0);
     });
   });
 
   // ================================================================
-  // Form Responses — Delegation Authorization
+  // Form Responses — Creation
   // ================================================================
 
   describe('createResponse', () => {
-    describe('given a patient filling own form', () => {
-      it('succeeds with write:own permission', () => {
-        const input = makeCreateInput({ user_id: 'patient-1', filling_user_id: 'patient-1' });
-        const result = service.createResponse(input, patientUser);
-        expect(result).toBeDefined();
-        expect(mocks.formResponseRepo.create).toHaveBeenCalledOnce();
-      });
-    });
-
-    describe('given an HCP filling on behalf of a patient', () => {
-      it('succeeds with write:delegate permission', () => {
-        const input = makeCreateInput({ user_id: 'patient-1', filling_user_id: 'hcp-1' });
-        const result = service.createResponse(input, hcpUser);
-        expect(result).toBeDefined();
-        expect(mocks.formResponseRepo.create).toHaveBeenCalledOnce();
-      });
-    });
-
-    describe('given a delegate filling on behalf of a patient', () => {
-      it('succeeds with write:delegate permission', () => {
-        const input = makeCreateInput({ user_id: 'patient-1', filling_user_id: 'delegate-1' });
-        const result = service.createResponse(input, delegateUser);
-        expect(result).toBeDefined();
-        expect(mocks.formResponseRepo.create).toHaveBeenCalledOnce();
-      });
-    });
-
-    describe('given a user trying to fill as someone else', () => {
-      it('throws FormResponseAuthorizationError when filling_user_id does not match auth user', () => {
-        const input = makeCreateInput({ user_id: 'patient-1', filling_user_id: 'other-user' });
-        expect(() => service.createResponse(input, patientUser)).toThrow(FormResponseAuthorizationError);
-      });
-    });
-
-    describe('given a patient trying to fill on behalf of another', () => {
-      it('throws FormResponseAuthorizationError when patient lacks delegate permission', () => {
-        const input = makeCreateInput({ user_id: 'other-patient', filling_user_id: 'patient-1' });
-        expect(() => service.createResponse(input, patientUser)).toThrow(FormResponseAuthorizationError);
-      });
-    });
-
-    describe('given a user with no permissions', () => {
-      it('throws FormResponseAuthorizationError', () => {
-        const input = makeCreateInput({ user_id: 'no-perm', filling_user_id: 'no-perm' });
-        expect(() => service.createResponse(input, noPermUser)).toThrow(FormResponseAuthorizationError);
-      });
+    it('creates a form response with validated input', () => {
+      const input = makeCreateInput();
+      const result = service.createResponse(input);
+      expect(result).toBeDefined();
+      expect(result.status).toBe('Draft');
+      expect(result.version).toBe(1);
+      expect(mocks.formResponseRepo.create).toHaveBeenCalledOnce();
     });
   });
 
@@ -338,65 +208,39 @@ describe('FormResponseService', () => {
     beforeEach(() => {
       mocks.mockGet.mockReturnValue({
         form_response_id: 'fr-1',
-        form_response_group_id: 'frg-1',
-        collection_id: 'coll-1',
-        form_symbol: 'form-a',
-        form_version: 1,
-        organization_id: 'org-1',
         user_id: 'patient-1',
         filling_user_id: 'patient-1',
+        organization_id: 'org-1',
         status: 'Draft',
         version: 1,
         started_timestamp: new Date().toISOString(),
       } as any);
     });
 
-    describe('given a patient submitting their own draft', () => {
-      it('transitions to Submitted and sets submitted_timestamp', () => {
-        const result = service.updateResponse('fr-1', { status: 'Submitted', version: 1 }, patientUser);
-        expect(result).toBeDefined();
-        expect(result!.status).toBe('Submitted');
-        expect(result!.version).toBe(2);
-        expect(result!.submitted_timestamp).toBeTruthy();
-      });
+    it('transitions Draft to Submitted and sets submitted_timestamp', () => {
+      mocks.mockUpdate.mockReturnValue({
+        form_response_id: 'fr-1',
+        status: 'Submitted',
+        version: 2,
+        submitted_timestamp: new Date().toISOString(),
+      } as any);
+
+      const result = service.updateResponse('fr-1', { status: 'Submitted', version: 1 });
+      expect(result).toBeDefined();
+      expect(result!.status).toBe('Submitted');
+      expect(result!.version).toBe(2);
     });
 
-    describe('given an HCP submitting a response they filled', () => {
-      it('transitions to Submitted', () => {
-        mocks.mockGet.mockReturnValue({
-          form_response_id: 'fr-1',
-          form_response_group_id: 'frg-1',
-          collection_id: 'coll-1',
-          form_symbol: 'form-a',
-          form_version: 1,
-          organization_id: 'org-1',
-          user_id: 'patient-1',
-          filling_user_id: 'hcp-1',
-          status: 'Draft',
-          version: 1,
-          started_timestamp: new Date().toISOString(),
-        } as any);
+    it('throws FormResponseSubmissionError when response is already Submitted', () => {
+      mocks.mockGet.mockReturnValue({
+        form_response_id: 'fr-1',
+        status: 'Submitted',
+        version: 2,
+      } as any);
 
-        const result = service.updateResponse('fr-1', { status: 'Submitted', version: 1 }, hcpUser);
-        expect(result).toBeDefined();
-        expect(result!.status).toBe('Submitted');
-      });
-    });
-
-    describe('given a non-Draft response', () => {
-      it('throws FormResponseSubmissionError', () => {
-        mocks.mockGet.mockReturnValue({
-          form_response_id: 'fr-1',
-          user_id: 'patient-1',
-          filling_user_id: 'patient-1',
-          status: 'Submitted',
-          version: 1,
-        } as any);
-
-        expect(() =>
-          service.updateResponse('fr-1', { status: 'Submitted', version: 1 }, patientUser),
-        ).toThrow(FormResponseSubmissionError);
-      });
+      expect(() =>
+        service.updateResponse('fr-1', { status: 'Submitted', version: 2 }),
+      ).toThrow(FormResponseSubmissionError);
     });
   });
 
@@ -405,50 +249,29 @@ describe('FormResponseService', () => {
   // ================================================================
 
   describe('updateResponse on a submitted response', () => {
-    beforeEach(() => {
+    it('throws FormResponseImmutabilityError for non-submission changes', () => {
       mocks.mockGet.mockReturnValue({
         form_response_id: 'fr-1',
-        form_response_group_id: 'frg-1',
-        collection_id: 'coll-1',
-        form_symbol: 'form-a',
-        form_version: 1,
-        organization_id: 'org-1',
-        user_id: 'patient-1',
-        filling_user_id: 'patient-1',
         status: 'Submitted',
         version: 2,
-        started_timestamp: new Date().toISOString(),
-        submitted_timestamp: new Date().toISOString(),
       } as any);
-    });
 
-    it('throws FormResponseImmutabilityError', () => {
+      // Trying to change filling_user_id (not submitting) on a submitted response
       expect(() =>
-        service.updateResponse('fr-1', { status: 'Draft', version: 2 }, patientUser),
+        service.updateResponse('fr-1', { version: 2, filling_user_id: 'other' }),
       ).toThrow(FormResponseImmutabilityError);
     });
   });
 
   describe('deleteResponse on a submitted response', () => {
-    beforeEach(() => {
+    it('throws FormResponseImmutabilityError', () => {
       mocks.mockGet.mockReturnValue({
         form_response_id: 'fr-1',
-        form_response_group_id: 'frg-1',
-        collection_id: 'coll-1',
-        form_symbol: 'form-a',
-        form_version: 1,
-        organization_id: 'org-1',
-        user_id: 'patient-1',
-        filling_user_id: 'patient-1',
         status: 'Submitted',
         version: 2,
-        started_timestamp: new Date().toISOString(),
-        submitted_timestamp: new Date().toISOString(),
       } as any);
-    });
 
-    it('throws FormResponseImmutabilityError', () => {
-      expect(() => service.deleteResponse('fr-1', patientUser)).toThrow(FormResponseImmutabilityError);
+      expect(() => service.deleteResponse('fr-1')).toThrow(FormResponseImmutabilityError);
     });
   });
 
@@ -476,52 +299,6 @@ describe('FormResponseService', () => {
   });
 
   // ================================================================
-  // Audit Logging
-  // ================================================================
-
-  describe('audit logging on mutations', () => {
-    it('logs create action', () => {
-      const input = makeCreateInput({ user_id: 'patient-1', filling_user_id: 'patient-1' });
-      service.createResponse(input, patientUser);
-      expect(mockAudit.access).toHaveBeenCalledOnce();
-      const call = mockAudit.access.mock.calls[0][0];
-      expect(call.action).toBe('create');
-      expect(call.outcome).toBe('allow');
-      expect(call.sub).toBe('patient-1');
-    });
-
-    it('logs update action', () => {
-      mocks.mockGet.mockReturnValue({
-        form_response_id: 'fr-1',
-        user_id: 'patient-1',
-        filling_user_id: 'patient-1',
-        status: 'Draft',
-        version: 1,
-      } as any);
-
-      service.updateResponse('fr-1', { version: 1 }, patientUser);
-      expect(mockAudit.access).toHaveBeenCalledOnce();
-      const call = mockAudit.access.mock.calls[0][0];
-      expect(call.action).toBe('update');
-    });
-
-    it('logs delete action', () => {
-      mocks.mockGet.mockReturnValue({
-        form_response_id: 'fr-1',
-        user_id: 'patient-1',
-        filling_user_id: 'patient-1',
-        status: 'Draft',
-        version: 1,
-      } as any);
-
-      service.deleteResponse('fr-1', patientUser);
-      expect(mockAudit.access).toHaveBeenCalledOnce();
-      const call = mockAudit.access.mock.calls[0][0];
-      expect(call.action).toBe('delete');
-    });
-  });
-
-  // ================================================================
   // Non-existent resources
   // ================================================================
 
@@ -534,15 +311,14 @@ describe('FormResponseService', () => {
 
   describe('updateResponse', () => {
     it('returns undefined for non-existent response', () => {
-      const result = service.updateResponse('nonexistent', { version: 1 }, patientUser);
+      const result = service.updateResponse('nonexistent', { version: 1 });
       expect(result).toBeUndefined();
     });
   });
 
   describe('deleteResponse', () => {
     it('returns false for non-existent response', () => {
-      mocks.mockGet.mockReturnValue(undefined);
-      const result = service.deleteResponse('nonexistent', patientUser);
+      const result = service.deleteResponse('nonexistent');
       expect(result).toBe(false);
     });
   });
