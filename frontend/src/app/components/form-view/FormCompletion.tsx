@@ -3,14 +3,15 @@
 import React, { useEffect, useRef } from 'react';
 import { useFormView } from './FormViewProvider';
 import { IncompleteIndicator } from './IncompleteIndicator';
-import { formViewStrings } from '@/lib/translations/form-view';
+import { getFormViewStrings } from '@/lib/translations/form-view';
 
 type Props = {
   onSubmit: () => void;
 };
 
 export function FormCompletion({ onSubmit }: Props) {
-  const { formOrder, openSection, currentSectionSymbol } = useFormView();
+  const { formOrder, openSection, currentSectionSymbol, locale } = useFormView();
+  const strings = getFormViewStrings(locale);
 
   if (currentSectionSymbol !== null) {
     return null;
@@ -31,13 +32,13 @@ export function FormCompletion({ onSubmit }: Props) {
     <div className="form-view__content" aria-live="polite">
       <h1 tabIndex={-1} ref={headingRef}>
         {allComplete
-          ? formViewStrings.summary.allComplete
-          : formViewStrings.summary.incompleteWarning}
+          ? strings.summary.allComplete
+          : strings.summary.incompleteWarning}
       </h1>
 
       {!allComplete && (
         <div className="error-message">
-          <p>{formViewStrings.summary.incompleteWarning}</p>
+          <p>{strings.summary.incompleteWarning}</p>
           <ul>
             {incompleteSections.map((s) => (
               <li key={s.sectionSymbol}>
@@ -46,7 +47,7 @@ export function FormCompletion({ onSubmit }: Props) {
                   className="summary__edit"
                   onClick={() => openSection(s.sectionSymbol)}
                 >
-                  <IncompleteIndicator /> {s.sectionTitle}
+                  <IncompleteIndicator locale={locale} /> {s.sectionTitle}
                 </button>
               </li>
             ))}
@@ -64,11 +65,11 @@ export function FormCompletion({ onSubmit }: Props) {
               <h3 className="section__title">
                 {section.isIncomplete ? (
                   <>
-                    <IncompleteIndicator /> {section.sectionTitle}
+                    <IncompleteIndicator locale={locale} /> {section.sectionTitle}
                   </>
                 ) : (
                   <>
-                    <span aria-label={formViewStrings.section.completedAriaLabel}>&#10003;</span> {section.sectionTitle}
+                    <span aria-label={strings.section.completedAriaLabel}>&#10003;</span> {section.sectionTitle}
                   </>
                 )}
               </h3>
@@ -80,7 +81,7 @@ export function FormCompletion({ onSubmit }: Props) {
                   className="btn-primary"
                   onClick={() => openSection(section.sectionSymbol)}
                 >
-                  {formViewStrings.section.continue}
+                  {strings.section.continue}
                 </button>
               </div>
             )}
@@ -95,7 +96,7 @@ export function FormCompletion({ onSubmit }: Props) {
           onClick={onSubmit}
           disabled={!allComplete}
         >
-          {formViewStrings.submission.submit}
+          {strings.submission.submit}
         </button>
       </div>
     </div>

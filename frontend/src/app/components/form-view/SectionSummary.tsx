@@ -5,7 +5,7 @@ import type { QuestionResponse } from '@/lib/api/form-response';
 import type { SectionWithQuestions } from './FormViewProvider';
 import { useFormView } from './FormViewProvider';
 import { IncompleteIndicator } from './IncompleteIndicator';
-import { formViewStrings } from '@/lib/translations/form-view';
+import { getFormViewStrings } from '@/lib/translations/form-view';
 
 type Props = {
   section: SectionWithQuestions;
@@ -14,17 +14,22 @@ type Props = {
   autoFocus?: boolean;
 };
 
-function formatAnswer(questionResponses: Map<string, QuestionResponse>, questionSymbol: string): string {
+function formatAnswer(
+  questionResponses: Map<string, QuestionResponse>,
+  questionSymbol: string,
+  strings: Record<string, Record<string, string>>,
+): string {
   const r = questionResponses.get(questionSymbol);
   if (!r) return '';
   if (r.response_value_text !== undefined) return r.response_value_text;
   if (r.response_value_number !== undefined) return String(r.response_value_number);
-  if (r.response_value_boolean !== undefined) return r.response_value_boolean ? formViewStrings.section.booleanYes : formViewStrings.section.booleanNo;
+  if (r.response_value_boolean !== undefined) return r.response_value_boolean ? strings.section.booleanYes : strings.section.booleanNo;
   return '';
 }
 
 export function SectionSummary({ section, isIncomplete, onContinue, autoFocus = false }: Props) {
   const { questionResponses, reopenSection, locale } = useFormView();
+  const strings = getFormViewStrings(locale);
   const summaryRef = useRef<HTMLDivElement>(null);
   const hasNoQuestions = section.questions.length === 0;
 
@@ -47,31 +52,31 @@ export function SectionSummary({ section, isIncomplete, onContinue, autoFocus = 
         <h3 className="section__title">
           {isIncomplete ? (
             <>
-              <IncompleteIndicator /> {sectionTitle}
+              <IncompleteIndicator locale={locale} /> {sectionTitle}
             </>
           ) : (
             <>
-              <span aria-label={formViewStrings.section.completedAriaLabel}>&#10003;</span> {sectionTitle}
+              <span aria-label={strings.section.completedAriaLabel}>&#10003;</span> {sectionTitle}
             </>
           )}
         </h3>
       </div>
 
       {hasNoQuestions && (
-        <p className="summary">{formViewStrings.summary.noQuestions}</p>
+        <p className="summary">{strings.summary.noQuestions}</p>
       )}
 
       {!hasNoQuestions && (
         <div className="summary">
           {section.questions.map((question) => {
-            const answer = formatAnswer(questionResponses, question.question_symbol);
+            const answer = formatAnswer(questionResponses, question.question_symbol, strings);
             const questionText = question.translations?.[locale] ?? question.question_symbol;
             return (
               <div key={question.question_symbol} className="summary__item">
                 <div>
                   <strong>{questionText}</strong>
                   <span className="summary__answer">
-                    {answer || <em>{formViewStrings.summary.noAnswer}</em>}
+                    {answer || <em>{strings.summary.noAnswer}</em>}
                   </span>
                 </div>
                 <button
@@ -80,7 +85,7 @@ export function SectionSummary({ section, isIncomplete, onContinue, autoFocus = 
                   onClick={() => reopenSection(section.sectionSymbol)}
                   aria-label={`Edit ${questionText}`}
                 >
-                  {formViewStrings.section.edit}
+                  {strings.section.edit}
                 </button>
               </div>
             );
@@ -95,7 +100,7 @@ export function SectionSummary({ section, isIncomplete, onContinue, autoFocus = 
             className="btn-primary"
             onClick={onContinue}
           >
-            {formViewStrings.section.continue}
+            {strings.section.continue}
           </button>
         </div>
       )}

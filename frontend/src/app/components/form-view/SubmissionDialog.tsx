@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { formViewStrings } from '@/lib/translations/form-view';
+import { getFormViewStrings } from '@/lib/translations/form-view';
 
 type Props = {
   isOpen: boolean;
@@ -9,6 +9,7 @@ type Props = {
   onSubmit: () => void;
   isSubmitting: boolean;
   error: string | null;
+  locale?: string;
 };
 
 export function SubmissionDialog({
@@ -17,7 +18,9 @@ export function SubmissionDialog({
   onSubmit,
   isSubmitting,
   error,
+  locale = 'en',
 }: Props) {
+  const strings = getFormViewStrings(locale);
   const [reviewed, setReviewed] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
@@ -87,9 +90,9 @@ export function SubmissionDialog({
         tabIndex={-1}
         onKeyDown={handleKeyDown}
       >
-        <h3 id="submission-dialog-title">{formViewStrings.submission.title}</h3>
+        <h3 id="submission-dialog-title">{strings.submission.title}</h3>
 
-        <p className="question__help">{formViewStrings.submission.warning}</p>
+        <p className="question__help">{strings.submission.warning}</p>
 
         <div>
           <input
@@ -100,13 +103,13 @@ export function SubmissionDialog({
             disabled={isSubmitting}
           />
           <label htmlFor="submission-reviewed">
-            {formViewStrings.submission.reviewed}
+            {strings.submission.reviewed}
           </label>
         </div>
 
         {error && (
           <p className="error-message" role="alert">
-            {formViewStrings.submission.error}
+            {strings.submission.error}
           </p>
         )}
 
@@ -117,7 +120,7 @@ export function SubmissionDialog({
             onClick={onClose}
             disabled={isSubmitting}
           >
-            {formViewStrings.submission.cancel}
+            {strings.submission.cancel}
           </button>
           <button
             type="button"
@@ -125,7 +128,7 @@ export function SubmissionDialog({
             onClick={handleSubmit}
             disabled={!reviewed || isSubmitting}
           >
-            {isSubmitting ? formViewStrings.submission.submitting : formViewStrings.submission.submit}
+            {isSubmitting ? strings.submission.submitting : strings.submission.submit}
           </button>
         </div>
       </div>

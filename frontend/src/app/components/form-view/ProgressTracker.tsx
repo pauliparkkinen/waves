@@ -2,11 +2,12 @@
 
 import React, { useMemo } from 'react';
 import { useFormView } from './FormViewProvider';
-import { formViewStrings } from '@/lib/translations/form-view';
+import { getFormViewStrings } from '@/lib/translations/form-view';
 
 export default function ProgressTracker() {
-  const { formOrder, currentFormIndex, currentSectionSymbol, completedSections, questionResponses } =
+  const { formOrder, currentFormIndex, currentSectionSymbol, completedSections, questionResponses, locale } =
     useFormView();
+  const strings = getFormViewStrings(locale);
 
   const currentForm = formOrder[currentFormIndex];
   if (!currentForm || currentForm.sections.length === 0) {
@@ -48,10 +49,10 @@ export default function ProgressTracker() {
     <div className="form-view__progress">
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
         <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-          {formViewStrings.progress.section} {displaySectionIndex} {formViewStrings.progress.of} {sections.length}
+          {strings.progress.section} {displaySectionIndex} {strings.progress.of} {sections.length}
         </span>
         <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-          {formViewStrings.progress.question} {questionCounts.answered} {formViewStrings.progress.of} {questionCounts.total}
+          {strings.progress.question} {questionCounts.answered} {strings.progress.of} {questionCounts.total}
         </span>
       </div>
 
@@ -61,7 +62,7 @@ export default function ProgressTracker() {
         aria-valuenow={percentComplete}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label={formViewStrings.progress.progressLabel.replace('{percent}', String(percentComplete))}
+        aria-label={strings.progress.progressLabel.replace('{percent}', String(percentComplete))}
       >
         <div
           className="progress-bar__fill"
@@ -70,7 +71,7 @@ export default function ProgressTracker() {
       </div>
 
       <div style={{ textAlign: 'right', fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.25rem' }}>
-        {formViewStrings.progress.percent.replace('{percent}', String(percentComplete))}
+        {strings.progress.percent.replace('{percent}', String(percentComplete))}
       </div>
     </div>
   );

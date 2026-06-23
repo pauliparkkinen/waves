@@ -2,7 +2,7 @@
 
 import React, { useCallback } from 'react';
 import { useFormView } from './FormViewProvider';
-import { formViewStrings } from '@/lib/translations/form-view';
+import { getFormViewStrings } from '@/lib/translations/form-view';
 
 interface FormNavigationProps {
   onNavigate?: (sectionSymbol: string) => void;
@@ -17,7 +17,9 @@ export default function FormNavigation({ onNavigate }: FormNavigationProps) {
     saveStatus,
     openSection,
     reviewSection,
+    locale,
   } = useFormView();
+  const strings = getFormViewStrings(locale);
 
   const currentForm = formOrder[currentFormIndex];
   if (!currentForm || currentForm.sections.length === 0) {
@@ -93,7 +95,7 @@ export default function FormNavigation({ onNavigate }: FormNavigationProps) {
   const isLast = currentIndex >= sections.length - 1;
 
   return (
-    <nav className="form-view__section-nav" aria-label={formViewStrings.navigation.navLabel}>
+    <nav className="form-view__section-nav" aria-label={strings.navigation.navLabel}>
       {sections.map((section, index) => {
         const isActive = section.sectionSymbol === currentSectionSymbol;
         const isCompleted = completedSections.has(section.sectionSymbol);
@@ -104,19 +106,19 @@ export default function FormNavigation({ onNavigate }: FormNavigationProps) {
         let itemClass = 'form-view__section-item';
 
         if (isActive) {
-          statusLabel = formViewStrings.navigation.currentSectionLabel;
+          statusLabel = strings.navigation.currentSectionLabel;
           icon = '';
           itemClass += ' form-view__section-item--active';
         } else if (isCompleted) {
-          statusLabel = formViewStrings.navigation.completedSectionLabel;
+          statusLabel = strings.navigation.completedSectionLabel;
           icon = '\u2713';
           itemClass += ' form-view__section-item--completed';
         } else if (isAccessible) {
-          statusLabel = formViewStrings.navigation.incompleteSectionLabel;
+          statusLabel = strings.navigation.incompleteSectionLabel;
           icon = '\u26A0';
           itemClass += ' form-view__section-item--incomplete';
         } else {
-          statusLabel = formViewStrings.navigation.upcomingSectionLabel;
+          statusLabel = strings.navigation.upcomingSectionLabel;
           icon = '';
           itemClass += ' form-view__section-item--upcoming';
         }
@@ -141,13 +143,13 @@ export default function FormNavigation({ onNavigate }: FormNavigationProps) {
               </span>
             )}
             {showWarning && !isActive && (
-              <span aria-label={formViewStrings.section.warningAriaLabel} className="form-view__section-icon-warning">
+              <span aria-label={strings.section.warningAriaLabel} className="form-view__section-icon-warning">
                 {icon}
               </span>
             )}
             <span>{section.sectionTitle}</span>
             {section.isIncomplete && !isActive && !isCompleted && isAccessible && (
-              <span className="form-view__incomplete-badge" aria-label={formViewStrings.section.incompleteAriaLabel}>
+              <span className="form-view__incomplete-badge" aria-label={strings.section.incompleteAriaLabel}>
                 {'\u26A0'}
               </span>
             )}
@@ -159,18 +161,18 @@ export default function FormNavigation({ onNavigate }: FormNavigationProps) {
         <button
           onClick={handlePrevious}
           disabled={isFirst || isSaving}
-          aria-label={formViewStrings.navigation.previousSectionLabel}
+          aria-label={strings.navigation.previousSectionLabel}
           className="btn-secondary"
         >
-          {formViewStrings.navigation.previous}
+          {strings.navigation.previous}
         </button>
         <button
           onClick={handleNext}
           disabled={isLast || isSaving || !isSectionAccessible(currentIndex + 1)}
-          aria-label={formViewStrings.navigation.nextSectionLabel}
+          aria-label={strings.navigation.nextSectionLabel}
           className="btn-primary"
         >
-          {formViewStrings.navigation.next}
+          {strings.navigation.next}
         </button>
       </div>
     </nav>

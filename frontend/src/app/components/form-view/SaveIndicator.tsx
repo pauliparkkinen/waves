@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { useFormView } from './FormViewProvider';
-import { formViewStrings } from '@/lib/translations/form-view';
+import { getFormViewStrings } from '@/lib/translations/form-view';
 
 export function SaveIndicator() {
-  const { saveStatus, setSaveStatus } = useFormView();
+  const { saveStatus, setSaveStatus, locale } = useFormView();
+  const strings = getFormViewStrings(locale);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -31,11 +32,11 @@ export function SaveIndicator() {
       aria-live="polite"
       role="status"
     >
-      {saveStatus === 'saving' && <span>{formViewStrings.saveIndicator.saving}</span>}
-      {saveStatus === 'saved' && <span>{formViewStrings.saveIndicator.saved}</span>}
+      {saveStatus === 'saving' && <span>{strings.saveIndicator.saving}</span>}
+      {saveStatus === 'saved' && <span>{strings.saveIndicator.saved}</span>}
       {saveStatus === 'error' && (
         <>
-          <span>{formViewStrings.saveIndicator.error}</span>
+          <span>{strings.saveIndicator.error}</span>
           <button
             type="button"
             className="btn-small btn-secondary"

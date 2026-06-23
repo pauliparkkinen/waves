@@ -5,7 +5,7 @@ import { useFormView } from './FormViewProvider';
 import { QuestionRenderer } from './QuestionRenderer';
 import { SectionSummary } from './SectionSummary';
 import type { QuestionResponse } from '@/lib/api/form-response';
-import { formViewStrings } from '@/lib/translations/form-view';
+import { getFormViewStrings } from '@/lib/translations/form-view';
 
 export function SectionRenderer() {
   const {
@@ -19,6 +19,7 @@ export function SectionRenderer() {
     locale,
     saveStatus,
   } = useFormView();
+  const strings = getFormViewStrings(locale);
 
   const isSaving = saveStatus === 'saving';
 
@@ -50,7 +51,7 @@ export function SectionRenderer() {
     .find((s) => s.sectionSymbol === currentSectionSymbol);
 
   if (!currentSection) {
-    return <p className="error-message">{formViewStrings.section.sectionNotFound}</p>;
+    return <p className="error-message">{strings.section.sectionNotFound}</p>;
   }
 
   const isCompleted = completedSections.has(currentSectionSymbol);
@@ -102,7 +103,7 @@ export function SectionRenderer() {
           onClick={completeSection}
           disabled={isSaving}
         >
-          {formViewStrings.section.complete}
+          {strings.section.complete}
         </button>
       </div>
     </div>
