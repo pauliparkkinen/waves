@@ -1,12 +1,13 @@
 import { Hono } from 'hono';
 import type { IFormResponseService } from '../services/form-response.service.js';
 import { requirePermissions } from '../../../src/utils/auth.js';
+import { FormResponseAuthorizationError } from '../types/form-response.types.js';
 
 export function createFormResponseGroupRouter(service: IFormResponseService): Hono {
   const router = new Hono();
 
   // GET /form-response/groups
-  router.get('/', requirePermissions(['admin:manage']), (c) => {
+  router.get('/', requirePermissions(['form:response:admin']), (c) => {
     const user = c.get('user')!;
     try {
       const groups = service.listGroups(user);
@@ -17,14 +18,14 @@ export function createFormResponseGroupRouter(service: IFormResponseService): Ho
   });
 
   // POST /form-response/groups
-  router.post('/', requirePermissions(['admin:manage']), async (c) => {
+  router.post('/', requirePermissions(['form:response:admin']), async (c) => {
     try {
       const user = c.get('user')!;
       const body = await c.req.json();
       const group = service.createGroup(body, user);
       return c.json(group, 201);
     } catch (e) {
-      if (e instanceof Error && e.message.startsWith('Insufficient permissions')) {
+      if (e instanceof FormResponseAuthorizationError) {
         return c.json({ error: e.message }, 403);
       }
       return c.json({ error: 'Failed to create group' }, 500);
@@ -32,7 +33,7 @@ export function createFormResponseGroupRouter(service: IFormResponseService): Ho
   });
 
   // GET /form-response/groups/:id
-  router.get('/:id', requirePermissions(['admin:manage']), (c) => {
+  router.get('/:id', requirePermissions(['form:response:admin']), (c) => {
     const user = c.get('user')!;
     try {
       const id = c.req.param('id');
@@ -45,7 +46,7 @@ export function createFormResponseGroupRouter(service: IFormResponseService): Ho
   });
 
   // DELETE /form-response/groups/:id
-  router.delete('/:id', requirePermissions(['admin:manage']), async (c) => {
+  router.delete('/:id', requirePermissions(['form:response:admin']), async (c) => {
     try {
       const user = c.get('user')!;
       const id = c.req.param('id');
@@ -53,7 +54,7 @@ export function createFormResponseGroupRouter(service: IFormResponseService): Ho
       if (!deleted) return c.json({ error: 'Not found' }, 404);
       return c.json({ success: true });
     } catch (e) {
-      if (e instanceof Error && e.message.startsWith('Insufficient permissions')) {
+      if (e instanceof FormResponseAuthorizationError) {
         return c.json({ error: e.message }, 403);
       }
       return c.json({ error: e instanceof Error ? e.message : 'Failed to delete group' }, 500);

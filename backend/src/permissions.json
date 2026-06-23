@@ -1,4 +1,7 @@
 {
   "reader": ["records:read"],
-  "admin": ["admin:manage"]
+  "admin": ["admin:manage", "form:response:admin"],
+  "patient": ["form:response:read:own", "form:response:write:own", "form:response:submit"],
+  "hcp": ["form:response:read:org", "form:response:write:delegate", "form:response:submit"],
+  "delegate": ["form:response:read:delegate", "form:response:write:delegate", "form:response:submit"]
 }

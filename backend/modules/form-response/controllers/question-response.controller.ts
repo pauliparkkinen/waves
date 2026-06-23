@@ -1,45 +1,66 @@
-import { Hono } from 'hono';
+import { Hono, type Context } from 'hono';
 import type { IFormResponseService } from '../services/form-response.service.js';
-import { requirePermissions } from '../../../src/utils/auth.js';
 import { FormResponseValidationError } from '../validators/form-response.validator.js';
+import {
+  FormResponseVersionConflictError,
+  FormResponseImmutabilityError,
+  FormResponseSubmissionError,
+  FormResponseAuthorizationError,
+} from '../types/form-response.types.js';
+
+function handleServiceError(c: Context, e: unknown): Response {
+  if (e instanceof FormResponseValidationError) {
+    return c.json({ error: 'Validation failed', errors: e.errors }, 400);
+  }
+  if (e instanceof FormResponseAuthorizationError) {
+    return c.json({ error: e.message }, 403);
+  }
+  if (e instanceof FormResponseVersionConflictError) {
+    return c.json({ error: e.message }, 409);
+  }
+  if (e instanceof FormResponseImmutabilityError) {
+    return c.json({ error: e.message }, 409);
+  }
+  if (e instanceof FormResponseSubmissionError) {
+    return c.json({ error: e.message }, 400);
+  }
+  return c.json({ error: e instanceof Error ? e.message : 'Internal server error' }, 500);
+}
 
 export function createQuestionResponseRouter(service: IFormResponseService): Hono {
   const router = new Hono();
 
   // GET /form-response/responses/:responseId/questions
-  router.get('/', requirePermissions(['admin:manage']), (c) => {
-    const user = c.get('user')!;
-    const responseId = c.req.param('responseId')!;
+  router.get('/', (c) => {
+    const user = c.get('user');
+    if (!user) return c.json({ error: 'Authentication required' }, 401);
     try {
+      const responseId = c.req.param('responseId')!;
       const questions = service.listQuestionResponses(responseId, user);
       return c.json(questions);
     } catch (e) {
-      return c.json({ error: e instanceof Error ? e.message : 'Failed to list question responses' }, 500);
+      return handleServiceError(c, e);
     }
   });
 
   // POST /form-response/responses/:responseId/questions
-  router.post('/', requirePermissions(['admin:manage']), async (c) => {
+  router.post('/', async (c) => {
+    const user = c.get('user');
+    if (!user) return c.json({ error: 'Authentication required' }, 401);
     try {
-      const user = c.get('user')!;
       const responseId = c.req.param('responseId')!;
       const body = await c.req.json();
       const question = service.createQuestionResponse({ ...body, form_response_id: responseId }, user);
       return c.json(question, 201);
     } catch (e) {
-      if (e instanceof FormResponseValidationError) {
-        return c.json({ error: 'Validation failed', errors: e.errors }, 400);
-      }
-      if (e instanceof Error && e.message.startsWith('Insufficient permissions')) {
-        return c.json({ error: e.message }, 403);
-      }
-      return c.json({ error: 'Failed to create question response' }, 500);
+      return handleServiceError(c, e);
     }
   });
 
   // PUT /form-response/responses/:responseId/questions/:questionSymbol
-  router.put('/:questionSymbol', requirePermissions(['admin:manage']), async (c) => {
-    const user = c.get('user')!;
+  router.put('/:questionSymbol', async (c) => {
+    const user = c.get('user');
+    if (!user) return c.json({ error: 'Authentication required' }, 401);
     try {
       const responseId = c.req.param('responseId')!;
       const questionSymbol = c.req.param('questionSymbol')!;
@@ -58,19 +79,14 @@ export function createQuestionResponseRouter(service: IFormResponseService): Hon
       );
       return c.json(question);
     } catch (e) {
-      if (e instanceof FormResponseValidationError) {
-        return c.json({ error: 'Validation failed', errors: e.errors }, 400);
-      }
-      if (e instanceof Error && e.message.startsWith('Insufficient permissions')) {
-        return c.json({ error: e.message }, 403);
-      }
-      return c.json({ error: 'Failed to upsert question response' }, 500);
+      return handleServiceError(c, e);
     }
   });
 
   // DELETE /form-response/responses/:responseId/questions/:questionSymbol
-  router.delete('/:questionSymbol', requirePermissions(['admin:manage']), async (c) => {
-    const user = c.get('user')!;
+  router.delete('/:questionSymbol', async (c) => {
+    const user = c.get('user');
+    if (!user) return c.json({ error: 'Authentication required' }, 401);
     try {
       const responseId = c.req.param('responseId')!;
       const questionSymbol = c.req.param('questionSymbol')!;
@@ -80,10 +96,7 @@ export function createQuestionResponseRouter(service: IFormResponseService): Hon
       if (!deleted) return c.json({ error: 'Not found' }, 404);
       return c.json({ success: true });
     } catch (e) {
-      if (e instanceof Error && e.message.startsWith('Insufficient permissions')) {
-        return c.json({ error: e.message }, 403);
-      }
-      return c.json({ error: 'Failed to delete question response' }, 500);
+      return handleServiceError(c, e);
     }
   });
 
