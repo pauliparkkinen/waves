@@ -6,10 +6,9 @@ export function createFormResponseGroupRouter(service: IFormResponseService): Ho
   const router = new Hono();
 
   // GET /form-response/groups
-  router.get('/', requirePermissions(['admin:manage']), (c) => {
-    const user = c.get('user')!;
+  router.get('/', requirePermissions(['form:response:admin']), (c) => {
     try {
-      const groups = service.listGroups(user);
+      const groups = service.listGroups();
       return c.json(groups);
     } catch (e) {
       return c.json({ error: e instanceof Error ? e.message : 'Failed to list groups' }, 500);
@@ -17,26 +16,21 @@ export function createFormResponseGroupRouter(service: IFormResponseService): Ho
   });
 
   // POST /form-response/groups
-  router.post('/', requirePermissions(['admin:manage']), async (c) => {
+  router.post('/', requirePermissions(['form:response:admin']), async (c) => {
     try {
-      const user = c.get('user')!;
       const body = await c.req.json();
-      const group = service.createGroup(body, user);
+      const group = service.createGroup(body);
       return c.json(group, 201);
     } catch (e) {
-      if (e instanceof Error && e.message.startsWith('Insufficient permissions')) {
-        return c.json({ error: e.message }, 403);
-      }
       return c.json({ error: 'Failed to create group' }, 500);
     }
   });
 
   // GET /form-response/groups/:id
-  router.get('/:id', requirePermissions(['admin:manage']), (c) => {
-    const user = c.get('user')!;
+  router.get('/:id', requirePermissions(['form:response:admin']), (c) => {
     try {
       const id = c.req.param('id');
-      const group = service.getGroup(id, user);
+      const group = service.getGroup(id);
       if (!group) return c.json({ error: 'Not found' }, 404);
       return c.json(group);
     } catch (e) {
@@ -45,17 +39,13 @@ export function createFormResponseGroupRouter(service: IFormResponseService): Ho
   });
 
   // DELETE /form-response/groups/:id
-  router.delete('/:id', requirePermissions(['admin:manage']), async (c) => {
+  router.delete('/:id', requirePermissions(['form:response:admin']), async (c) => {
     try {
-      const user = c.get('user')!;
       const id = c.req.param('id');
-      const deleted = service.deleteGroup(id, user);
+      const deleted = service.deleteGroup(id);
       if (!deleted) return c.json({ error: 'Not found' }, 404);
       return c.json({ success: true });
     } catch (e) {
-      if (e instanceof Error && e.message.startsWith('Insufficient permissions')) {
-        return c.json({ error: e.message }, 403);
-      }
       return c.json({ error: e instanceof Error ? e.message : 'Failed to delete group' }, 500);
     }
   });

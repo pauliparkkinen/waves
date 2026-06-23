@@ -3,9 +3,13 @@ import type {
   CreateFormResponseInput,
   UpdateFormResponseInput,
 } from '../types/form-response.types.js';
+import { FormResponseVersionConflictError } from '../types/form-response.types.js';
 
 export interface IFormResponseRepository {
   list(groupId?: string): FormResponse[];
+  listByUserId(userId: string, groupId?: string): FormResponse[];
+  listByOrganizationId(organizationId: string, groupId?: string): FormResponse[];
+  listByFillingUserId(fillingUserId: string, groupId?: string): FormResponse[];
   get(id: string): FormResponse | undefined;
   create(input: CreateFormResponseInput): FormResponse;
   update(id: string, input: UpdateFormResponseInput): FormResponse | undefined;
@@ -28,6 +32,30 @@ export class InMemoryFormResponseRepository implements IFormResponseRepository {
     return results;
   }
 
+  listByUserId(userId: string, groupId?: string): FormResponse[] {
+    let results = this.items.filter((r) => r.user_id === userId);
+    if (groupId) {
+      results = results.filter((r) => r.form_response_group_id === groupId);
+    }
+    return results;
+  }
+
+  listByOrganizationId(organizationId: string, groupId?: string): FormResponse[] {
+    let results = this.items.filter((r) => r.organization_id === organizationId);
+    if (groupId) {
+      results = results.filter((r) => r.form_response_group_id === groupId);
+    }
+    return results;
+  }
+
+  listByFillingUserId(fillingUserId: string, groupId?: string): FormResponse[] {
+    let results = this.items.filter((r) => r.filling_user_id === fillingUserId);
+    if (groupId) {
+      results = results.filter((r) => r.form_response_group_id === groupId);
+    }
+    return results;
+  }
+
   get(id: string): FormResponse | undefined {
     return this.items.find((r) => r.form_response_id === id);
   }
@@ -40,9 +68,11 @@ export class InMemoryFormResponseRepository implements IFormResponseRepository {
       collection_id: input.collection_id,
       form_symbol: input.form_symbol,
       form_version: input.form_version,
+      organization_id: input.organization_id,
       user_id: input.user_id,
       filling_user_id: input.filling_user_id,
       status: 'Draft',
+      version: 1,
       started_timestamp: input.started_timestamp ?? now,
     };
     this.items.push(response);
@@ -54,9 +84,17 @@ export class InMemoryFormResponseRepository implements IFormResponseRepository {
     if (idx === -1) return undefined;
 
     const current = this.items[idx];
+
+    // Optimistic locking: check version matches
+    if (current.version !== input.version) {
+      throw new FormResponseVersionConflictError(id, input.version, current.version);
+    }
+
+    const { version: _version, ...rest } = input;
     const updated: FormResponse = {
       ...current,
-      ...input,
+      ...rest,
+      version: current.version + 1,
     };
     this.items[idx] = updated;
     return { ...updated };

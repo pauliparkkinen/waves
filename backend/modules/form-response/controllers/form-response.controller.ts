@@ -1,88 +1,201 @@
-import { Hono } from 'hono';
+import { Hono, type Context } from 'hono';
 import type { IFormResponseService } from '../services/form-response.service.js';
-import { requirePermissions } from '../../../src/utils/auth.js';
+import { requireAnyPermission } from '../../../src/utils/auth.js';
+import { audit } from '../../../src/utils/audit.js';
 import { FormResponseValidationError } from '../validators/form-response.validator.js';
+import {
+  FormResponseVersionConflictError,
+  FormResponseImmutabilityError,
+  FormResponseSubmissionError,
+  FormResponseAuthorizationError,
+} from '../types/form-response.types.js';
+import type { AuthUser } from '../../../src/types/auth.types.js';
+
+// ---------------------------------------------------------------------------
+// Error mapping
+// ---------------------------------------------------------------------------
+
+function handleServiceError(c: Context, e: unknown): Response {
+  if (e instanceof FormResponseValidationError) {
+    return c.json({ error: 'Validation failed', errors: e.errors }, 400);
+  }
+  if (e instanceof FormResponseAuthorizationError) {
+    return c.json({ error: e.message }, 403);
+  }
+  if (e instanceof FormResponseVersionConflictError) {
+    return c.json({ error: e.message }, 409);
+  }
+  if (e instanceof FormResponseImmutabilityError) {
+    return c.json({ error: e.message }, 409);
+  }
+  if (e instanceof FormResponseSubmissionError) {
+    return c.json({ error: e.message }, 400);
+  }
+  return c.json({ error: e instanceof Error ? e.message : 'Internal server error' }, 500);
+}
+
+// ---------------------------------------------------------------------------
+// Delegation + permission check (domain-specific to form-response)
+// ---------------------------------------------------------------------------
+
+/**
+ * Verifies the authenticated user is the filler of the response and holds
+ * the appropriate permission (self-fill vs on-behalf).
+ */
+function assertWritePermission(
+  user: AuthUser,
+  details: { user_id: string; filling_user_id: string },
+): void {
+  if (details.filling_user_id !== user.sub) {
+    throw new FormResponseAuthorizationError(
+      'You are not authorized to modify this form response',
+    );
+  }
+  if (details.user_id === user.sub) {
+    if (!user.permissions.includes('form:response:write:own')) {
+      throw new FormResponseAuthorizationError(
+        'Insufficient permissions: form:response:write:own required',
+      );
+    }
+  } else {
+    if (!user.permissions.includes('form:response:write:delegate')) {
+      throw new FormResponseAuthorizationError(
+        'Insufficient permissions: form:response:write:delegate required',
+      );
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Router factory
+// ---------------------------------------------------------------------------
 
 export function createFormResponseRouter(service: IFormResponseService): Hono {
   const router = new Hono();
 
   // GET /form-response/groups/:groupId/responses
-  router.get('/', requirePermissions(['admin:manage']), (c) => {
-    const user = c.get('user')!;
-    const groupId = c.req.param('groupId')!;
-    try {
-      const responses = service.listResponses(groupId, user);
-      return c.json(responses);
-    } catch (e) {
-      return c.json({ error: e instanceof Error ? e.message : 'Failed to list responses' }, 500);
-    }
-  });
+  router.get(
+    '/',
+    requireAnyPermission([
+      'form:response:read:own',
+      'form:response:read:org',
+      'form:response:read:delegate',
+      'form:response:admin',
+    ]),
+    (c) => {
+      try {
+        const user = c.get('user')!;
+        const groupId = c.req.param('groupId')!;
+        const responses = service.listResponses(groupId, user);
+        return c.json(responses);
+      } catch (e) {
+        return handleServiceError(c, e);
+      }
+    },
+  );
 
   // POST /form-response/groups/:groupId/responses
-  router.post('/', requirePermissions(['admin:manage']), async (c) => {
+  router.post('/', async (c) => {
+    const user = c.get('user');
+    if (!user) return c.json({ error: 'Authentication required' }, 401);
     try {
-      const user = c.get('user')!;
       const groupId = c.req.param('groupId')!;
-      const body = await c.req.json();
-      const response = service.createResponse({ ...body, form_response_group_id: groupId }, user);
+      const body = (await c.req.json()) as {
+        user_id?: string;
+        filling_user_id?: string;
+        [key: string]: unknown;
+      };
+
+      assertWritePermission(user, {
+        user_id: body.user_id ?? '',
+        filling_user_id: body.filling_user_id ?? '',
+      });
+
+      const response = service.createResponse({
+        ...body,
+        form_response_group_id: groupId,
+      } as any);
+
+      audit.accessAllow(user.sub, `form-response:${response.form_response_id}`, 'create');
       return c.json(response, 201);
     } catch (e) {
-      if (e instanceof FormResponseValidationError) {
-        return c.json({ error: 'Validation failed', errors: e.errors }, 400);
-      }
-      if (e instanceof Error && e.message.startsWith('Insufficient permissions')) {
-        return c.json({ error: e.message }, 403);
-      }
-      return c.json({ error: 'Failed to create response' }, 500);
+      return handleServiceError(c, e);
     }
   });
 
   // GET /form-response/groups/:groupId/responses/:id
-  router.get('/:id', requirePermissions(['admin:manage']), (c) => {
-    const user = c.get('user')!;
-    try {
-      const id = c.req.param('id');
-      const response = service.getResponse(id, user);
-      if (!response) return c.json({ error: 'Not found' }, 404);
-      return c.json(response);
-    } catch (e) {
-      return c.json({ error: e instanceof Error ? e.message : 'Failed to get response' }, 500);
-    }
-  });
+  router.get(
+    '/:id',
+    requireAnyPermission([
+      'form:response:read:own',
+      'form:response:read:org',
+      'form:response:read:delegate',
+      'form:response:admin',
+    ]),
+    (c) => {
+      try {
+        const user = c.get('user')!;
+        const id = c.req.param('id');
+        const response = service.getResponse(id, user);
+        if (!response) return c.json({ error: 'Not found' }, 404);
+        return c.json(response);
+      } catch (e) {
+        return handleServiceError(c, e);
+      }
+    },
+  );
 
   // PUT /form-response/groups/:groupId/responses/:id
-  router.put('/:id', requirePermissions(['admin:manage']), async (c) => {
-    const user = c.get('user')!;
+  router.put('/:id', async (c) => {
+    const user = c.get('user');
+    if (!user) return c.json({ error: 'Authentication required' }, 401);
     try {
       const id = c.req.param('id');
+
+      // Fetch existing to check delegation
+      const existing = service.getResponse(id, user);
+      if (!existing) return c.json({ error: 'Not found' }, 404);
+
+      assertWritePermission(user, {
+        user_id: existing.user_id,
+        filling_user_id: existing.filling_user_id,
+      });
+
       const body = await c.req.json();
-      const response = service.updateResponse(id, body, user);
-      if (!response) return c.json({ error: 'Not found' }, 404);
-      return c.json(response);
+      const before = { ...existing } as unknown as Record<string, unknown>;
+      const updated = service.updateResponse(id, body);
+
+      if (!updated) return c.json({ error: 'Not found' }, 404);
+      audit.accessAllow(user.sub, `form-response:${id}`, 'update', { before, after: updated });
+      return c.json(updated);
     } catch (e) {
-      if (e instanceof FormResponseValidationError) {
-        return c.json({ error: 'Validation failed', errors: e.errors }, 400);
-      }
-      if (e instanceof Error && e.message.startsWith('Insufficient permissions')) {
-        return c.json({ error: e.message }, 403);
-      }
-      return c.json({ error: 'Failed to update response' }, 500);
+      return handleServiceError(c, e);
     }
   });
 
   // DELETE /form-response/groups/:groupId/responses/:id
-  router.delete('/:id', requirePermissions(['admin:manage']), async (c) => {
+  router.delete('/:id', async (c) => {
+    const user = c.get('user');
+    if (!user) return c.json({ error: 'Authentication required' }, 401);
     try {
-      const user = c.get('user')!;
       const id = c.req.param('id');
-      const deleted = service.deleteResponse(id, user);
+
+      // Fetch existing to check delegation
+      const existing = service.getResponse(id, user);
+      if (!existing) return c.json({ error: 'Not found' }, 404);
+
+      assertWritePermission(user, {
+        user_id: existing.user_id,
+        filling_user_id: existing.filling_user_id,
+      });
+
+      const deleted = service.deleteResponse(id);
       if (!deleted) return c.json({ error: 'Not found' }, 404);
+
+      audit.accessAllow(user.sub, `form-response:${id}`, 'delete', { before: existing });
       return c.json({ success: true });
     } catch (e) {
-      if (e instanceof Error && e.message.startsWith('Insufficient permissions')) {
-        return c.json({ error: e.message }, 403);
-      }
-      return c.json({ error: 'Failed to delete response' }, 500);
+      return handleServiceError(c, e);
     }
   });
 

@@ -7,7 +7,7 @@ export function createFormulaValueRouter(service: IFormulaValueService): Hono {
   const router = new Hono();
 
   // GET /form-response/formula-values
-  router.get('/', requirePermissions(['admin:manage']), (c) => {
+  router.get('/', requirePermissions(['form:response:admin']), (c) => {
     const user = c.get('user')!;
     try {
       const collectionId = c.req.query('collection_id');
@@ -21,7 +21,7 @@ export function createFormulaValueRouter(service: IFormulaValueService): Hono {
   });
 
   // POST /form-response/formula-values/compute
-  router.post('/compute', requirePermissions(['admin:manage']), async (c) => {
+  router.post('/compute', requirePermissions(['form:response:admin']), async (c) => {
     try {
       const user = c.get('user')!;
       const body = await c.req.json();
@@ -39,7 +39,7 @@ export function createFormulaValueRouter(service: IFormulaValueService): Hono {
   });
 
   // GET /form-response/formula-values/:id
-  router.get('/:id', requirePermissions(['admin:manage']), (c) => {
+  router.get('/:id', requirePermissions(['form:response:admin']), (c) => {
     const user = c.get('user')!;
     try {
       const id = c.req.param('id');
@@ -52,7 +52,7 @@ export function createFormulaValueRouter(service: IFormulaValueService): Hono {
   });
 
   // DELETE /form-response/formula-values/:id
-  router.delete('/:id', requirePermissions(['admin:manage']), async (c) => {
+  router.delete('/:id', requirePermissions(['form:response:admin']), async (c) => {
     try {
       const user = c.get('user')!;
       const id = c.req.param('id');

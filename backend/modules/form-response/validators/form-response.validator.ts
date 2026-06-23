@@ -68,6 +68,10 @@ export function validateCreateFormResponseInput(data: unknown): void {
     addError(errors, 'filling_user_id', 'filling_user_id is required and must be a non-empty string');
   }
 
+  if (!isNonEmptyString(data.organization_id)) {
+    addError(errors, 'organization_id', 'organization_id is required and must be a non-empty string');
+  }
+
   if (errors.length > 0) {
     throw new FormResponseValidationError(errors);
   }
@@ -82,12 +86,21 @@ export function validateUpdateFormResponseInput(data: unknown): void {
 
   const errors: Array<{ field: string; message: string }> = [];
 
+  if (!isNumber(data.version)) {
+    addError(errors, 'version', 'version is required and must be a number');
+  }
+
   if (data.status !== undefined && !VALID_FORM_RESPONSE_STATUSES.includes(data.status as FormResponseStatus)) {
     addError(
       errors,
       'status',
       `status must be one of: ${VALID_FORM_RESPONSE_STATUSES.join(', ')}`,
     );
+  }
+
+  // Validate valid status transitions
+  if (data.status === 'Draft') {
+    addError(errors, 'status', 'Cannot transition back to Draft');
   }
 
   if (data.submitted_timestamp !== undefined && !isString(data.submitted_timestamp)) {
