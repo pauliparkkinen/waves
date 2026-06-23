@@ -7,9 +7,9 @@ import { FormResponseVersionConflictError } from '../types/form-response.types.j
 
 export interface IFormResponseRepository {
   list(groupId?: string): FormResponse[];
-  listByUserId(userId: string): FormResponse[];
-  listByOrganizationId(organizationId: string): FormResponse[];
-  listByFillingUserId(fillingUserId: string): FormResponse[];
+  listByUserId(userId: string, groupId?: string): FormResponse[];
+  listByOrganizationId(organizationId: string, groupId?: string): FormResponse[];
+  listByFillingUserId(fillingUserId: string, groupId?: string): FormResponse[];
   get(id: string): FormResponse | undefined;
   create(input: CreateFormResponseInput): FormResponse;
   update(id: string, input: UpdateFormResponseInput): FormResponse | undefined;
@@ -32,16 +32,28 @@ export class InMemoryFormResponseRepository implements IFormResponseRepository {
     return results;
   }
 
-  listByUserId(userId: string): FormResponse[] {
-    return this.items.filter((r) => r.user_id === userId);
+  listByUserId(userId: string, groupId?: string): FormResponse[] {
+    let results = this.items.filter((r) => r.user_id === userId);
+    if (groupId) {
+      results = results.filter((r) => r.form_response_group_id === groupId);
+    }
+    return results;
   }
 
-  listByOrganizationId(organizationId: string): FormResponse[] {
-    return this.items.filter((r) => r.organization_id === organizationId);
+  listByOrganizationId(organizationId: string, groupId?: string): FormResponse[] {
+    let results = this.items.filter((r) => r.organization_id === organizationId);
+    if (groupId) {
+      results = results.filter((r) => r.form_response_group_id === groupId);
+    }
+    return results;
   }
 
-  listByFillingUserId(fillingUserId: string): FormResponse[] {
-    return this.items.filter((r) => r.filling_user_id === fillingUserId);
+  listByFillingUserId(fillingUserId: string, groupId?: string): FormResponse[] {
+    let results = this.items.filter((r) => r.filling_user_id === fillingUserId);
+    if (groupId) {
+      results = results.filter((r) => r.form_response_group_id === groupId);
+    }
+    return results;
   }
 
   get(id: string): FormResponse | undefined {

@@ -94,6 +94,15 @@ describe('InMemoryFormResponseRepository', () => {
       expect(results).toHaveLength(2);
       expect(results.every((r) => r.organization_id === 'org-1')).toBe(true);
     });
+
+    it('should filter by groupId when provided', () => {
+      repo.create(makeInput({ organization_id: 'org-1', form_response_group_id: 'grp-a' }));
+      repo.create(makeInput({ organization_id: 'org-1', form_response_group_id: 'grp-b' }));
+      repo.create(makeInput({ organization_id: 'org-1', form_response_group_id: 'grp-a' }));
+
+      const results = repo.listByOrganizationId('org-1', 'grp-a');
+      expect(results).toHaveLength(2);
+    });
   });
 
   describe('listByFillingUserId', () => {
@@ -105,6 +114,36 @@ describe('InMemoryFormResponseRepository', () => {
       const results = repo.listByFillingUserId('user-1');
       expect(results).toHaveLength(2);
       expect(results.every((r) => r.filling_user_id === 'user-1')).toBe(true);
+    });
+
+    it('should filter by groupId when provided', () => {
+      repo.create(makeInput({ filling_user_id: 'user-1', form_response_group_id: 'grp-a' }));
+      repo.create(makeInput({ filling_user_id: 'user-1', form_response_group_id: 'grp-b' }));
+      repo.create(makeInput({ filling_user_id: 'user-1', form_response_group_id: 'grp-a' }));
+
+      const results = repo.listByFillingUserId('user-1', 'grp-a');
+      expect(results).toHaveLength(2);
+    });
+  });
+
+  describe('listByUserId', () => {
+    it('should return responses for a specific user', () => {
+      repo.create(makeInput({ user_id: 'user-1' }));
+      repo.create(makeInput({ user_id: 'user-1' }));
+      repo.create(makeInput({ user_id: 'user-2' }));
+
+      const results = repo.listByUserId('user-1');
+      expect(results).toHaveLength(2);
+      expect(results.every((r) => r.user_id === 'user-1')).toBe(true);
+    });
+
+    it('should filter by groupId when provided', () => {
+      repo.create(makeInput({ user_id: 'user-1', form_response_group_id: 'grp-a' }));
+      repo.create(makeInput({ user_id: 'user-1', form_response_group_id: 'grp-b' }));
+      repo.create(makeInput({ user_id: 'user-1', form_response_group_id: 'grp-a' }));
+
+      const results = repo.listByUserId('user-1', 'grp-a');
+      expect(results).toHaveLength(2);
     });
   });
 

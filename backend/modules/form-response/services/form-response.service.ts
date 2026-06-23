@@ -41,35 +41,19 @@ export interface IFormResponseService {
 }
 
 // ---------------------------------------------------------------------------
-// Data scoping helper
+// Access-scope helpers (determine which DB field to filter on)
 // ---------------------------------------------------------------------------
 
-function scopeResponses(
-  responses: FormResponse[],
-  user: AuthUser,
-): FormResponse[] {
-  if (user.permissions.includes('form:response:admin')) {
-    return [...responses];
-  }
-  if (user.permissions.includes('form:response:read:org')) {
-    return responses.filter((r) => r.organization_id === user.organisation_id);
-  }
-  if (user.permissions.includes('form:response:read:delegate')) {
-    return responses.filter((r) => r.filling_user_id === user.sub);
-  }
-  if (user.permissions.includes('form:response:read:own')) {
-    return responses.filter((r) => r.user_id === user.sub);
-  }
-  return [];
-}
-
-function scopeResponseSingle(
-  response: FormResponse | undefined,
-  user: AuthUser,
-): FormResponse | undefined {
-  if (!response) return undefined;
-  const scoped = scopeResponses([response], user);
-  return scoped.length > 0 ? scoped[0] : undefined;
+/**
+ * Returns true when the user is permitted to access the given response
+ * based on their permission set. Used for single-record access checks.
+ */
+function canAccessResponse(response: FormResponse, user: AuthUser): boolean {
+  if (user.permissions.includes('form:response:admin')) return true;
+  if (user.permissions.includes('form:response:read:org') && response.organization_id === user.organisation_id) return true;
+  if (user.permissions.includes('form:response:read:delegate') && response.filling_user_id === user.sub) return true;
+  if (user.permissions.includes('form:response:read:own') && response.user_id === user.sub) return true;
+  return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -124,13 +108,30 @@ export class FormResponseService implements IFormResponseService {
   // ---- Form Responses ----
 
   listResponses(groupId: string, user: AuthUser): FormResponse[] {
-    const responses = this.formResponseRepository.list(groupId);
-    return scopeResponses(responses, user);
+    // Route to the most efficient repository query based on the user's permissions.
+    // Each branch applies both the role-based scope and the groupId filter at the
+    // data layer, avoiding in-memory filtering of the full dataset.
+    if (user.permissions.includes('form:response:admin')) {
+      return this.formResponseRepository.list(groupId);
+    }
+    if (user.permissions.includes('form:response:read:org')) {
+      return this.formResponseRepository.listByOrganizationId(user.organisation_id ?? '', groupId);
+    }
+    if (user.permissions.includes('form:response:read:delegate')) {
+      return this.formResponseRepository.listByFillingUserId(user.sub, groupId);
+    }
+    if (user.permissions.includes('form:response:read:own')) {
+      return this.formResponseRepository.listByUserId(user.sub, groupId);
+    }
+    return [];
   }
 
   getResponse(id: string, user: AuthUser): FormResponse | undefined {
     const response = this.formResponseRepository.get(id);
-    return scopeResponseSingle(response, user);
+    if (!response) return undefined;
+    // Check access against a single record without loading all responses
+    if (!canAccessResponse(response, user)) return undefined;
+    return response;
   }
 
   createResponse(input: CreateFormResponseInput): FormResponse {
@@ -182,14 +183,12 @@ export class FormResponseService implements IFormResponseService {
     if (!parent) {
       throw new Error(`Form response ${formResponseId} not found`);
     }
-    // Check the user can access the parent response
-    const scoped = scopeResponseSingle(parent, user);
-    if (!scoped) {
+    if (!canAccessResponse(parent, user)) {
       throw new FormResponseAuthorizationError(
         `Access denied to form response ${formResponseId}`,
       );
     }
-    return scoped;
+    return parent;
   }
 
   listQuestionResponses(formResponseId: string, user: AuthUser): QuestionResponse[] {
