@@ -1,5 +1,7 @@
 import { Hono, type Context } from 'hono';
 import type { IFormResponseService } from '../services/form-response.service.js';
+import { requireAnyPermission } from '../../../src/utils/auth.js';
+import { audit } from '../../../src/utils/audit.js';
 import { FormResponseValidationError } from '../validators/form-response.validator.js';
 import {
   FormResponseVersionConflictError,
@@ -7,7 +9,6 @@ import {
   FormResponseSubmissionError,
   FormResponseAuthorizationError,
 } from '../types/form-response.types.js';
-import { audit } from '../../../src/utils/audit.js';
 import type { AuthUser } from '../../../src/types/auth.types.js';
 
 // ---------------------------------------------------------------------------
@@ -34,16 +35,12 @@ function handleServiceError(c: Context, e: unknown): Response {
 }
 
 // ---------------------------------------------------------------------------
-// Auth helpers
+// Delegation + permission check (domain-specific to form-response)
 // ---------------------------------------------------------------------------
 
-function getUser(c: Context): AuthUser | undefined {
-  return c.get('user');
-}
-
 /**
- * Checks that the authenticated user matches the filler of the response,
- * and that they hold the appropriate permission (self vs on-behalf).
+ * Verifies the authenticated user is the filler of the response and holds
+ * the appropriate permission (self-fill vs on-behalf).
  */
 function assertWritePermission(
   user: AuthUser,
@@ -69,29 +66,6 @@ function assertWritePermission(
   }
 }
 
-function hasAnyReadPermission(user: AuthUser): boolean {
-  return (
-    user.permissions.includes('form:response:read:own') ||
-    user.permissions.includes('form:response:read:org') ||
-    user.permissions.includes('form:response:read:delegate') ||
-    user.permissions.includes('form:response:admin')
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Audit helper
-// ---------------------------------------------------------------------------
-
-function auditMutation(
-  action: string,
-  user: AuthUser,
-  resource: string,
-  before?: Record<string, unknown>,
-  after?: Record<string, unknown>,
-): void {
-  audit.access({ sub: user.sub, resource, action, outcome: 'allow', before, after });
-}
-
 // ---------------------------------------------------------------------------
 // Router factory
 // ---------------------------------------------------------------------------
@@ -100,24 +74,29 @@ export function createFormResponseRouter(service: IFormResponseService): Hono {
   const router = new Hono();
 
   // GET /form-response/groups/:groupId/responses
-  router.get('/', (c) => {
-    const user = getUser(c);
-    if (!user) return c.json({ error: 'Authentication required' }, 401);
-    if (!hasAnyReadPermission(user)) {
-      return c.json({ error: 'Insufficient permissions' }, 403);
-    }
-    try {
-      const groupId = c.req.param('groupId')!;
-      const responses = service.listResponses(groupId, user);
-      return c.json(responses);
-    } catch (e) {
-      return handleServiceError(c, e);
-    }
-  });
+  router.get(
+    '/',
+    requireAnyPermission([
+      'form:response:read:own',
+      'form:response:read:org',
+      'form:response:read:delegate',
+      'form:response:admin',
+    ]),
+    (c) => {
+      try {
+        const user = c.get('user')!;
+        const groupId = c.req.param('groupId')!;
+        const responses = service.listResponses(groupId, user);
+        return c.json(responses);
+      } catch (e) {
+        return handleServiceError(c, e);
+      }
+    },
+  );
 
   // POST /form-response/groups/:groupId/responses
   router.post('/', async (c) => {
-    const user = getUser(c);
+    const user = c.get('user');
     if (!user) return c.json({ error: 'Authentication required' }, 401);
     try {
       const groupId = c.req.param('groupId')!;
@@ -127,7 +106,6 @@ export function createFormResponseRouter(service: IFormResponseService): Hono {
         [key: string]: unknown;
       };
 
-      // Delegation + permission check
       assertWritePermission(user, {
         user_id: body.user_id ?? '',
         filling_user_id: body.filling_user_id ?? '',
@@ -138,7 +116,7 @@ export function createFormResponseRouter(service: IFormResponseService): Hono {
         form_response_group_id: groupId,
       } as any);
 
-      auditMutation('create', user, `form-response:${response.form_response_id}`, undefined, response as unknown as Record<string, unknown>);
+      audit.accessAllow(user.sub, `form-response:${response.form_response_id}`, 'create');
       return c.json(response, 201);
     } catch (e) {
       return handleServiceError(c, e);
@@ -146,25 +124,30 @@ export function createFormResponseRouter(service: IFormResponseService): Hono {
   });
 
   // GET /form-response/groups/:groupId/responses/:id
-  router.get('/:id', (c) => {
-    const user = getUser(c);
-    if (!user) return c.json({ error: 'Authentication required' }, 401);
-    if (!hasAnyReadPermission(user)) {
-      return c.json({ error: 'Insufficient permissions' }, 403);
-    }
-    try {
-      const id = c.req.param('id');
-      const response = service.getResponse(id, user);
-      if (!response) return c.json({ error: 'Not found' }, 404);
-      return c.json(response);
-    } catch (e) {
-      return handleServiceError(c, e);
-    }
-  });
+  router.get(
+    '/:id',
+    requireAnyPermission([
+      'form:response:read:own',
+      'form:response:read:org',
+      'form:response:read:delegate',
+      'form:response:admin',
+    ]),
+    (c) => {
+      try {
+        const user = c.get('user')!;
+        const id = c.req.param('id');
+        const response = service.getResponse(id, user);
+        if (!response) return c.json({ error: 'Not found' }, 404);
+        return c.json(response);
+      } catch (e) {
+        return handleServiceError(c, e);
+      }
+    },
+  );
 
   // PUT /form-response/groups/:groupId/responses/:id
   router.put('/:id', async (c) => {
-    const user = getUser(c);
+    const user = c.get('user');
     if (!user) return c.json({ error: 'Authentication required' }, 401);
     try {
       const id = c.req.param('id');
@@ -183,7 +166,7 @@ export function createFormResponseRouter(service: IFormResponseService): Hono {
       const updated = service.updateResponse(id, body);
 
       if (!updated) return c.json({ error: 'Not found' }, 404);
-      auditMutation('update', user, `form-response:${id}`, before, updated as unknown as Record<string, unknown>);
+      audit.accessAllow(user.sub, `form-response:${id}`, 'update', { before, after: updated });
       return c.json(updated);
     } catch (e) {
       return handleServiceError(c, e);
@@ -192,7 +175,7 @@ export function createFormResponseRouter(service: IFormResponseService): Hono {
 
   // DELETE /form-response/groups/:groupId/responses/:id
   router.delete('/:id', async (c) => {
-    const user = getUser(c);
+    const user = c.get('user');
     if (!user) return c.json({ error: 'Authentication required' }, 401);
     try {
       const id = c.req.param('id');
@@ -209,7 +192,7 @@ export function createFormResponseRouter(service: IFormResponseService): Hono {
       const deleted = service.deleteResponse(id);
       if (!deleted) return c.json({ error: 'Not found' }, 404);
 
-      auditMutation('delete', user, `form-response:${id}`, existing as unknown as Record<string, unknown>, undefined);
+      audit.accessAllow(user.sub, `form-response:${id}`, 'delete', { before: existing });
       return c.json({ success: true });
     } catch (e) {
       return handleServiceError(c, e);

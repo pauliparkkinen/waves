@@ -1,5 +1,6 @@
 import { Hono, type Context } from 'hono';
 import type { IFormResponseService } from '../services/form-response.service.js';
+import { requireAnyPermission } from '../../../src/utils/auth.js';
 import { FormResponseValidationError } from '../validators/form-response.validator.js';
 import {
   FormResponseVersionConflictError,
@@ -7,8 +8,6 @@ import {
   FormResponseSubmissionError,
   FormResponseAuthorizationError,
 } from '../types/form-response.types.js';
-import { audit } from '../../../src/utils/audit.js';
-import type { AuthUser } from '../../../src/types/auth.types.js';
 
 // ---------------------------------------------------------------------------
 // Error mapping
@@ -34,22 +33,6 @@ function handleServiceError(c: Context, e: unknown): Response {
 }
 
 // ---------------------------------------------------------------------------
-// Auth helpers
-// ---------------------------------------------------------------------------
-
-function getUser(c: Context): AuthUser | undefined {
-  return c.get('user');
-}
-
-function hasAnyReadPermission(user: AuthUser): boolean {
-  return (
-    user.permissions.includes('form:response:read:own') ||
-    user.permissions.includes('form:response:read:org') ||
-    user.permissions.includes('form:response:read:delegate')
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Router factory
 // ---------------------------------------------------------------------------
 
@@ -57,24 +40,28 @@ export function createQuestionResponseRouter(service: IFormResponseService): Hon
   const router = new Hono();
 
   // GET /form-response/responses/:responseId/questions
-  router.get('/', (c) => {
-    const user = getUser(c);
-    if (!user) return c.json({ error: 'Authentication required' }, 401);
-    if (!hasAnyReadPermission(user)) {
-      return c.json({ error: 'Insufficient permissions' }, 403);
-    }
-    try {
-      const responseId = c.req.param('responseId')!;
-      const questions = service.listQuestionResponses(responseId, user);
-      return c.json(questions);
-    } catch (e) {
-      return handleServiceError(c, e);
-    }
-  });
+  router.get(
+    '/',
+    requireAnyPermission([
+      'form:response:read:own',
+      'form:response:read:org',
+      'form:response:read:delegate',
+    ]),
+    (c) => {
+      try {
+        const user = c.get('user')!;
+        const responseId = c.req.param('responseId')!;
+        const questions = service.listQuestionResponses(responseId, user);
+        return c.json(questions);
+      } catch (e) {
+        return handleServiceError(c, e);
+      }
+    },
+  );
 
   // POST /form-response/responses/:responseId/questions
   router.post('/', async (c) => {
-    const user = getUser(c);
+    const user = c.get('user');
     if (!user) return c.json({ error: 'Authentication required' }, 401);
     try {
       const responseId = c.req.param('responseId')!;
@@ -91,7 +78,7 @@ export function createQuestionResponseRouter(service: IFormResponseService): Hon
 
   // PUT /form-response/responses/:responseId/questions/:questionSymbol
   router.put('/:questionSymbol', async (c) => {
-    const user = getUser(c);
+    const user = c.get('user');
     if (!user) return c.json({ error: 'Authentication required' }, 401);
     try {
       const responseId = c.req.param('responseId')!;
@@ -117,7 +104,7 @@ export function createQuestionResponseRouter(service: IFormResponseService): Hon
 
   // DELETE /form-response/responses/:responseId/questions/:questionSymbol
   router.delete('/:questionSymbol', async (c) => {
-    const user = getUser(c);
+    const user = c.get('user');
     if (!user) return c.json({ error: 'Authentication required' }, 401);
     try {
       const responseId = c.req.param('responseId')!;

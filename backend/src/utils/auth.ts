@@ -149,7 +149,7 @@ export function createJwtMiddleware(jwksUri: string): MiddlewareHandler {
 
 /**
  * Returns a Hono middleware that enforces authentication and specific
- * permissions on a route.
+ * permissions on a route (ALL required permissions must be present).
  *
  * Responds with:
  * - 401 when no authenticated user is present on the context.
@@ -158,7 +158,7 @@ export function createJwtMiddleware(jwksUri: string): MiddlewareHandler {
  * Must be used downstream of the JWT middleware created by createJwtMiddleware.
  *
  * @example
- * router.get('/records', requirePermissions(['records:read']), handler)
+ * router.get('/records', requirePermissions(['records:read', 'records:write']), handler)
  */
 export function requirePermissions(required: string[]): MiddlewareHandler {
   return async (context, next) => {
@@ -178,6 +178,46 @@ export function requirePermissions(required: string[]): MiddlewareHandler {
         permissions: missing,
       });
       throw new HTTPException(403, { message: `Insufficient permissions: ${missing.join(', ')}` });
+    }
+
+    await next();
+  };
+}
+
+/**
+ * Returns a Hono middleware that enforces authentication and requires
+ * **at least one** of the listed permissions to be present (OR semantics).
+ *
+ * Responds with:
+ * - 401 when no authenticated user is present on the context.
+ * - 403 when the user has none of the required permissions.
+ *
+ * Must be used downstream of the JWT middleware created by createJwtMiddleware.
+ *
+ * @example
+ * router.get('/responses', requireAnyPermission([
+ *   'form:response:read:own',
+ *   'form:response:read:org',
+ * ]), handler)
+ */
+export function requireAnyPermission(required: string[]): MiddlewareHandler {
+  return async (context, next) => {
+    const user = context.get('user');
+
+    if (!user) {
+      const ip = context.req.header('x-forwarded-for') ?? context.req.header('x-real-ip');
+      audit.authFailure({ reason: 'Authentication required', ip });
+      throw new HTTPException(401, { message: 'Authentication required' });
+    }
+
+    const hasAny = required.some((p) => user.permissions.includes(p));
+    if (!hasAny) {
+      audit.authDenied({
+        reason: 'Insufficient permissions',
+        sub: user.sub,
+        permissions: required,
+      });
+      throw new HTTPException(403, { message: 'Insufficient permissions' });
     }
 
     await next();

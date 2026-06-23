@@ -41,6 +41,21 @@ export const audit = {
   },
 
   /**
+   * Shorthand for logging a successful resource access (outcome: 'allow').
+   *
+   * @example
+   * audit.accessAllow({ sub: user.sub, resource: 'form-response:fr-1', action: 'create' });
+   */
+  accessAllow(
+    sub: string,
+    resource: string,
+    action: string,
+    extra?: Record<string, unknown>,
+  ): void {
+    auditLogger.info({ event: 'access', sub, resource, action, outcome: 'allow', ...extra });
+  },
+
+  /**
    * Log a successful authentication.
    */
   authSuccess(event: Omit<AuditAuthEvent, 'reason'>): void {

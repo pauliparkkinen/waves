@@ -10,7 +10,7 @@ import {
 } from '../../types/form-response.types.js';
 
 // Mock audit module
-const mockAudit = vi.hoisted(() => ({ authSuccess: vi.fn(), authFailure: vi.fn(), authDenied: vi.fn(), access: vi.fn() }));
+const mockAudit = vi.hoisted(() => ({ authSuccess: vi.fn(), authFailure: vi.fn(), authDenied: vi.fn(), access: vi.fn(), accessAllow: vi.fn() }));
 vi.mock('../../../../src/utils/audit.js', () => ({ audit: mockAudit }));
 
 function makeService(overrides: Partial<IFormResponseService> = {}): IFormResponseService {
@@ -185,7 +185,7 @@ describe('FormResponseController', () => {
           body: JSON.stringify(patientWithOwnResponses),
         });
         expect(res.status).toBe(201);
-        expect(mockAudit.access).toHaveBeenCalledOnce();
+        expect(mockAudit.accessAllow).toHaveBeenCalledOnce();
       });
     });
   });
@@ -242,7 +242,7 @@ describe('FormResponseController', () => {
         });
         expect(res.status).toBe(200);
         expect(await res.json()).toEqual(updated);
-        expect(mockAudit.access).toHaveBeenCalledOnce();
+        expect(mockAudit.accessAllow).toHaveBeenCalledOnce();
       });
     });
 
@@ -321,7 +321,7 @@ describe('FormResponseController', () => {
         const app = appWithUser(patientUser).route('/', createFormResponseRouter(service));
         const res = await app.request('http://localhost/fr-1', { method: 'DELETE' });
         expect(res.status).toBe(200);
-        expect(mockAudit.access).toHaveBeenCalledOnce();
+        expect(mockAudit.accessAllow).toHaveBeenCalledOnce();
       });
     });
 
