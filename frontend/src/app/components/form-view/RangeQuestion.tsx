@@ -86,12 +86,6 @@ export function RangeQuestion({
             aria-invalid={!!error}
             className="range-question__input"
           />
-        </div>
-        <span className="range-question__max">{max}</span>
-      </div>
-      <div className="range-question__value-row">
-        <span className="range-question__min-spacer" />
-        <div className="range-question__value-track">
           <span
             id={valueId}
             className="range-question__value"
@@ -101,7 +95,7 @@ export function RangeQuestion({
             {localValue}
           </span>
         </div>
-        <span className="range-question__max-spacer" />
+        <span className="range-question__max">{max}</span>
       </div>
     </div>
   );
