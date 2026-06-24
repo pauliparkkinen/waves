@@ -46,6 +46,10 @@ export class SandboxService implements ISandboxService {
 
     const formulaCache = new Map<string, { symbol: string; expression: AstNode }>();
 
+    // Echo all received answers back to the caller, regardless of type
+    const receivedAnswers: Record<string, number | boolean | string> = { ...input.answers };
+
+    // For formula evaluation, only numeric/boolean values are usable
     const variables: Record<string, number | boolean> = {};
     for (const [key, value] of Object.entries(input.answers)) {
       if (typeof value === 'number' || typeof value === 'boolean') {
@@ -106,8 +110,10 @@ export class SandboxService implements ISandboxService {
 
     return {
       form_id: formId,
+      form_symbol: form.form_symbol,
       sections: sectionResults,
       formulas: formulaResults,
+      received_answers: receivedAnswers,
     };
   }
 

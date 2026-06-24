@@ -20,6 +20,8 @@ export type SandboxFormulaResult = {
 
 export type SandboxTestResult = {
   form_id: string;
+  form_symbol: string;
   sections: SandboxSectionResult[];
   formulas: SandboxFormulaResult[];
+  received_answers: Record<string, number | boolean | string>;
 };

@@ -143,6 +143,7 @@ describe('SandboxService', () => {
         const result = service.testForm('form-1', input);
 
         expect(result.form_id).toBe('form-1');
+        expect(result.form_symbol).toBe('test-form');
         expect(result.sections).toHaveLength(1);
         expect(result.sections[0].section_symbol).toBe('sec-1');
         expect(result.sections[0].visible).toBe(true);
@@ -152,6 +153,7 @@ describe('SandboxService', () => {
         expect(result.formulas).toHaveLength(1);
         expect(result.formulas[0].formula_symbol).toBe('total-score');
         expect(result.formulas[0].value).toBe(30);
+        expect(result.received_answers).toEqual({ q1: 15 });
       });
 
       it('when test answers include boolean values, then they are used in evaluation', () => {
@@ -466,7 +468,7 @@ describe('SandboxService', () => {
     });
 
     describe('given string answer values', () => {
-      it('when the string value is provided in answers, it is excluded from variables', () => {
+      it('when the string value is provided in answers, it is echoed back in received_answers but excluded from formula variables', () => {
         const formRepo = makeFormRepo({
           getForm: vi.fn().mockReturnValue(sampleForm),
         });
@@ -493,6 +495,8 @@ describe('SandboxService', () => {
 
         expect(result.formulas).toHaveLength(1);
         expect(result.formulas[0].value).toBe(30);
+        // String answers are echoed back even though not used in formulas
+        expect(result.received_answers).toEqual({ q1: 'some-string', q2: 42 });
       });
     });
   });
