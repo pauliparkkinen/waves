@@ -90,14 +90,18 @@ export function RangeQuestion({
         <span className="range-question__max">{max}</span>
       </div>
       <div className="range-question__value-row">
-        <span
-          id={valueId}
-          className="range-question__value"
-          style={{ left: `${valuePercent}%` }}
-          aria-live="polite"
-        >
-          {localValue}
-        </span>
+        <span className="range-question__min-spacer" />
+        <div className="range-question__value-track">
+          <span
+            id={valueId}
+            className="range-question__value"
+            style={{ left: `${valuePercent}%` }}
+            aria-live="polite"
+          >
+            {localValue}
+          </span>
+        </div>
+        <span className="range-question__max-spacer" />
       </div>
     </div>
   );
