@@ -170,9 +170,17 @@ export function FormViewProvider({ initialData, accessToken, children, submitAct
     questionResponses,
   ]);
 
+  const initialSectionSetRef = useRef(false);
+
   useEffect(() => {
-    if (!currentSectionSymbol && formOrder.length > 0 && formOrder[0].sections.length > 0) {
+    if (
+      !initialSectionSetRef.current &&
+      !currentSectionSymbol &&
+      formOrder.length > 0 &&
+      formOrder[0].sections.length > 0
+    ) {
       setCurrentSectionSymbol(formOrder[0].sections[0].sectionSymbol);
+      initialSectionSetRef.current = true;
     }
   }, [formOrder, currentSectionSymbol]);
 

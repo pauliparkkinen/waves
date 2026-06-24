@@ -85,7 +85,7 @@ export function SectionSummary({ section, isIncomplete, onContinue, autoFocus = 
                     type="button"
                     className="summary__edit btn-small btn-secondary"
                     onClick={() => reopenSection(section.sectionSymbol)}
-                    aria-label={`Edit ${questionText}`}
+                    aria-label={`${strings.section.edit} ${questionText}`}
                   >
                     {strings.section.edit}
                   </button>

@@ -65,6 +65,22 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       noResults: 'No patients found. Try a different search term.',
       fillingOnBehalfOf: 'Filling on behalf of:',
       changePatient: 'Change Patient',
+      patientLabel: 'Patient {id}',
+      searchResultsLabel: 'Patient search results',
+      dobLabel: 'DOB: {date}',
+    },
+    loading: {
+      loading: 'Loading...',
+      error: 'Something went wrong.',
+    },
+    general: {
+      selectLanguage: 'Select language',
+      selectPlaceholder: 'Select...',
+    },
+    errorMessages: {
+      failedSaveBeforeSubmit: 'Some answers failed to save. Please retry before submitting.',
+      submitFailed: 'Submit failed ({status})',
+      unsupportedQuestionType: 'Unsupported question type: {type}',
     },
     progress: {
       section: 'Section',
@@ -136,6 +152,22 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       noResults: 'Potilaita ei löytynyt. Kokeile toista hakusanaa.',
       fillingOnBehalfOf: 'Täytetään potilaan puolesta:',
       changePatient: 'Vaihda potilasta',
+      patientLabel: 'Potilas {id}',
+      searchResultsLabel: 'Potilashakutulokset',
+      dobLabel: 'Syntynyt: {date}',
+    },
+    loading: {
+      loading: 'Ladataan...',
+      error: 'Jotain meni pieleen.',
+    },
+    general: {
+      selectLanguage: 'Valitse kieli',
+      selectPlaceholder: 'Valitse...',
+    },
+    errorMessages: {
+      failedSaveBeforeSubmit: 'Jotkin vastaukset eivät tallentuneet. Yritä uudelleen ennen lähettämistä.',
+      submitFailed: 'Lähetys epäonnistui ({status})',
+      unsupportedQuestionType: 'Tuntematon kysymystyyppi: {type}',
     },
     progress: {
       section: 'Osio',

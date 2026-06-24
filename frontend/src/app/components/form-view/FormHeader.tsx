@@ -2,10 +2,12 @@
 
 import React, { useMemo } from 'react';
 import { useFormView } from './FormViewProvider';
+import { getFormViewStrings } from '@/lib/translations/form-view';
 
 export default function FormHeader() {
   const { formOrder, currentFormIndex, locale, setLocale, formDefinitions, isLoading, error } =
     useFormView();
+  const strings = getFormViewStrings(locale);
 
   const availableLocales = useMemo(() => {
     const locales = new Set<string>();
@@ -20,7 +22,7 @@ export default function FormHeader() {
   }, [formDefinitions]);
 
   if (isLoading) {
-    return <div className="form-view__header">Loading...</div>;
+    return <div className="form-view__header">{strings.loading.loading}</div>;
   }
 
   if (error) {
@@ -45,7 +47,7 @@ export default function FormHeader() {
         <select
           value={locale}
           onChange={(e) => setLocale(e.target.value)}
-          aria-label="Select language"
+          aria-label={strings.general.selectLanguage}
           className="form-view__locale-select"
         >
           {availableLocales.map((l) => (

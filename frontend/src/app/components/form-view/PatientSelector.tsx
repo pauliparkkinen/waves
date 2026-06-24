@@ -27,7 +27,7 @@ export function PatientSelector({
   const [isSearching, setIsSearching] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<PatientSummary | null>(() => {
     if (selectedPatientId) {
-      return { patientId: selectedPatientId, name: `Patient ${selectedPatientId}` };
+      return { patientId: selectedPatientId, name: strings.patientSelector.patientLabel.replace('{id}', selectedPatientId) };
     }
     return null;
   });
@@ -128,7 +128,7 @@ export function PatientSelector({
       )}
 
       {searchResults.length > 0 && (
-        <ul className="patient-selector__results" role="listbox" aria-label="Patient search results">
+        <ul className="patient-selector__results" role="listbox" aria-label={strings.patientSelector.searchResultsLabel}>
           {searchResults.map((patient) => (
             <li key={patient.patientId} role="option" aria-selected={patient.patientId === selectedPatientId}>
               <button
@@ -137,7 +137,7 @@ export function PatientSelector({
                 onClick={() => handleSelectPatient(patient)}
               >
                 <strong>{patient.name}</strong>
-                {patient.dateOfBirth && <span>DOB: {patient.dateOfBirth}</span>}
+                {patient.dateOfBirth && <span>{strings.patientSelector.dobLabel.replace('{date}', patient.dateOfBirth)}</span>}
                 {patient.email && <span>{patient.email}</span>}
               </button>
             </li>

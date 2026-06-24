@@ -10,6 +10,7 @@ import { SectionRenderer } from './SectionRenderer';
 import { FormCompletion } from './FormCompletion';
 import { SubmissionDialog } from './SubmissionDialog';
 import { PatientSelector } from './PatientSelector';
+import { getFormViewStrings } from '@/lib/translations/form-view';
 import type {
   FormResponseGroup,
   FormDefinition,
@@ -48,6 +49,7 @@ export default function FormViewPageClient({
   const [currentPatientId, setCurrentPatientId] = useState<string | undefined>(
     initialData.selectedPatientId,
   );
+  const strings = getFormViewStrings(initialData.locale);
 
   const submitActionRef = useRef<(() => Promise<void>) | null>(null);
 
@@ -77,7 +79,7 @@ export default function FormViewPageClient({
       await submitActionRef.current?.();
       window.location.href = `/forms/${groupId}/review`;
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'Submit failed');
+      setSubmitError(err instanceof Error ? err.message : strings.errorMessages.submitFailed.replace('{status}', 'unknown'));
       setSubmitting(false);
     }
   }, [groupId]);
