@@ -28,7 +28,12 @@ type FormTestOverlayProps = {
   questions?: AdminQuestion[];
 };
 
-/** Fetch all translations for a collection and return a Map<symbol, locale→text>. */
+/**
+ * Fetch all translations for a collection and return a Map<symbol, locale→text>.
+ *
+ * Backend stores translations as individual rows (one per locale_code per symbol),
+ * so we group them by symbol into a single Record<locale, text> per symbol.
+ */
 async function fetchTranslationMap(
   collectionId: string,
   accessToken?: string,
@@ -42,9 +47,16 @@ async function fetchTranslationMap(
     const data = await res.json();
     const map = new Map<string, Record<string, string>>();
     for (const item of data) {
-      if (item.symbol && item.translations) {
-        map.set(item.symbol, item.translations);
+      const symbol = item.symbol as string | undefined;
+      const locale = item.locale_code as string | undefined;
+      const value = item.value as string | undefined;
+      if (!symbol || !locale || value === undefined) continue;
+      let entry = map.get(symbol);
+      if (!entry) {
+        entry = {};
+        map.set(symbol, entry);
       }
+      entry[locale] = value;
     }
     return map;
   } catch {
