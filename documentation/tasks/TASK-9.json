@@ -2,9 +2,9 @@
   "id": "TASK-9",
   "title": "Backend: Test Mode Sandbox Endpoint",
   "description": "Implement a sandbox endpoint POST /admin/forms/:id/test that accepts test form data, runs formula evaluations and visibility condition checks, and returns the results without persisting any data. The sandbox validates the form structure using the same logic as production but operates on ephemeral data.",
-  "status": "Ready-to-review",
+  "status": "Approved",
   "creationDate": "2026-06-11T12:53:10.167Z",
-  "updateDate": "2026-06-24T07:38:24.952Z",
+  "updateDate": "2026-06-24T08:06:04.626Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -26,6 +26,14 @@
       "changedBy": "build-agent",
       "changedAt": "2026-06-24T07:38:24.951Z",
       "comment": "Implemented sandbox endpoint POST /admin/forms/:id/test with formula AST evaluator, visibility condition checks, and full test coverage. See branch TASK-9-backend-sandbox-endpoint."
+    },
+    {
+      "fromStatus": "Ready-to-review",
+      "toStatus": "Approved",
+      "changedBy": "Pauli Parkkinen",
+      "changedAt": "2026-06-24T08:06:04.626Z",
+      "approvedBy": "Pauli Parkkinen",
+      "approvedAt": "2026-06-24T08:06:04.626Z"
     }
   ],
   "changeHistory": [
