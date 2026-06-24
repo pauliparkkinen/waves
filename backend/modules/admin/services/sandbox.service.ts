@@ -12,8 +12,12 @@ import type {
   SandboxFormulaResult,
 } from '../types/sandbox.types.js';
 
+const TEST_SENTINEL = '__test__' as const;
+
 export interface ISandboxService {
   testForm(formId: string, input: SandboxTestInput): SandboxTestResult;
+  testSection(sectionId: string, input: SandboxTestInput): SandboxTestResult;
+  testQuestion(questionId: string, input: SandboxTestInput): SandboxTestResult;
 }
 
 export class SandboxService implements ISandboxService {
@@ -112,6 +116,130 @@ export class SandboxService implements ISandboxService {
       form_id: formId,
       form_symbol: form.form_symbol,
       sections: sectionResults,
+      formulas: formulaResults,
+      received_answers: receivedAnswers,
+    };
+  }
+
+  testSection(sectionId: string, input: SandboxTestInput): SandboxTestResult {
+    const section = this.sectionRepository.getSection(sectionId);
+    if (!section) {
+      throw new Error(`Section not found: ${sectionId}`);
+    }
+
+    const allQuestions = this.questionRepository.listQuestions();
+    const questionMap = new Map<string, (typeof allQuestions)[0]>();
+    for (const question of allQuestions) {
+      questionMap.set(question.question_symbol, question);
+    }
+
+    const formulaCache = new Map<string, { symbol: string; expression: AstNode }>();
+
+    const receivedAnswers: Record<string, number | boolean | string> = { ...input.answers };
+    const variables: Record<string, number | boolean> = {};
+    for (const [key, value] of Object.entries(input.answers)) {
+      if (typeof value === 'number' || typeof value === 'boolean') {
+        variables[key] = value;
+      }
+    }
+
+    const formulaIds: string[] = [];
+    if (section.condition_formula_id) {
+      formulaIds.push(section.condition_formula_id);
+    }
+    for (const sq of section.section_questions) {
+      const question = questionMap.get(sq.question_symbol);
+      if (question?.condition_formula_id && !formulaIds.includes(question.condition_formula_id)) {
+        formulaIds.push(question.condition_formula_id);
+      }
+    }
+
+    const formulaResults: SandboxFormulaResult[] = [];
+    for (const formulaId of formulaIds) {
+      const cached = this.getCachedFormula(formulaId, formulaCache);
+      const value = this.formulaEvaluator.evaluate(cached.expression, variables);
+      variables[cached.symbol] = value;
+      formulaResults.push({ formula_symbol: cached.symbol, value });
+    }
+
+    let sectionVisible = true;
+    if (section.condition_formula_id) {
+      const cached = this.getCachedFormula(section.condition_formula_id, formulaCache);
+      const value = this.formulaEvaluator.evaluate(cached.expression, variables);
+      sectionVisible = Boolean(value);
+    }
+
+    const questionResults: SandboxQuestionResult[] = [];
+    for (const sq of section.section_questions) {
+      let questionVisible = true;
+      const question = questionMap.get(sq.question_symbol);
+      if (question?.condition_formula_id) {
+        const cached = this.getCachedFormula(question.condition_formula_id, formulaCache);
+        const value = this.formulaEvaluator.evaluate(cached.expression, variables);
+        questionVisible = Boolean(value);
+      }
+      questionResults.push({
+        question_symbol: sq.question_symbol,
+        visible: questionVisible,
+      });
+    }
+
+    return {
+      form_id: TEST_SENTINEL,
+      form_symbol: TEST_SENTINEL,
+      sections: [
+        {
+          section_symbol: section.section_symbol,
+          visible: sectionVisible,
+          questions: questionResults,
+        },
+      ],
+      formulas: formulaResults,
+      received_answers: receivedAnswers,
+    };
+  }
+
+  testQuestion(questionId: string, input: SandboxTestInput): SandboxTestResult {
+    const question = this.questionRepository.getQuestion(questionId);
+    if (!question) {
+      throw new Error(`Question not found: ${questionId}`);
+    }
+
+    const formulaCache = new Map<string, { symbol: string; expression: AstNode }>();
+
+    const receivedAnswers: Record<string, number | boolean | string> = { ...input.answers };
+    const variables: Record<string, number | boolean> = {};
+    for (const [key, value] of Object.entries(input.answers)) {
+      if (typeof value === 'number' || typeof value === 'boolean') {
+        variables[key] = value;
+      }
+    }
+
+    const formulaResults: SandboxFormulaResult[] = [];
+    let questionVisible = true;
+    if (question.condition_formula_id) {
+      const cached = this.getCachedFormula(question.condition_formula_id, formulaCache);
+      const value = this.formulaEvaluator.evaluate(cached.expression, variables);
+      variables[cached.symbol] = value;
+      formulaResults.push({ formula_symbol: cached.symbol, value });
+      questionVisible = Boolean(value);
+    }
+
+    return {
+      form_id: TEST_SENTINEL,
+      form_symbol: TEST_SENTINEL,
+      sections: [
+        {
+          section_symbol: TEST_SENTINEL,
+          visible: true,
+          questions: [
+            {
+              question_symbol: question.question_symbol,
+              visible: questionVisible,
+            },
+          ],
+        },
+      ],
       formulas: formulaResults,
       received_answers: receivedAnswers,
     };

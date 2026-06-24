@@ -2,13 +2,16 @@
 
 import { useState, useCallback, useMemo, Fragment } from 'react';
 import type { AdminForm, AdminCollection, AdminSection } from '@/lib/api';
+import type { AdminQuestion } from '@/lib/api';
 import FormForm from './FormForm';
 import CollectionSelector from '../collections/CollectionSelector';
+import FormTestOverlay from '../components/FormTestOverlay';
 
 type FormListProps = {
   initialForms: AdminForm[];
   collections: AdminCollection[];
   sections: AdminSection[];
+  questions: AdminQuestion[];
   accessToken: string;
   userOrgId?: string;
 };
@@ -17,6 +20,7 @@ export default function FormList({
   initialForms,
   collections,
   sections,
+  questions,
   accessToken,
   userOrgId,
 }: FormListProps) {
@@ -31,6 +35,7 @@ export default function FormList({
   const [publishError, setPublishError] = useState<string | null>(null);
   const [expandedGroupKey, setExpandedGroupKey] = useState<string | null>(null);
   const [newVersioningId, setNewVersioningId] = useState<string | null>(null);
+  const [testingId, setTestingId] = useState<string | null>(null);
   const [collectionFilter, setCollectionFilter] = useState<string | undefined>(undefined);
   const [localCollections, setLocalCollections] = useState(collections);
 
@@ -167,6 +172,8 @@ export default function FormList({
       <>
         <button className="btn-primary btn-small" onClick={() => setPublishingId(form.form_id)}
           aria-label={`Publish ${form.form_symbol} v${form.version}`}>Publish</button>
+        <button className="btn-secondary btn-small" onClick={() => setTestingId(form.form_id)}
+          aria-label={`Test ${form.form_symbol} v${form.version}`}>Test</button>
         <button className="btn-secondary btn-small" onClick={() => setEditingId(form.form_id)}
           aria-label={`Edit ${form.form_symbol} v${form.version}`}>Edit</button>
         <button className="btn-danger btn-small" onClick={() => setDeletingId(form.form_id)}
@@ -468,6 +475,20 @@ export default function FormList({
           </div>
         </div>
       )}
+
+      {testingId && (() => {
+        const f = forms.find(f => f.form_id === testingId);
+        if (!f) return null;
+        return (
+          <FormTestOverlay
+            form={f}
+            sections={sections}
+            questions={questions}
+            accessToken={accessToken}
+            onClose={() => setTestingId(null)}
+          />
+        );
+      })()}
     </div>
   );
 }

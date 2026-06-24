@@ -54,7 +54,7 @@ router.route('/collections', createCollectionRouter(collectionService));
 router.route('/questions', createQuestionRouter(questionService));
 router.route('/sections', createSectionRouter(sectionService));
 router.route('/forms', createFormRouter(formService));
-router.route('/forms', createSandboxRouter(sandboxService));
+router.route('/', createSandboxRouter(sandboxService));
 router.route('/formulas', createFormulaRouter(formulaService));
 router.route('/translations', createTranslationRouter(translationService));
 export default router;

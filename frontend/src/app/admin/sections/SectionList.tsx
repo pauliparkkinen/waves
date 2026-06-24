@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo, Fragment } from 'react';
 import type { AdminSection, AdminCollection, AdminQuestion } from '@/lib/api';
 import SectionForm from './SectionForm';
 import CollectionSelector from '../collections/CollectionSelector';
+import FormTestOverlay from '../components/FormTestOverlay';
 
 type SectionListProps = {
   initialSections: AdminSection[];
@@ -31,6 +32,7 @@ export default function SectionList({
   const [publishError, setPublishError] = useState<string | null>(null);
   const [expandedGroupKey, setExpandedGroupKey] = useState<string | null>(null);
   const [newVersioningId, setNewVersioningId] = useState<string | null>(null);
+  const [testingId, setTestingId] = useState<string | null>(null);
   const [collectionFilter, setCollectionFilter] = useState<string | undefined>(undefined);
 
   const collectionMap = useMemo(() => {
@@ -167,6 +169,8 @@ export default function SectionList({
       <>
         <button className="btn-primary btn-small" onClick={() => setPublishingId(sec.section_id)}
           aria-label={`Publish ${sec.section_symbol} v${sec.version}`}>Publish</button>
+        <button className="btn-secondary btn-small" onClick={() => setTestingId(sec.section_id)}
+          aria-label={`Test ${sec.section_symbol} v${sec.version}`}>Test</button>
         <button className="btn-secondary btn-small" onClick={() => setEditingId(sec.section_id)}
           aria-label={`Edit ${sec.section_symbol} v${sec.version}`}>Edit</button>
         <button className="btn-danger btn-small" onClick={() => setDeletingId(sec.section_id)}
@@ -474,6 +478,19 @@ export default function SectionList({
           </div>
         </div>
       )}
+
+      {testingId && (() => {
+        const sec = sections.find(s => s.section_id === testingId);
+        if (!sec) return null;
+        return (
+          <FormTestOverlay
+            section={sec}
+            questions={questions}
+            accessToken={accessToken}
+            onClose={() => setTestingId(null)}
+          />
+        );
+      })()}
     </div>
   );
 }

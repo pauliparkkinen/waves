@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import type { AdminQuestion, AdminCollection } from '@/lib/api';
 import CollectionSelector from '../collections/CollectionSelector';
 import QuestionForm from './QuestionForm';
+import FormTestOverlay from '../components/FormTestOverlay';
 
 type QuestionListProps = {
   initialQuestions: AdminQuestion[];
@@ -24,6 +25,7 @@ export default function QuestionList({
   const [error, setError] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [testingId, setTestingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [collectionFilter, setCollectionFilter] = useState<string | undefined>(undefined);
 
@@ -176,6 +178,13 @@ export default function QuestionList({
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
                         <button
                           className="btn-secondary btn-small"
+                          onClick={() => setTestingId(q.question_id)}
+                          aria-label={`Test ${q.question_symbol}`}
+                        >
+                          Test
+                        </button>
+                        <button
+                          className="btn-secondary btn-small"
                           onClick={() => setEditingId(q.question_id)}
                           aria-label={`Edit ${q.question_symbol}`}
                         >
@@ -235,6 +244,18 @@ export default function QuestionList({
           </div>
         </div>
       )}
+
+      {testingId && (() => {
+        const q = questions.find(q => q.question_id === testingId);
+        if (!q) return null;
+        return (
+          <FormTestOverlay
+            question={q}
+            accessToken={accessToken}
+            onClose={() => setTestingId(null)}
+          />
+        );
+      })()}
     </div>
   );
 }

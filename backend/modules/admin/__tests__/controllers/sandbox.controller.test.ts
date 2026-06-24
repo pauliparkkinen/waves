@@ -15,8 +15,24 @@ function makeService(overrides: Partial<ISandboxService> = {}): ISandboxService 
   return {
     testForm: vi.fn().mockReturnValue({
       form_id: 'form-1',
+      form_symbol: 'test-form',
       sections: [],
       formulas: [],
+      received_answers: {},
+    }),
+    testSection: vi.fn().mockReturnValue({
+      form_id: '__test__',
+      form_symbol: '__test__',
+      sections: [],
+      formulas: [],
+      received_answers: {},
+    }),
+    testQuestion: vi.fn().mockReturnValue({
+      form_id: '__test__',
+      form_symbol: '__test__',
+      sections: [],
+      formulas: [],
+      received_answers: {},
     }),
     ...overrides,
   };
@@ -38,7 +54,7 @@ describe('createSandboxRouter', () => {
     vi.clearAllMocks();
   });
 
-  describe('POST /:id/test', () => {
+  describe('POST /forms/:id/test', () => {
     describe('given no authenticated user', () => {
       it('when the request is made, then it returns 401', async () => {
         const { createSandboxRouter } = await import(
@@ -46,7 +62,7 @@ describe('createSandboxRouter', () => {
         );
         const app = appWithUser(null).route('/', createSandboxRouter(makeService()));
 
-        const res = await app.request('http://localhost/form-1/test', {
+        const res = await app.request('http://localhost/forms/form-1/test', {
           method: 'POST',
           body: JSON.stringify({ answers: {} }),
           headers: { 'Content-Type': 'application/json' },
@@ -64,7 +80,7 @@ describe('createSandboxRouter', () => {
         const user: AuthUser = { sub: 'u-1', permissions: [] };
         const app = appWithUser(user).route('/', createSandboxRouter(makeService()));
 
-        const res = await app.request('http://localhost/form-1/test', {
+        const res = await app.request('http://localhost/forms/form-1/test', {
           method: 'POST',
           body: JSON.stringify({ answers: {} }),
           headers: { 'Content-Type': 'application/json' },
@@ -82,6 +98,7 @@ describe('createSandboxRouter', () => {
         const user: AuthUser = { sub: 'u-1', permissions: ['admin:manage'] };
         const expectedResult = {
           form_id: 'form-1',
+          form_symbol: 'test-form',
           sections: [
             {
               section_symbol: 'sec-1',
@@ -94,13 +111,14 @@ describe('createSandboxRouter', () => {
           formulas: [
             { formula_symbol: 'total', value: 42 },
           ],
+          received_answers: {},
         };
         const service = makeService({
           testForm: vi.fn().mockReturnValue(expectedResult),
         });
         const app = appWithUser(user).route('/', createSandboxRouter(service));
 
-        const res = await app.request('http://localhost/form-1/test', {
+        const res = await app.request('http://localhost/forms/form-1/test', {
           method: 'POST',
           body: JSON.stringify({ answers: { q1: 10 } }),
           headers: { 'Content-Type': 'application/json' },
@@ -118,7 +136,7 @@ describe('createSandboxRouter', () => {
         const user: AuthUser = { sub: 'u-1', permissions: ['admin:manage'] };
         const app = appWithUser(user).route('/', createSandboxRouter(makeService()));
 
-        const res = await app.request('http://localhost/form-1/test', {
+        const res = await app.request('http://localhost/forms/form-1/test', {
           method: 'POST',
           body: JSON.stringify({ answers: null }),
           headers: { 'Content-Type': 'application/json' },
@@ -136,7 +154,7 @@ describe('createSandboxRouter', () => {
         const user: AuthUser = { sub: 'u-1', permissions: ['admin:manage'] };
         const app = appWithUser(user).route('/', createSandboxRouter(makeService()));
 
-        const res = await app.request('http://localhost/form-1/test', {
+        const res = await app.request('http://localhost/forms/form-1/test', {
           method: 'POST',
           body: JSON.stringify({}),
           headers: { 'Content-Type': 'application/json' },
@@ -154,7 +172,7 @@ describe('createSandboxRouter', () => {
         const user: AuthUser = { sub: 'u-1', permissions: ['admin:manage'] };
         const app = appWithUser(user).route('/', createSandboxRouter(makeService()));
 
-        const res = await app.request('http://localhost/form-1/test', {
+        const res = await app.request('http://localhost/forms/form-1/test', {
           method: 'POST',
           body: 'not-json',
           headers: { 'Content-Type': 'application/json' },
@@ -175,7 +193,7 @@ describe('createSandboxRouter', () => {
         });
         const app = appWithUser(user).route('/', createSandboxRouter(service));
 
-        const res = await app.request('http://localhost/form-1/test', {
+        const res = await app.request('http://localhost/forms/form-1/test', {
           method: 'POST',
           body: JSON.stringify({ answers: {} }),
           headers: { 'Content-Type': 'application/json' },
@@ -198,7 +216,7 @@ describe('createSandboxRouter', () => {
         });
         const app = appWithUser(user).route('/', createSandboxRouter(service));
 
-        const res = await app.request('http://localhost/nonexistent/test', {
+        const res = await app.request('http://localhost/forms/nonexistent/test', {
           method: 'POST',
           body: JSON.stringify({ answers: {} }),
           headers: { 'Content-Type': 'application/json' },
@@ -207,6 +225,154 @@ describe('createSandboxRouter', () => {
 
         expect(res.status).toBe(404);
         expect(body.error).toContain('Form not found');
+      });
+    });
+  });
+
+  describe('POST /sections/:id/test', () => {
+    describe('given an authenticated user with admin:manage', () => {
+      it('when valid input is sent, then it returns 200', async () => {
+        const { createSandboxRouter } = await import(
+          '../../controllers/sandbox.controller.js'
+        );
+        const user: AuthUser = { sub: 'u-1', permissions: ['admin:manage'] };
+        const expectedResult = {
+          form_id: '__test__',
+          form_symbol: '__test__',
+          sections: [
+            {
+              section_symbol: 'sec-1',
+              visible: true,
+              questions: [{ question_symbol: 'q1', visible: true }],
+            },
+          ],
+          formulas: [],
+          received_answers: {},
+        };
+        const service = makeService({
+          testSection: vi.fn().mockReturnValue(expectedResult),
+        });
+        const app = appWithUser(user).route('/', createSandboxRouter(service));
+
+        const res = await app.request('http://localhost/sections/section-1/test', {
+          method: 'POST',
+          body: JSON.stringify({ answers: {} }),
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        expect(res.status).toBe(200);
+        expect(await res.json()).toEqual(expectedResult);
+      });
+
+      it('when the section is not found, then it returns 404', async () => {
+        const { createSandboxRouter } = await import(
+          '../../controllers/sandbox.controller.js'
+        );
+        const user: AuthUser = { sub: 'u-1', permissions: ['admin:manage'] };
+        const service = makeService({
+          testSection: vi.fn().mockImplementation(() => {
+            throw new Error('Section not found: missing');
+          }),
+        });
+        const app = appWithUser(user).route('/', createSandboxRouter(service));
+
+        const res = await app.request('http://localhost/sections/missing/test', {
+          method: 'POST',
+          body: JSON.stringify({ answers: {} }),
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        expect(res.status).toBe(404);
+      });
+
+      it('when answers field is missing, then it returns 400', async () => {
+        const { createSandboxRouter } = await import(
+          '../../controllers/sandbox.controller.js'
+        );
+        const user: AuthUser = { sub: 'u-1', permissions: ['admin:manage'] };
+        const app = appWithUser(user).route('/', createSandboxRouter(makeService()));
+
+        const res = await app.request('http://localhost/sections/section-1/test', {
+          method: 'POST',
+          body: JSON.stringify({}),
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        expect(res.status).toBe(400);
+      });
+    });
+  });
+
+  describe('POST /questions/:id/test', () => {
+    describe('given an authenticated user with admin:manage', () => {
+      it('when valid input is sent, then it returns 200', async () => {
+        const { createSandboxRouter } = await import(
+          '../../controllers/sandbox.controller.js'
+        );
+        const user: AuthUser = { sub: 'u-1', permissions: ['admin:manage'] };
+        const expectedResult = {
+          form_id: '__test__',
+          form_symbol: '__test__',
+          sections: [
+            {
+              section_symbol: '__test__',
+              visible: true,
+              questions: [{ question_symbol: 'q1', visible: true }],
+            },
+          ],
+          formulas: [],
+          received_answers: {},
+        };
+        const service = makeService({
+          testQuestion: vi.fn().mockReturnValue(expectedResult),
+        });
+        const app = appWithUser(user).route('/', createSandboxRouter(service));
+
+        const res = await app.request('http://localhost/questions/question-1/test', {
+          method: 'POST',
+          body: JSON.stringify({ answers: {} }),
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        expect(res.status).toBe(200);
+        expect(await res.json()).toEqual(expectedResult);
+      });
+
+      it('when the question is not found, then it returns 404', async () => {
+        const { createSandboxRouter } = await import(
+          '../../controllers/sandbox.controller.js'
+        );
+        const user: AuthUser = { sub: 'u-1', permissions: ['admin:manage'] };
+        const service = makeService({
+          testQuestion: vi.fn().mockImplementation(() => {
+            throw new Error('Question not found: missing');
+          }),
+        });
+        const app = appWithUser(user).route('/', createSandboxRouter(service));
+
+        const res = await app.request('http://localhost/questions/missing/test', {
+          method: 'POST',
+          body: JSON.stringify({ answers: {} }),
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        expect(res.status).toBe(404);
+      });
+
+      it('when answers field is missing, then it returns 400', async () => {
+        const { createSandboxRouter } = await import(
+          '../../controllers/sandbox.controller.js'
+        );
+        const user: AuthUser = { sub: 'u-1', permissions: ['admin:manage'] };
+        const app = appWithUser(user).route('/', createSandboxRouter(makeService()));
+
+        const res = await app.request('http://localhost/questions/question-1/test', {
+          method: 'POST',
+          body: JSON.stringify({}),
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        expect(res.status).toBe(400);
       });
     });
   });

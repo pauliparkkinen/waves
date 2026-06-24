@@ -500,4 +500,367 @@ describe('SandboxService', () => {
       });
     });
   });
+
+  describe('testSection', () => {
+    describe('given a valid section with questions and no conditions', () => {
+      it('when test answers are provided, then it returns correct results', () => {
+        const sectionRepo = makeSectionRepo({
+          getSection: vi.fn().mockReturnValue(sampleSection),
+        });
+        const questionRepo = makeQuestionRepo({
+          listQuestions: vi.fn().mockReturnValue([sampleQuestion]),
+        });
+        const formulaRepo = makeFormulaRepo();
+        const service = new SandboxService(
+          makeFormRepo(),
+          sectionRepo,
+          questionRepo,
+          formulaRepo,
+          formulaEval,
+        );
+
+        const result = service.testSection('section-1', { answers: { q1: 15 } });
+
+        expect(result.form_id).toBe('__test__');
+        expect(result.form_symbol).toBe('__test__');
+        expect(result.sections).toHaveLength(1);
+        expect(result.sections[0].section_symbol).toBe('sec-1');
+        expect(result.sections[0].visible).toBe(true);
+        expect(result.sections[0].questions).toHaveLength(1);
+        expect(result.sections[0].questions[0].question_symbol).toBe('q1');
+        expect(result.sections[0].questions[0].visible).toBe(true);
+        expect(result.formulas).toHaveLength(0);
+        expect(result.received_answers).toEqual({ q1: 15 });
+      });
+    });
+
+    describe('given a section with condition formulas', () => {
+      it('when section condition evaluates to true, then section is visible', () => {
+        const conditionFormula = {
+          formula_id: 'cond-formula',
+          collection_id: 'col-1',
+          symbol: 'sec-visible',
+          expression: {
+            type: 'comparison_expression' as const,
+            operator: '>' as const,
+            left: { type: 'variable' as const, name: 'score' },
+            right: { type: 'literal' as const, value: 50 },
+          },
+          output_type: 'boolean' as const,
+          formula_references: [],
+        };
+        const sectionWithCondition = {
+          ...sampleSection,
+          condition_formula_id: 'cond-formula',
+        };
+        const sectionRepo = makeSectionRepo({
+          getSection: vi.fn().mockReturnValue(sectionWithCondition),
+        });
+        const questionRepo = makeQuestionRepo({
+          listQuestions: vi.fn().mockReturnValue([sampleQuestion]),
+        });
+        const formulaRepo = makeFormulaRepo({
+          getFormula: vi.fn().mockReturnValue(conditionFormula),
+        });
+        const service = new SandboxService(
+          makeFormRepo(),
+          sectionRepo,
+          questionRepo,
+          formulaRepo,
+          formulaEval,
+        );
+
+        const result = service.testSection('section-1', { answers: { score: 75 } });
+
+        expect(result.sections[0].visible).toBe(true);
+        expect(result.formulas).toHaveLength(1);
+        expect(result.formulas[0].formula_symbol).toBe('sec-visible');
+        expect(result.formulas[0].value).toBe(true);
+      });
+
+      it('when section condition evaluates to false, then section is not visible', () => {
+        const conditionFormula = {
+          formula_id: 'cond-formula',
+          collection_id: 'col-1',
+          symbol: 'sec-visible',
+          expression: {
+            type: 'comparison_expression' as const,
+            operator: '>' as const,
+            left: { type: 'variable' as const, name: 'score' },
+            right: { type: 'literal' as const, value: 50 },
+          },
+          output_type: 'boolean' as const,
+          formula_references: [],
+        };
+        const sectionWithCondition = {
+          ...sampleSection,
+          condition_formula_id: 'cond-formula',
+        };
+        const sectionRepo = makeSectionRepo({
+          getSection: vi.fn().mockReturnValue(sectionWithCondition),
+        });
+        const questionRepo = makeQuestionRepo({
+          listQuestions: vi.fn().mockReturnValue([sampleQuestion]),
+        });
+        const formulaRepo = makeFormulaRepo({
+          getFormula: vi.fn().mockReturnValue(conditionFormula),
+        });
+        const service = new SandboxService(
+          makeFormRepo(),
+          sectionRepo,
+          questionRepo,
+          formulaRepo,
+          formulaEval,
+        );
+
+        const result = service.testSection('section-1', { answers: { score: 25 } });
+
+        expect(result.sections[0].visible).toBe(false);
+      });
+    });
+
+    describe('given a section with question condition formula', () => {
+      it('when question condition evaluates to false, then question is not visible', () => {
+        const conditionFormula = {
+          formula_id: 'cond-formula',
+          collection_id: 'col-1',
+          symbol: 'q-visible',
+          expression: {
+            type: 'comparison_expression' as const,
+            operator: '>' as const,
+            left: { type: 'variable' as const, name: 'score' },
+            right: { type: 'literal' as const, value: 50 },
+          },
+          output_type: 'boolean' as const,
+          formula_references: [],
+        };
+        const questionWithCondition = {
+          ...sampleQuestion,
+          condition_formula_id: 'cond-formula',
+        };
+        const sectionRepo = makeSectionRepo({
+          getSection: vi.fn().mockReturnValue(sampleSection),
+        });
+        const questionRepo = makeQuestionRepo({
+          listQuestions: vi.fn().mockReturnValue([questionWithCondition]),
+        });
+        const formulaRepo = makeFormulaRepo({
+          getFormula: vi.fn().mockReturnValue(conditionFormula),
+        });
+        const service = new SandboxService(
+          makeFormRepo(),
+          sectionRepo,
+          questionRepo,
+          formulaRepo,
+          formulaEval,
+        );
+
+        const result = service.testSection('section-1', { answers: { score: 25 } });
+
+        expect(result.sections[0].questions[0].visible).toBe(false);
+        expect(result.formulas).toHaveLength(1);
+        expect(result.formulas[0].value).toBe(false);
+      });
+    });
+
+    describe('given a non-existent section', () => {
+      it('when calling testSection, then it throws', () => {
+        const sectionRepo = makeSectionRepo({
+          getSection: vi.fn().mockReturnValue(undefined),
+        });
+        const service = new SandboxService(
+          makeFormRepo(),
+          sectionRepo,
+          makeQuestionRepo(),
+          makeFormulaRepo(),
+          formulaEval,
+        );
+
+        expect(() => service.testSection('nonexistent', { answers: {} })).toThrow(
+          'Section not found: nonexistent',
+        );
+      });
+    });
+
+    describe('given a section referencing a non-existent formula', () => {
+      it('when calling testSection, then it throws', () => {
+        const sectionWithCondition = {
+          ...sampleSection,
+          condition_formula_id: 'missing-formula',
+        };
+        const sectionRepo = makeSectionRepo({
+          getSection: vi.fn().mockReturnValue(sectionWithCondition),
+        });
+        const questionRepo = makeQuestionRepo({
+          listQuestions: vi.fn().mockReturnValue([sampleQuestion]),
+        });
+        const formulaRepo = makeFormulaRepo({
+          getFormula: vi.fn().mockReturnValue(undefined),
+        });
+        const service = new SandboxService(
+          makeFormRepo(),
+          sectionRepo,
+          questionRepo,
+          formulaRepo,
+          formulaEval,
+        );
+
+        expect(() => service.testSection('section-1', { answers: {} })).toThrow(
+          'Formula not found: missing-formula',
+        );
+      });
+    });
+
+    describe('given string answer values', () => {
+      it('when the string value is provided, it is echoed back but excluded from variables', () => {
+        const sectionRepo = makeSectionRepo({
+          getSection: vi.fn().mockReturnValue(sampleSection),
+        });
+        const questionRepo = makeQuestionRepo({
+          listQuestions: vi.fn().mockReturnValue([sampleQuestion]),
+        });
+        const service = new SandboxService(
+          makeFormRepo(),
+          sectionRepo,
+          questionRepo,
+          makeFormulaRepo(),
+          formulaEval,
+        );
+
+        const result = service.testSection('section-1', {
+          answers: { q1: 'some-string', q2: 42 },
+        });
+
+        expect(result.received_answers).toEqual({ q1: 'some-string', q2: 42 });
+      });
+    });
+  });
+
+  describe('testQuestion', () => {
+    describe('given a valid question with no condition', () => {
+      it('when test answers are provided, then it returns correct results', () => {
+        const questionRepo = makeQuestionRepo({
+          getQuestion: vi.fn().mockReturnValue(sampleQuestion),
+        });
+        const service = new SandboxService(
+          makeFormRepo(),
+          makeSectionRepo(),
+          questionRepo,
+          makeFormulaRepo(),
+          formulaEval,
+        );
+
+        const result = service.testQuestion('question-1', { answers: { q1: 15 } });
+
+        expect(result.form_id).toBe('__test__');
+        expect(result.form_symbol).toBe('__test__');
+        expect(result.sections).toHaveLength(1);
+        expect(result.sections[0].section_symbol).toBe('__test__');
+        expect(result.sections[0].visible).toBe(true);
+        expect(result.sections[0].questions).toHaveLength(1);
+        expect(result.sections[0].questions[0].question_symbol).toBe('q1');
+        expect(result.sections[0].questions[0].visible).toBe(true);
+        expect(result.formulas).toHaveLength(0);
+        expect(result.received_answers).toEqual({ q1: 15 });
+      });
+    });
+
+    describe('given a question with a condition formula', () => {
+      it('when condition evaluates to true, then question is visible', () => {
+        const conditionFormula = {
+          formula_id: 'cond-formula',
+          collection_id: 'col-1',
+          symbol: 'q-visible',
+          expression: {
+            type: 'comparison_expression' as const,
+            operator: '>' as const,
+            left: { type: 'variable' as const, name: 'score' },
+            right: { type: 'literal' as const, value: 50 },
+          },
+          output_type: 'boolean' as const,
+          formula_references: [],
+        };
+        const questionWithCondition = {
+          ...sampleQuestion,
+          condition_formula_id: 'cond-formula',
+        };
+        const questionRepo = makeQuestionRepo({
+          getQuestion: vi.fn().mockReturnValue(questionWithCondition),
+        });
+        const formulaRepo = makeFormulaRepo({
+          getFormula: vi.fn().mockReturnValue(conditionFormula),
+        });
+        const service = new SandboxService(
+          makeFormRepo(),
+          makeSectionRepo(),
+          questionRepo,
+          formulaRepo,
+          formulaEval,
+        );
+
+        const result = service.testQuestion('question-1', { answers: { score: 75 } });
+
+        expect(result.sections[0].questions[0].visible).toBe(true);
+        expect(result.formulas).toHaveLength(1);
+        expect(result.formulas[0].value).toBe(true);
+      });
+
+      it('when condition evaluates to false, then question is not visible', () => {
+        const conditionFormula = {
+          formula_id: 'cond-formula',
+          collection_id: 'col-1',
+          symbol: 'q-visible',
+          expression: {
+            type: 'comparison_expression' as const,
+            operator: '>' as const,
+            left: { type: 'variable' as const, name: 'score' },
+            right: { type: 'literal' as const, value: 50 },
+          },
+          output_type: 'boolean' as const,
+          formula_references: [],
+        };
+        const questionWithCondition = {
+          ...sampleQuestion,
+          condition_formula_id: 'cond-formula',
+        };
+        const questionRepo = makeQuestionRepo({
+          getQuestion: vi.fn().mockReturnValue(questionWithCondition),
+        });
+        const formulaRepo = makeFormulaRepo({
+          getFormula: vi.fn().mockReturnValue(conditionFormula),
+        });
+        const service = new SandboxService(
+          makeFormRepo(),
+          makeSectionRepo(),
+          questionRepo,
+          formulaRepo,
+          formulaEval,
+        );
+
+        const result = service.testQuestion('question-1', { answers: { score: 25 } });
+
+        expect(result.sections[0].questions[0].visible).toBe(false);
+        expect(result.formulas[0].value).toBe(false);
+      });
+    });
+
+    describe('given a non-existent question', () => {
+      it('when calling testQuestion, then it throws', () => {
+        const questionRepo = makeQuestionRepo({
+          getQuestion: vi.fn().mockReturnValue(undefined),
+        });
+        const service = new SandboxService(
+          makeFormRepo(),
+          makeSectionRepo(),
+          questionRepo,
+          makeFormulaRepo(),
+          formulaEval,
+        );
+
+        expect(() => service.testQuestion('nonexistent', { answers: {} })).toThrow(
+          'Question not found: nonexistent',
+        );
+      });
+    });
+  });
 });

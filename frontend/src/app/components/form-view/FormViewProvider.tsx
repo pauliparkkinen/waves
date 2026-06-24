@@ -110,9 +110,10 @@ interface FormViewProviderProps {
   accessToken?: string;
   children: React.ReactNode;
   submitActionRef?: React.MutableRefObject<(() => Promise<void>) | null>;
+  disablePersistence?: boolean;
 }
 
-export function FormViewProvider({ initialData, accessToken, children, submitActionRef }: FormViewProviderProps) {
+export function FormViewProvider({ initialData, accessToken, children, submitActionRef, disablePersistence = false }: FormViewProviderProps) {
   const [isLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formResponseGroup] = useState(initialData.formResponseGroup);
@@ -267,6 +268,8 @@ export function FormViewProvider({ initialData, accessToken, children, submitAct
         return next;
       });
 
+      if (disablePersistence) return;
+
       const existingTimer = debounceTimersRef.current.get(questionSymbol);
       if (existingTimer) clearTimeout(existingTimer);
       debounceTimersRef.current.set(
@@ -277,7 +280,7 @@ export function FormViewProvider({ initialData, accessToken, children, submitAct
         }, 500),
       );
     },
-    [formResponses, saveAnswer],
+    [formResponses, saveAnswer, disablePersistence],
   );
 
   const completeSection = useCallback(() => {

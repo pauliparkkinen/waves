@@ -1,5 +1,5 @@
 import { auth } from '@/auth';
-import { listForms, listCollections, listSections } from '@/lib/api';
+import { listForms, listCollections, listSections, listQuestions } from '@/lib/api';
 import FormList from './FormList';
 
 export default async function FormsPage() {
@@ -15,10 +15,11 @@ export default async function FormsPage() {
     );
   }
 
-  const [forms, collections, sections] = await Promise.all([
+  const [forms, collections, sections, questions] = await Promise.all([
     listForms(accessToken).catch(() => []),
     listCollections(accessToken).catch(() => []),
     listSections(accessToken).catch(() => []),
+    listQuestions(undefined, accessToken).catch(() => []),
   ]);
 
   return (
@@ -26,6 +27,7 @@ export default async function FormsPage() {
       initialForms={forms}
       collections={collections}
       sections={sections}
+      questions={questions}
       accessToken={accessToken}
     />
   );

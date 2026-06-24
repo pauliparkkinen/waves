@@ -95,6 +95,36 @@ export type AdminQuestion = {
   translations: TranslationRef[];
 };
 
+// ── Sandbox Types ─────────────────────────────────────────────────────────────
+
+export type SandboxTestInput = {
+  answers: Record<string, number | boolean | string>;
+};
+
+export type SandboxQuestionResult = {
+  question_symbol: string;
+  visible: boolean;
+};
+
+export type SandboxSectionResult = {
+  section_symbol: string;
+  visible: boolean;
+  questions: SandboxQuestionResult[];
+};
+
+export type SandboxFormulaResult = {
+  formula_symbol: string;
+  value: number | boolean;
+};
+
+export type SandboxTestResult = {
+  form_id: string;
+  form_symbol: string;
+  sections: SandboxSectionResult[];
+  formulas: SandboxFormulaResult[];
+  received_answers: Record<string, number | boolean | string>;
+};
+
 // ── Formula Types ─────────────────────────────────────────────────────────────
 
 export type OutputType = 'number' | 'boolean';
@@ -641,4 +671,72 @@ export async function deleteTranslation(
   if (!res.ok)
     throw new Error(`Backend DELETE /admin/translations/${id} returned ${res.status}`);
   return true;
+}
+
+// ── Sandbox Tests ────────────────────────────────────────────────────────────
+
+export async function testForm(
+  id: string,
+  input: SandboxTestInput,
+  accessToken?: string
+): Promise<SandboxTestResult> {
+  const res = await fetch(`${BACKEND_URL}/admin/forms/${id}/test`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders(accessToken) },
+    body: JSON.stringify(input),
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    const errMsg =
+      (data && typeof data === "object" && "error" in data
+        ? (data as { error: string }).error
+        : undefined) ?? `Sandbox test failed (${res.status})`;
+    throw new Error(errMsg);
+  }
+  return res.json() as Promise<SandboxTestResult>;
+}
+
+export async function testSection(
+  id: string,
+  input: SandboxTestInput,
+  accessToken?: string
+): Promise<SandboxTestResult> {
+  const res = await fetch(`${BACKEND_URL}/admin/sections/${id}/test`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders(accessToken) },
+    body: JSON.stringify(input),
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    const errMsg =
+      (data && typeof data === "object" && "error" in data
+        ? (data as { error: string }).error
+        : undefined) ?? `Sandbox test failed (${res.status})`;
+    throw new Error(errMsg);
+  }
+  return res.json() as Promise<SandboxTestResult>;
+}
+
+export async function testQuestion(
+  id: string,
+  input: SandboxTestInput,
+  accessToken?: string
+): Promise<SandboxTestResult> {
+  const res = await fetch(`${BACKEND_URL}/admin/questions/${id}/test`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders(accessToken) },
+    body: JSON.stringify(input),
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    const errMsg =
+      (data && typeof data === "object" && "error" in data
+        ? (data as { error: string }).error
+        : undefined) ?? `Sandbox test failed (${res.status})`;
+    throw new Error(errMsg);
+  }
+  return res.json() as Promise<SandboxTestResult>;
 }

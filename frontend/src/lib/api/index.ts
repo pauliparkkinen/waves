@@ -76,6 +76,11 @@ export type {
   Formula,
   CreateFormulaInput,
   UpdateFormulaInput,
+  SandboxTestInput,
+  SandboxTestResult,
+  SandboxSectionResult,
+  SandboxQuestionResult,
+  SandboxFormulaResult,
 } from "./admin";
 
 export {
@@ -109,4 +114,7 @@ export {
   createFormula,
   updateFormula,
   deleteFormula,
+  testForm,
+  testSection,
+  testQuestion,
 } from "./admin";
