@@ -60,7 +60,7 @@ export function RangeQuestion({
   }, [localValue, save]);
 
   // Position of the value indicator as a percentage of slider width
-  const valuePercent = max !== min ? ((localValue - min) / (max - min)) * 100 : 0;
+  const valuePercent = max !== min ? ((localValue - min) / (max - min)) * 97 + 1.5 : 0;
 
   return (
     <div className="range-question">
