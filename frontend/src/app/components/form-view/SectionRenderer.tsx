@@ -55,9 +55,13 @@ export function SectionRenderer({ disabled = false }: SectionRendererProps) {
       {allSections.map((section) => {
         const isActive = section.sectionSymbol === currentSectionSymbol;
         const isCompleted = completedSections.has(section.sectionSymbol);
+        const hasStartedAnswers = section.questions.some((q) => {
+          const r = questionResponses.get(q.question_symbol);
+          return r && (r.response_value_text !== undefined || r.response_value_number !== undefined || r.response_value_boolean !== undefined);
+        });
 
-        // Hide sections that are neither active nor completed
-        if (!isActive && !isCompleted) return null;
+        // Hide sections not active, not completed, and not started
+        if (!isActive && !isCompleted && !hasStartedAnswers) return null;
 
         if (isActive && !isCompleted && !disabled) {
           // Active section — show questions interactively

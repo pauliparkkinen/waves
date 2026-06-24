@@ -18,7 +18,7 @@ export default function FormViewLayout({ children, navigation, header, progress 
         {header}
       </header>
       {progress && <div className="form-view__progress">{progress}</div>}
-      {navigation && <nav className="form-view__navigation" aria-label={strings.navigation.navLabel}>{navigation}</nav>}
+      <nav className="form-view__navigation" aria-label={strings.navigation.navLabel}>{navigation}</nav>
       <main className="form-view__content" role="main">
         {children}
       </main>

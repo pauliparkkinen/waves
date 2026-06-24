@@ -117,9 +117,8 @@ export default function FormViewPageClient({
       <FormViewLayout
         header={<FormHeader />}
         progress={<ProgressTracker />}
-        navigation={null}
+        navigation={<FormNavigation />}
       >
-        <FormNavigation />
         <SectionRenderer disabled={isReadOnly} />
         {testConfig ? (
           <TestFormContent testConfig={testConfig} accessToken={accessToken} locale={initialData.locale} />
