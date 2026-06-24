@@ -1508,7 +1508,7 @@ button {
 .form-view__header { width: 100%; padding: 1rem; border-bottom: 1px solid #e5e7eb; flex-shrink: 0; }
 .form-view__progress { position: sticky; top: 0; z-index: 12; width: 100%; padding: 1rem; background: #fff; border-bottom: 1px solid #e5e7eb; }
 .form-view__navigation { position: sticky; top: 0; z-index: 11; width: 100%; padding: 0.5rem 1rem; background: #fff; border-bottom: 1px solid #e5e7eb; }
-.form-view__content { width: 100%; padding: 1.5rem; flex: 1; }
+.form-view__content { width: 100%; padding: 1.5rem; }
 
 @media (max-width: 768px) {
   .form-view__content { padding: 1rem; }
@@ -1622,6 +1622,7 @@ button {
   flex: 1;
   min-height: 0;
   padding: 1rem;
+  box-sizing: border-box;
 }
 
 /* ── Test Results Panel ──────────────────────────────────────────── */
