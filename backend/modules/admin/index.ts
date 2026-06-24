@@ -20,6 +20,9 @@ import { InMemoryFormulaRepository } from './repositories/formula.repository.js'
 import { createTranslationRouter } from './controllers/translation.controller.js';
 import { TranslationService } from './services/translation.service.js';
 import { InMemoryTranslationRepository } from './repositories/translation.repository.js';
+import { FormulaEvaluatorService } from './services/formula-evaluator.service.js';
+import { SandboxService } from './services/sandbox.service.js';
+import { createSandboxRouter } from './controllers/sandbox.controller.js';
 
 const adminRepository = new InMemoryAdminRepository();
 const adminService = new AdminService(adminRepository);
@@ -36,12 +39,22 @@ const formulaService = new FormulaService(formulaRepository, questionRepository)
 const translationRepository = new InMemoryTranslationRepository();
 const translationService = new TranslationService(translationRepository);
 
+const formulaEvaluatorService = new FormulaEvaluatorService();
+const sandboxService = new SandboxService(
+  formRepository,
+  sectionRepository,
+  questionRepository,
+  formulaRepository,
+  formulaEvaluatorService,
+);
+
 const router = new Hono();
 router.route('/', createAdminRouter(adminService));
 router.route('/collections', createCollectionRouter(collectionService));
 router.route('/questions', createQuestionRouter(questionService));
 router.route('/sections', createSectionRouter(sectionService));
 router.route('/forms', createFormRouter(formService));
+router.route('/forms', createSandboxRouter(sandboxService));
 router.route('/formulas', createFormulaRouter(formulaService));
 router.route('/translations', createTranslationRouter(translationService));
 export default router;
