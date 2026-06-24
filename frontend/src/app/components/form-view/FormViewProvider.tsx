@@ -291,8 +291,18 @@ export function FormViewProvider({ initialData, accessToken, children, submitAct
       }
       return next;
     });
+
+    // Advance to the next section automatically
+    if (currentSectionSymbol) {
+      const allSections = formOrder.flatMap((f) => f.sections);
+      const currentIdx = allSections.findIndex((s) => s.sectionSymbol === currentSectionSymbol);
+      if (currentIdx >= 0 && currentIdx < allSections.length - 1) {
+        setCurrentSectionSymbol(allSections[currentIdx + 1].sectionSymbol);
+        return;
+      }
+    }
     setCurrentSectionSymbol(null);
-  }, [currentSectionSymbol]);
+  }, [currentSectionSymbol, formOrder]);
 
   const openSection = useCallback((symbol: string) => {
     setCurrentSectionSymbol(symbol);
