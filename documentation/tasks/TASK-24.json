@@ -2,9 +2,9 @@
   "id": "TASK-24",
   "title": "Frontend: Answer Persistence, Submission, and Role-Based UI",
   "description": "Implement the form answer persistence, submission workflow, and role-specific UI modes in the frontend. This builds on the navigation component (TASK-23). Includes: Immediate save of each question response to backend upon answer completion (API integration), Automatic retry with exponential backoff for failed save requests, Network error display with clear user instructions, Save-and-resume: close and reopen form response group, continue from first unanswered question, Submission confirmation dialog with answer review prompt, Warning about post-submission immutability, End-of-form uncompleted sections indicators with navigation links, Review mode rendering (read-only, no modifications), On-behalf-of filling UI (HCP selecting patient), and Preview mode in admin form editor. Implements REQ-20 (Immediate Answer Synchronization), part of REQ-22 (Submission UI), and part of REQ-21 (Review mode rendering, delegation UI). Mitigates RISK-4 (RMITIG-4: Immediate Response Persistence with Retry and Error Handling).",
-  "status": "Ready-to-review",
+  "status": "Approved",
   "creationDate": "2026-06-22T14:40:39.681Z",
-  "updateDate": "2026-06-23T17:30:00.000Z",
+  "updateDate": "2026-06-24T06:55:07.956Z",
   "statusHistory": [
     {
       "fromStatus": null,
@@ -26,6 +26,14 @@
       "changedBy": "builder-agent",
       "changedAt": "2026-06-23T17:30:00.000Z",
       "comment": "All 6 phases implemented: retry with backoff, save-and-resume, review mode, submission workflow, dashboard enhancement, HCP patient selector. Code-reviewed and all critical/high issues fixed."
+    },
+    {
+      "fromStatus": "Ready-to-review",
+      "toStatus": "Approved",
+      "changedBy": "Pauli Parkkinen",
+      "changedAt": "2026-06-24T06:55:07.956Z",
+      "approvedBy": "Pauli Parkkinen",
+      "approvedAt": "2026-06-24T06:55:07.956Z"
     }
   ],
   "changeHistory": [
