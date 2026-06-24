@@ -33,31 +33,39 @@ function optionLabel(
 
 function formatAnswer(
   questionResponses: Map<string, QuestionResponse>,
-  sectionQuestions: QuestionDefinition[],
-  questionSymbol: string,
+  question: QuestionDefinition,
   strings: Record<string, Record<string, string>>,
 ): string {
-  const r = questionResponses.get(questionSymbol);
+  const r = questionResponses.get(question.question_symbol);
   if (!r) return '';
 
   if (r.response_value_text !== undefined) {
-    const qDef = sectionQuestions.find((q) => q.question_symbol === questionSymbol);
     // Try to parse as JSON array (multiselect) first
-    if (qDef && (qDef.type === 'multiselect' || qDef.type === 'select' || qDef.type === 'radio')) {
+    if (question.type === 'multiselect' || question.type === 'select' || question.type === 'radio') {
       try {
         const parsed = JSON.parse(r.response_value_text);
         if (Array.isArray(parsed)) {
-          return parsed.map((v: string) => optionLabel(qDef, v)).join(', ');
+          return parsed.map((v: string) => optionLabel(question, v)).join(', ');
         }
       } catch {
         // Not JSON — treat as single value
       }
-      return optionLabel(qDef, r.response_value_text);
+      return optionLabel(question, r.response_value_text);
     }
     return r.response_value_text;
   }
 
-  if (r.response_value_number !== undefined) return String(r.response_value_number);
+  if (r.response_value_number !== undefined) {
+    if (question.type === 'range') {
+      const min = question.parameters?.min;
+      const max = question.parameters?.max;
+      if (min !== undefined && max !== undefined) {
+        return `${String(r.response_value_number)} (min: ${min}, max: ${max})`;
+      }
+    }
+    return String(r.response_value_number);
+  }
+
   if (r.response_value_boolean !== undefined) return r.response_value_boolean ? strings.section.booleanYes : strings.section.booleanNo;
   return '';
 }
@@ -104,12 +112,12 @@ export function SectionSummary({ section, isIncomplete, onContinue, autoFocus = 
       {!hasNoQuestions && (
         <div className="summary">
           {section.questions.map((question) => {
-            const answer = formatAnswer(questionResponses, section.questions, question.question_symbol, strings);
+            const answer = formatAnswer(questionResponses, question, strings);
             const questionText = question.translations?.[locale] ?? question.question_symbol;
             return (
               <div key={question.question_symbol} className="summary__item">
-                <div>
-                  <strong>{questionText}</strong>
+                <div className="summary__item-row">
+                  <strong className="summary__question">{questionText}</strong>
                   <span className="summary__answer">
                     {answer || <em>{strings.summary.noAnswer}</em>}
                   </span>

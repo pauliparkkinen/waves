@@ -1535,8 +1535,10 @@ button {
 /* Summary */
 .summary { background: #f9fafb; border-radius: 8px; padding: 1rem; }
 .summary__item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; }
-.summary__answer { display: block; color: #374151; margin-top: 0.35rem; font-size: 0.95rem; }
-.summary__edit { color: #3b82f6; cursor: pointer; }
+.summary__item-row { display: flex; align-items: baseline; gap: 1rem; flex: 1; }
+.summary__question { white-space: nowrap; }
+.summary__answer { color: #374151; font-size: 0.95rem; white-space: nowrap; }
+.summary__edit { color: #3b82f6; cursor: pointer; flex-shrink: 0; }
 
 /* Progress */
 .progress-bar { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
