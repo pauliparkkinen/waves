@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { retryWithBackoff } from '@/lib/api/retry';
+import { getFormViewStrings } from '@/lib/translations/form-view';
 import type {
   FormResponseGroup,
   FormDefinition,
@@ -312,8 +313,9 @@ export function FormViewProvider({ initialData, accessToken, children, submitAct
     if (!groupId) return;
 
     if (failedSaves.size > 0) {
-      setError('Some answers failed to save. Please retry before submitting.');
-      throw new Error('Some answers failed to save. Please retry before submitting.');
+      const msg = getFormViewStrings(locale).errorMessages.failedSaveBeforeSubmit;
+      setError(msg);
+      throw new Error(msg);
     }
 
     setSaveStatus('saving');
@@ -323,10 +325,11 @@ export function FormViewProvider({ initialData, accessToken, children, submitAct
     });
     if (!res.ok) {
       const data = await res.json().catch(() => null);
+      const fallbackMsg = getFormViewStrings(locale).errorMessages.submitFailed.replace('{status}', String(res.status));
       throw new Error(
         (data && typeof data === 'object' && 'error' in data
           ? (data as { error: string }).error
-          : undefined) ?? `Submit failed (${res.status})`,
+          : undefined) ?? fallbackMsg,
       );
     }
     setSaveStatus('saved');
