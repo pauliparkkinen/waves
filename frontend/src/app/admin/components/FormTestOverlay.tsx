@@ -64,15 +64,46 @@ async function fetchTranslationMap(
   }
 }
 
-/** Resolve the title TranslationRef[] (first entry = title) into Record<locale, title>. */
-function resolveTitle(
+/**
+ * Resolve the title TranslationRef (index 0 = title) into Record<locale, title>.
+ * For question definitions, also resolves the description (index 1) and
+ * embeds it as help text via the `${locale}_help` key so QuestionRenderer
+ * displays it as help text below the title.
+ */
+function resolveTranslations(
   refs: TranslationRef[] | undefined,
   translationMap: Map<string, Record<string, string>>,
+  includeDescription = false,
 ): Record<string, string> {
   if (!refs || refs.length === 0) return {};
-  const titleRef = refs[0]; // index 0 is always the title
-  if (!titleRef) return {};
-  return translationMap.get(titleRef.translation_symbol) ?? {};
+
+  const result: Record<string, string> = {};
+
+  // Index 0 = Title
+  const titleRef = refs[0];
+  if (titleRef) {
+    const titleMap = translationMap.get(titleRef.translation_symbol);
+    if (titleMap) {
+      for (const [locale, text] of Object.entries(titleMap)) {
+        result[locale] = text;
+      }
+    }
+  }
+
+  // Index 1 = Description (optional) — embed as help text
+  if (includeDescription && refs.length > 1) {
+    const descRef = refs[1];
+    if (descRef) {
+      const descMap = translationMap.get(descRef.translation_symbol);
+      if (descMap) {
+        for (const [locale, text] of Object.entries(descMap)) {
+          result[`${locale}_help`] = text;
+        }
+      }
+    }
+  }
+
+  return result;
 }
 
 export default function FormTestOverlay({
@@ -166,7 +197,7 @@ function buildFormTestData(
         order_number: fs.order_number,
       })),
       status: form.status,
-      translations: resolveTitle(form.translations, translationMap),
+      translations: resolveTranslations(form.translations, translationMap),
     },
   ];
 
@@ -181,7 +212,7 @@ function buildFormTestData(
     })),
     condition_formula_id: s.condition_formula_id,
     status: s.status,
-    translations: resolveTitle(s.translations, translationMap),
+    translations: resolveTranslations(s.translations, translationMap),
   }));
 
   const questionDefinitions: QuestionDefinition[] = matchedQuestions.map((q) => ({
@@ -190,7 +221,7 @@ function buildFormTestData(
     type: q.type,
     parameters: q.parameters,
     condition_formula_id: q.condition_formula_id,
-    translations: resolveTitle(q.translations, translationMap),
+    translations: resolveTranslations(q.translations, translationMap, true),
   }));
 
   const formResponseGroup: FormResponseGroup = {
@@ -223,8 +254,7 @@ function buildSectionTestData(
   );
   const matchedQuestions = allQuestions.filter((q) => questionSymbols.has(q.question_symbol));
 
-  const formTitle = resolveTitle(section.translations, translationMap);
-
+  // Virtual form uses a neutral title to avoid duplicating the section title
   const formDefinitions: FormDefinition[] = [
     {
       collection_id: section.collection_id,
@@ -238,7 +268,7 @@ function buildSectionTestData(
         },
       ],
       status: 'draft',
-      translations: formTitle,
+      translations: {},
     },
   ];
 
@@ -254,7 +284,7 @@ function buildSectionTestData(
       })),
       condition_formula_id: section.condition_formula_id,
       status: section.status,
-      translations: formTitle,
+      translations: resolveTranslations(section.translations, translationMap),
     },
   ];
 
@@ -264,7 +294,7 @@ function buildSectionTestData(
     type: q.type,
     parameters: q.parameters,
     condition_formula_id: q.condition_formula_id,
-    translations: resolveTitle(q.translations, translationMap),
+    translations: resolveTranslations(q.translations, translationMap, true),
   }));
 
   const formResponseGroup: FormResponseGroup = {
@@ -293,8 +323,7 @@ function buildQuestionTestData(
 ): { initialData: any; testConfig: TestConfig } {
   const sectionSymbol = `__test__`;
 
-  const questionTitle = resolveTitle(question.translations, translationMap);
-
+  // Virtual form and virtual section use neutral titles
   const formDefinitions: FormDefinition[] = [
     {
       collection_id: question.collection_id,
@@ -308,7 +337,7 @@ function buildQuestionTestData(
         },
       ],
       status: 'draft',
-      translations: questionTitle,
+      translations: {},
     },
   ];
 
@@ -325,10 +354,11 @@ function buildQuestionTestData(
         },
       ],
       status: 'draft',
-      translations: questionTitle,
+      translations: {},
     },
   ];
 
+  // Question gets its actual title + description (as help text)
   const questionDefinitions: QuestionDefinition[] = [
     {
       question_symbol: question.question_symbol,
@@ -336,7 +366,7 @@ function buildQuestionTestData(
       type: question.type,
       parameters: question.parameters,
       condition_formula_id: question.condition_formula_id,
-      translations: questionTitle,
+      translations: resolveTranslations(question.translations, translationMap, true),
     },
   ];
 
