@@ -23,11 +23,21 @@ export function SelectOneQuestion({
 }: Props) {
   const strings = getFormViewStrings(locale);
   const rawOptions = (question.parameters?.options as unknown) ?? [];
-  // Options are stored as { label: string; value: string; order_index: number }[]
-  const options = (Array.isArray(rawOptions) ? rawOptions : []) as {
-    label: string;
-    value: string;
-  }[];
+  // Options can be string[] or { label: string; value: string }[]
+  const normalized: { label: string; value: string }[] = [];
+  if (Array.isArray(rawOptions)) {
+    for (const item of rawOptions) {
+      if (typeof item === 'string') {
+        normalized.push({ label: item, value: item });
+      } else if (item && typeof item === 'object') {
+        normalized.push({
+          label: (item as { label?: string; value?: string }).label ?? String((item as { value?: string }).value ?? ''),
+          value: (item as { value?: string }).value ?? String((item as { label?: string }).label ?? ''),
+        });
+      }
+    }
+  }
+  const options = normalized;
   const currentText = currentValue?.response_value_text ?? '';
   const legendText = question.translations?.[locale] ?? question.question_symbol;
 

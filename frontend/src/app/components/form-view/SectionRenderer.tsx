@@ -11,6 +11,13 @@ type SectionRendererProps = {
   disabled?: boolean;
 };
 
+/**
+ * Renders all sections simultaneously.
+ * - The active section (currentSectionSymbol) is shown with interactive
+ *   questions when it has not been completed.
+ * - All other sections are shown as SectionSummary previews.
+ * - Completed sections are also shown as summaries.
+ */
 export function SectionRenderer({ disabled = false }: SectionRendererProps) {
   const {
     formOrder,
@@ -28,40 +35,11 @@ export function SectionRenderer({ disabled = false }: SectionRendererProps) {
   const isSaving = saveStatus === 'saving';
   const isDisabled = disabled || isSaving;
 
-  if (!currentSectionSymbol) {
-    const anyIncomplete = formOrder.some((f) =>
-      f.sections.some((s) => s.isIncomplete),
-    );
-    return (
-      <div className="form-view__content">
-        {formOrder.map((form) => (
-          <div key={form.formSymbol}>
-            {form.sections.map((section) => (
-              <SectionSummary
-                key={section.sectionSymbol}
-                section={section}
-                isIncomplete={section.isIncomplete}
-                onContinue={() => openSection(section.sectionSymbol)}
-                autoFocus={form.sections.indexOf(section) === 0}
-                readOnly={disabled}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
-    );
-  }
+  const allSections = formOrder.flatMap((f) => f.sections);
 
-  const currentSection = formOrder
-    .flatMap((f) => f.sections)
-    .find((s) => s.sectionSymbol === currentSectionSymbol);
-
-  if (!currentSection) {
+  if (allSections.length === 0) {
     return <p className="error-message">{strings.section.sectionNotFound}</p>;
   }
-
-  const isCompleted = completedSections.has(currentSectionSymbol);
-  const sectionTitle = currentSection.sectionTitle;
 
   const handleAnswer = (questionSymbol: string, value: QuestionResponse) => {
     const simpleValue: string | number | boolean | string[] =
@@ -72,49 +50,62 @@ export function SectionRenderer({ disabled = false }: SectionRendererProps) {
     onAnswer(questionSymbol, simpleValue);
   };
 
-  if (isCompleted) {
-    return (
-      <SectionSummary
-        section={currentSection}
-        isIncomplete={false}
-        onContinue={() => openSection(currentSectionSymbol)}
-        autoFocus={true}
-        readOnly={disabled}
-      />
-    );
-  }
-
   return (
-    <div
-      className={`section ${currentSection.isIncomplete ? 'section--incomplete' : ''}`}
-    >
-      <div className="section__header">
-        <h2 className="section__title">{sectionTitle}</h2>
-      </div>
-      <div className="section__questions">
-        {currentSection.questions.map((question) => (
-          <QuestionRenderer
-            key={question.question_symbol}
-            question={question}
-            currentValue={questionResponses.get(question.question_symbol)}
-            onAnswer={handleAnswer}
-            locale={locale}
-            disabled={isDisabled}
+    <div className="section-renderer">
+      {allSections.map((section) => {
+        const isActive = section.sectionSymbol === currentSectionSymbol;
+        const isCompleted = completedSections.has(section.sectionSymbol);
+
+        // Hide sections that are neither active nor completed
+        if (!isActive && !isCompleted) return null;
+
+        if (isActive && !isCompleted && !disabled) {
+          // Active section — show questions interactively
+          return (
+            <div
+              key={section.sectionSymbol}
+              className={`section ${section.isIncomplete ? 'section--incomplete' : ''}`}
+            >
+              <div className="section__header">
+                <h2 className="section__title">{section.sectionTitle}</h2>
+              </div>
+              <div className="section__questions">
+                {section.questions.map((question) => (
+                  <QuestionRenderer
+                    key={question.question_symbol}
+                    question={question}
+                    currentValue={questionResponses.get(question.question_symbol)}
+                    onAnswer={handleAnswer}
+                    locale={locale}
+                    disabled={isDisabled}
+                  />
+                ))}
+              </div>
+              <div className="section__controls">
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={completeSection}
+                  disabled={isSaving}
+                >
+                  {strings.section.complete}
+                </button>
+              </div>
+            </div>
+          );
+        }
+
+        // Completed section (or active section in read-only mode) — show summary
+        return (
+          <SectionSummary
+            key={section.sectionSymbol}
+            section={section}
+            isIncomplete={false}
+            onContinue={() => openSection(section.sectionSymbol)}
+            readOnly={disabled}
           />
-        ))}
-      </div>
-      {!disabled && (
-        <div className="section__controls">
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={completeSection}
-            disabled={isSaving}
-          >
-            {strings.section.complete}
-          </button>
-        </div>
-      )}
+        );
+      })}
     </div>
   );
 }

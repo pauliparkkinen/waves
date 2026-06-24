@@ -118,13 +118,13 @@ describe('SectionRenderer', () => {
       renderWithProvider(<SectionRenderer />);
       const completeButton = screen.getByText('Complete Section');
       fireEvent.click(completeButton);
-      // After clicking complete, the summary view is shown
+      // After clicking complete, the completed section shows as summary
       expect(screen.getByText('Personal Info')).toBeInTheDocument();
       // Should show summary with "No answer" text
       const noAnswers = screen.getAllByText('No answer');
       expect(noAnswers.length).toBeGreaterThanOrEqual(1);
-      // Should show Continue button for incomplete sections
-      expect(screen.getAllByText('Continue').length).toBeGreaterThanOrEqual(1);
+      // Completed section shows an Edit button, not Continue
+      expect(screen.queryByText('Continue')).not.toBeInTheDocument();
     });
   });
 
