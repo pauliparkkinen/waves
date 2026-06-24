@@ -2,6 +2,7 @@
 
 import React, { useCallback } from 'react';
 import type { QuestionDefinition, QuestionResponse } from '@/lib/api/form-response';
+import { getFormViewStrings } from '@/lib/translations/form-view';
 
 type Props = {
   question: QuestionDefinition;
@@ -20,6 +21,7 @@ export function SelectOneQuestion({
   disabled,
   error,
 }: Props) {
+  const strings = getFormViewStrings(locale);
   const options = (question.parameters?.options as string[] | undefined) ?? [];
   const currentText = currentValue?.response_value_text ?? '';
   const legendText = question.translations?.[locale] ?? question.question_symbol;
@@ -79,7 +81,7 @@ export function SelectOneQuestion({
         aria-labelledby={`${selectId}-label`}
         aria-invalid={!!error}
       >
-        <option value="">--</option>
+        <option value="">{strings.general.selectPlaceholder}</option>
         {options.map((option) => (
           <option key={option} value={option}>
             {option}

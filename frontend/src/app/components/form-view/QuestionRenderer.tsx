@@ -6,6 +6,7 @@ import { MultiSelectQuestion } from './MultiSelectQuestion';
 import { SelectOneQuestion } from './SelectOneQuestion';
 import { FreeTextQuestion } from './FreeTextQuestion';
 import { RangeQuestion } from './RangeQuestion';
+import { getFormViewStrings } from '@/lib/translations/form-view';
 
 export type QuestionRendererProps = {
   question: QuestionDefinition;
@@ -22,6 +23,7 @@ export function QuestionRenderer({
   locale,
   disabled,
 }: QuestionRendererProps) {
+  const strings = getFormViewStrings(locale);
   const questionText = question.translations?.[locale] ?? question.question_symbol;
   const helpText = (question.parameters?.help_text as string | undefined)
     ?? (question.translations?.[`${locale}_help`] as string | undefined);
@@ -84,7 +86,7 @@ export function QuestionRenderer({
           />
         );
       default:
-        return <p className="question__error">Unsupported question type: {question.type}</p>;
+        return <p className="question__error">{strings.errorMessages.unsupportedQuestionType.replace('{type}', question.type)}</p>;
     }
   };
 

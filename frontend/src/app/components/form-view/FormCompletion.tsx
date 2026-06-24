@@ -6,16 +6,12 @@ import { IncompleteIndicator } from './IncompleteIndicator';
 import { getFormViewStrings } from '@/lib/translations/form-view';
 
 type Props = {
-  onSubmit: () => void;
+  onSubmit?: () => void;
 };
 
 export function FormCompletion({ onSubmit }: Props) {
-  const { formOrder, openSection, currentSectionSymbol, locale } = useFormView();
+  const { formOrder, openSection, currentSectionSymbol, locale, mode } = useFormView();
   const strings = getFormViewStrings(locale);
-
-  if (currentSectionSymbol !== null) {
-    return null;
-  }
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -23,6 +19,10 @@ export function FormCompletion({ onSubmit }: Props) {
       headingRef.current.focus();
     }
   }, []);
+
+  if (currentSectionSymbol !== null) {
+    return null;
+  }
 
   const allSections = formOrder.flatMap((f) => f.sections);
   const incompleteSections = allSections.filter((s) => s.isIncomplete);
@@ -89,16 +89,23 @@ export function FormCompletion({ onSubmit }: Props) {
         ))}
       </div>
 
-      <div className="section__controls">
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={onSubmit}
-          disabled={!allComplete}
-        >
-          {strings.submission.submit}
-        </button>
-      </div>
+      {mode !== 'review' && (
+        <div className="section__controls">
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={onSubmit}
+            disabled={!allComplete || !onSubmit}
+          >
+            {strings.submission.submit}
+          </button>
+        </div>
+      )}
+      {mode === 'review' && (
+        <div className="section__controls">
+          <p className="question__help">{strings.summary.reviewMode}</p>
+        </div>
+      )}
     </div>
   );
 }

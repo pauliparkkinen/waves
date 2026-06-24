@@ -7,7 +7,11 @@ import { SectionSummary } from './SectionSummary';
 import type { QuestionResponse } from '@/lib/api/form-response';
 import { getFormViewStrings } from '@/lib/translations/form-view';
 
-export function SectionRenderer() {
+type SectionRendererProps = {
+  disabled?: boolean;
+};
+
+export function SectionRenderer({ disabled = false }: SectionRendererProps) {
   const {
     formOrder,
     currentSectionSymbol,
@@ -22,6 +26,7 @@ export function SectionRenderer() {
   const strings = getFormViewStrings(locale);
 
   const isSaving = saveStatus === 'saving';
+  const isDisabled = disabled || isSaving;
 
   if (!currentSectionSymbol) {
     const anyIncomplete = formOrder.some((f) =>
@@ -38,6 +43,7 @@ export function SectionRenderer() {
                 isIncomplete={section.isIncomplete}
                 onContinue={() => openSection(section.sectionSymbol)}
                 autoFocus={form.sections.indexOf(section) === 0}
+                readOnly={disabled}
               />
             ))}
           </div>
@@ -73,6 +79,7 @@ export function SectionRenderer() {
         isIncomplete={false}
         onContinue={() => openSection(currentSectionSymbol)}
         autoFocus={true}
+        readOnly={disabled}
       />
     );
   }
@@ -92,20 +99,22 @@ export function SectionRenderer() {
             currentValue={questionResponses.get(question.question_symbol)}
             onAnswer={handleAnswer}
             locale={locale}
-            disabled={isSaving}
+            disabled={isDisabled}
           />
         ))}
       </div>
-      <div className="section__controls">
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={completeSection}
-          disabled={isSaving}
-        >
-          {strings.section.complete}
-        </button>
-      </div>
+      {!disabled && (
+        <div className="section__controls">
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={completeSection}
+            disabled={isSaving}
+          >
+            {strings.section.complete}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

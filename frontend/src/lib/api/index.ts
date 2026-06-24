@@ -11,6 +11,12 @@
 
 export { BACKEND_URL, authHeaders } from "./client";
 
+export { retryWithBackoff } from "./retry";
+export type { RetryOptions } from "./retry";
+
+export { loadFormViewData, findFirstUnansweredSection } from "./load-form-view-data";
+export type { LoadedFormViewData } from "./load-form-view-data";
+
 export type { TestGreeting, TestRecord } from "./test";
 export { getTestStatus, getTestRecords } from "./test";
 
@@ -30,6 +36,7 @@ export type {
 export {
   getFormResponseGroup,
   getFormDefinitions,
+  getQuestionResponses,
   saveQuestionResponse,
   submitFormResponseGroup,
 } from "./form-response";

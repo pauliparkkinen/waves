@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useFormView } from './FormViewProvider';
 import { getFormViewStrings } from '@/lib/translations/form-view';
 
 export function SaveIndicator() {
-  const { saveStatus, setSaveStatus, locale } = useFormView();
+  const { saveStatus, setSaveStatus, locale, retryFailedSave, failedSaves } = useFormView();
   const strings = getFormViewStrings(locale);
   const [visible, setVisible] = useState(false);
 
@@ -24,6 +24,12 @@ export function SaveIndicator() {
     }
   }, [saveStatus, setSaveStatus]);
 
+  const handleRetry = useCallback(async () => {
+    await Promise.allSettled(
+      Array.from(failedSaves.keys()).map((symbol) => retryFailedSave(symbol)),
+    );
+  }, [failedSaves, retryFailedSave]);
+
   if (!visible) return null;
 
   return (
@@ -37,12 +43,15 @@ export function SaveIndicator() {
       {saveStatus === 'error' && (
         <>
           <span>{strings.saveIndicator.error}</span>
+          <span className="question__help" style={{ display: 'block' }}>
+            {strings.saveIndicator.retryInstruction}
+          </span>
           <button
             type="button"
             className="btn-small btn-secondary"
-            onClick={() => setSaveStatus('idle')}
+            onClick={handleRetry}
           >
-            Retry
+            {strings.saveIndicator.retry}
           </button>
         </>
       )}
