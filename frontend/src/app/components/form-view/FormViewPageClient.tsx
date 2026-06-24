@@ -114,11 +114,13 @@ export default function FormViewPageClient({
       submitActionRef={submitActionRef}
       disablePersistence={interactive}
     >
-      <FormViewLayout
-        header={<FormHeader />}
-        progress={<ProgressTracker />}
-        navigation={<FormNavigation />}
-      >
+      <FormViewLayout header={<FormHeader />}>
+        <div className="form-view__sticky-header">
+          <ProgressTracker />
+          <nav className="form-view__navigation" aria-label={strings.navigation.navLabel}>
+            <FormNavigation />
+          </nav>
+        </div>
         <SectionRenderer disabled={isReadOnly} />
         {testConfig ? (
           <TestFormContent testConfig={testConfig} accessToken={accessToken} locale={initialData.locale} />

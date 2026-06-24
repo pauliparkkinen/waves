@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import type { QuestionDefinition, QuestionResponse } from '@/lib/api/form-response';
 
 type Props = {
@@ -59,36 +59,46 @@ export function RangeQuestion({
     save(localValue);
   }, [localValue, save]);
 
-  const labelText = question.translations?.[locale] ?? question.question_symbol;
+  // Position of the value indicator as a percentage of slider width
+  const valuePercent = max !== min ? ((localValue - min) / (max - min)) * 100 : 0;
 
   return (
-    <div>
-      <label htmlFor={inputId}>{labelText}</label>
-      <div>
-        <span>{min}</span>
-        <input
-          id={inputId}
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={localValue}
-          onChange={handleChange}
-          onMouseUp={handleCommit}
-          onTouchEnd={handleCommit}
-          onBlur={handleCommit}
-          onKeyUp={handleKeyUp}
-          disabled={disabled}
-          aria-valuenow={localValue}
-          aria-valuemin={min}
-          aria-valuemax={max}
-          aria-invalid={!!error}
-        />
-        <span>{max}</span>
+    <div className="range-question">
+      <div className="range-question__slider-row">
+        <span className="range-question__min">{min}</span>
+        <div className="range-question__track">
+          <input
+            id={inputId}
+            type="range"
+            min={min}
+            max={max}
+            step={step}
+            value={localValue}
+            onChange={handleChange}
+            onMouseUp={handleCommit}
+            onTouchEnd={handleCommit}
+            onBlur={handleCommit}
+            onKeyUp={handleKeyUp}
+            disabled={disabled}
+            aria-valuenow={localValue}
+            aria-valuemin={min}
+            aria-valuemax={max}
+            aria-invalid={!!error}
+            className="range-question__input"
+          />
+        </div>
+        <span className="range-question__max">{max}</span>
       </div>
-      <span id={valueId} aria-live="polite">
-        {localValue}
-      </span>
+      <div className="range-question__value-row">
+        <span
+          id={valueId}
+          className="range-question__value"
+          style={{ left: `${valuePercent}%` }}
+          aria-live="polite"
+        >
+          {localValue}
+        </span>
+      </div>
     </div>
   );
 }

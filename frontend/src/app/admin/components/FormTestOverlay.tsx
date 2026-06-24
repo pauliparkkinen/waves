@@ -138,7 +138,15 @@ export default function FormTestOverlay({
 
   if (!initialData) return null;
 
-  const entitySymbol = form?.form_symbol ?? section?.section_symbol ?? question?.question_symbol ?? '';
+  // Resolve the entity's title and description for the modal header
+  const entityRefs = form?.translations ?? section?.translations ?? question?.translations;
+  const entityTitle = entityRefs?.[0]
+    ? (translationMap.get(entityRefs[0].translation_symbol)?.['en'] ?? null)
+    : null;
+  const entityDescription = entityRefs?.[1]
+    ? (translationMap.get(entityRefs[1].translation_symbol)?.['en'] ?? null)
+    : null;
+  const displayTitle = entityTitle ?? form?.form_symbol ?? section?.section_symbol ?? question?.question_symbol ?? '';
 
   return (
     <div
@@ -154,7 +162,10 @@ export default function FormTestOverlay({
     >
       <div className="modal-content modal-content--fullscreen" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h3 id="test-heading">Test: {entitySymbol}</h3>
+          <div>
+            <h3 id="test-heading">Test: {displayTitle}</h3>
+            {entityDescription && <p className="test-description">{entityDescription}</p>}
+          </div>
           <button type="button" className="btn-secondary btn-small" onClick={onClose}>
             Close
           </button>
@@ -254,7 +265,7 @@ function buildSectionTestData(
   );
   const matchedQuestions = allQuestions.filter((q) => questionSymbols.has(q.question_symbol));
 
-  // Virtual form uses a neutral title to avoid duplicating the section title
+  const sectionTitle = resolveTranslations(section.translations, translationMap);
   const formDefinitions: FormDefinition[] = [
     {
       collection_id: section.collection_id,
@@ -268,7 +279,7 @@ function buildSectionTestData(
         },
       ],
       status: 'draft',
-      translations: {},
+      translations: sectionTitle,
     },
   ];
 
@@ -321,9 +332,9 @@ function buildQuestionTestData(
   question: AdminQuestion,
   translationMap: Map<string, Record<string, string>>,
 ): { initialData: any; testConfig: TestConfig } {
-  const sectionSymbol = `__test__`;
+  const sectionSymbol = question.question_symbol;
+  const questionTitle = resolveTranslations(question.translations, translationMap);
 
-  // Virtual form and virtual section use neutral titles
   const formDefinitions: FormDefinition[] = [
     {
       collection_id: question.collection_id,
@@ -337,7 +348,7 @@ function buildQuestionTestData(
         },
       ],
       status: 'draft',
-      translations: {},
+      translations: questionTitle,
     },
   ];
 

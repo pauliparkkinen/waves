@@ -1,24 +1,25 @@
 'use client';
 
 import React from 'react';
-import { getFormViewStrings } from '@/lib/translations/form-view';
 
 interface FormViewLayoutProps {
   children: React.ReactNode;
-  navigation: React.ReactNode;
   header: React.ReactNode;
-  progress: React.ReactNode;
 }
 
-export default function FormViewLayout({ children, navigation, header, progress }: FormViewLayoutProps) {
-  const strings = getFormViewStrings();
+/**
+ * Minimal layout wrapper. The header is placed outside the scrollable area
+ * (scrolls away). Everything inside children renders inside the scrollable
+ * main element — progress bar, nav, and section content all scroll together,
+ * and sticky elements within them work relative to the outermost scroll
+ * container (the modal or page).
+ */
+export default function FormViewLayout({ children, header }: FormViewLayoutProps) {
   return (
     <div className="form-view">
       <header className="form-view__header" role="banner">
         {header}
       </header>
-      {progress && <div className="form-view__progress">{progress}</div>}
-      <nav className="form-view__navigation" aria-label={strings.navigation.navLabel}>{navigation}</nav>
       <main className="form-view__content" role="main">
         {children}
       </main>
