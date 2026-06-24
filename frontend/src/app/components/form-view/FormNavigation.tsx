@@ -4,6 +4,13 @@ import React, { useCallback } from 'react';
 import { useFormView } from './FormViewProvider';
 import { getFormViewStrings } from '@/lib/translations/form-view';
 
+/** Scroll the page so the section element is visible. */
+function scrollToSection(symbol: string) {
+  setTimeout(() => {
+    document.getElementById(`section-${symbol}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
 export default function FormNavigation() {
   const {
     formOrder,
@@ -47,6 +54,7 @@ export default function FormNavigation() {
       } else {
         openSection(symbol);
       }
+      scrollToSection(symbol);
     },
     [completedSections, reviewSection, openSection],
   );
@@ -59,6 +67,7 @@ export default function FormNavigation() {
       } else {
         openSection(prevSymbol);
       }
+      scrollToSection(prevSymbol);
     }
   }, [currentIndex, sections, completedSections, reviewSection, openSection]);
 
@@ -70,6 +79,7 @@ export default function FormNavigation() {
       } else {
         openSection(nextSymbol);
       }
+      scrollToSection(nextSymbol);
     }
   }, [currentIndex, sections, completedSections, reviewSection, openSection]);
 
@@ -78,6 +88,15 @@ export default function FormNavigation() {
 
   return (
     <div className="form-view__section-nav">
+      <button
+        onClick={handlePrevious}
+        disabled={isFirst || isSaving}
+        aria-label={strings.navigation.previousSectionLabel}
+        className="btn-secondary form-view__prev-btn"
+      >
+        {strings.navigation.previous}
+      </button>
+
       <div className="form-view__section-tabs">
         {sections.map((section, idx) => {
           const isActive = section.sectionSymbol === currentSectionSymbol;
@@ -100,30 +119,20 @@ export default function FormNavigation() {
               aria-current={isActive ? 'true' : undefined}
               aria-label={`${section.sectionTitle}${isCompleted ? ` (${strings.section.completedAriaLabel})` : ''}`}
             >
-              <span>{section.sectionTitle}</span>
+              {section.sectionTitle}
             </button>
           );
         })}
       </div>
 
-      <div className="form-view__nav-buttons">
-        <button
-          onClick={handlePrevious}
-          disabled={isFirst || isSaving}
-          aria-label={strings.navigation.previousSectionLabel}
-          className="btn-secondary"
-        >
-          {strings.navigation.previous}
-        </button>
-        <button
-          onClick={handleNext}
-          disabled={isLast || isSaving || !isSectionAccessible(currentIndex + 1)}
-          aria-label={strings.navigation.nextSectionLabel}
-          className="btn-primary"
-        >
-          {strings.navigation.next}
-        </button>
-      </div>
+      <button
+        onClick={handleNext}
+        disabled={isLast || isSaving || !isSectionAccessible(currentIndex + 1)}
+        aria-label={strings.navigation.nextSectionLabel}
+        className="btn-primary form-view__next-btn"
+      >
+        {strings.navigation.next}
+      </button>
     </div>
   );
 }

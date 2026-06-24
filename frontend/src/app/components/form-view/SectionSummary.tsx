@@ -86,6 +86,7 @@ export function SectionSummary({ section, isIncomplete, onContinue, autoFocus = 
 
   return (
     <div
+      id={`section-${section.sectionSymbol}`}
       className={`section ${isIncomplete ? 'section--incomplete' : 'section--completed'}`}
       ref={summaryRef}
       tabIndex={-1}

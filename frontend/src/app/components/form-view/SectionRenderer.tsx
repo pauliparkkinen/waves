@@ -64,6 +64,7 @@ export function SectionRenderer({ disabled = false }: SectionRendererProps) {
           return (
             <div
               key={section.sectionSymbol}
+              id={`section-${section.sectionSymbol}`}
               className={`section ${section.isIncomplete ? 'section--incomplete' : ''}`}
             >
               <div className="section__header">
