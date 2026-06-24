@@ -1683,3 +1683,16 @@ button {
 .test-mode-controls {
   margin-top: 1rem;
 }
+
+/* ── Modal Form-View Layout Override ────────────────────────────────── */
+/* Within the fullscreen modal, stack navigation above the content instead
+   of placing it as a sidebar, which looks cramped in a modal context. */
+.modal-content--fullscreen .form-view {
+  flex-direction: column;
+}
+
+.modal-content--fullscreen .form-view__navigation {
+  width: 100%;
+  border-right: none;
+  border-bottom: 1px solid #e5e7eb;
+}

@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import type {
   AdminForm,
   AdminSection,
   AdminQuestion,
+  TranslationRef,
 } from '@/lib/api';
 import type {
   FormDefinition,
@@ -13,8 +14,6 @@ import type {
   QuestionDefinition,
   QuestionResponse,
   FormResponseGroup,
-  FormSectionRef,
-  SectionQuestionRef,
 } from '@/lib/api/form-response';
 import type { TestConfig } from '@/app/components/form-view/FormViewPageClient';
 import FormViewPageClient from '@/app/components/form-view/FormViewPageClient';
@@ -29,6 +28,41 @@ type FormTestOverlayProps = {
   questions?: AdminQuestion[];
 };
 
+/** Fetch all translations for a collection and return a Map<symbol, locale→text>. */
+async function fetchTranslationMap(
+  collectionId: string,
+  accessToken?: string,
+): Promise<Map<string, Record<string, string>>> {
+  try {
+    const res = await fetch(
+      `/api/admin/translations?collection_id=${encodeURIComponent(collectionId)}`,
+      { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {} },
+    );
+    if (!res.ok) return new Map();
+    const data = await res.json();
+    const map = new Map<string, Record<string, string>>();
+    for (const item of data) {
+      if (item.symbol && item.translations) {
+        map.set(item.symbol, item.translations);
+      }
+    }
+    return map;
+  } catch {
+    return new Map();
+  }
+}
+
+/** Resolve the title TranslationRef[] (first entry = title) into Record<locale, title>. */
+function resolveTitle(
+  refs: TranslationRef[] | undefined,
+  translationMap: Map<string, Record<string, string>>,
+): Record<string, string> {
+  if (!refs || refs.length === 0) return {};
+  const titleRef = refs[0]; // index 0 is always the title
+  if (!titleRef) return {};
+  return translationMap.get(titleRef.translation_symbol) ?? {};
+}
+
 export default function FormTestOverlay({
   onClose,
   accessToken,
@@ -38,18 +72,26 @@ export default function FormTestOverlay({
   sections: allSections = [],
   questions: allQuestions = [],
 }: FormTestOverlayProps) {
+  const collectionId = form?.collection_id ?? section?.collection_id ?? question?.collection_id;
+  const [translationMap, setTranslationMap] = useState<Map<string, Record<string, string>>>(new Map());
+
+  useEffect(() => {
+    if (!collectionId) return;
+    fetchTranslationMap(collectionId, accessToken).then(setTranslationMap);
+  }, [collectionId, accessToken]);
+
   const { initialData, testConfig } = useMemo(() => {
     if (form) {
-      return buildFormTestData(form, allSections, allQuestions);
+      return buildFormTestData(form, allSections, allQuestions, translationMap);
     }
     if (section) {
-      return buildSectionTestData(section, allQuestions);
+      return buildSectionTestData(section, allQuestions, translationMap);
     }
     if (question) {
-      return buildQuestionTestData(question);
+      return buildQuestionTestData(question, translationMap);
     }
     return { initialData: null as any, testConfig: undefined };
-  }, [form, section, question, allSections, allQuestions]);
+  }, [form, section, question, allSections, allQuestions, translationMap]);
 
   if (!initialData) return null;
 
@@ -90,6 +132,7 @@ function buildFormTestData(
   form: AdminForm,
   allSections: AdminSection[],
   allQuestions: AdminQuestion[],
+  translationMap: Map<string, Record<string, string>>,
 ): { initialData: any; testConfig: TestConfig } {
   const matchedSections = allSections.filter((s) =>
     form.form_sections.some((fs) => fs.section_symbol === s.section_symbol),
@@ -111,7 +154,7 @@ function buildFormTestData(
         order_number: fs.order_number,
       })),
       status: form.status,
-      translations: {},
+      translations: resolveTitle(form.translations, translationMap),
     },
   ];
 
@@ -126,7 +169,7 @@ function buildFormTestData(
     })),
     condition_formula_id: s.condition_formula_id,
     status: s.status,
-    translations: {},
+    translations: resolveTitle(s.translations, translationMap),
   }));
 
   const questionDefinitions: QuestionDefinition[] = matchedQuestions.map((q) => ({
@@ -135,7 +178,7 @@ function buildFormTestData(
     type: q.type,
     parameters: q.parameters,
     condition_formula_id: q.condition_formula_id,
-    translations: {},
+    translations: resolveTitle(q.translations, translationMap),
   }));
 
   const formResponseGroup: FormResponseGroup = {
@@ -161,16 +204,19 @@ function buildFormTestData(
 function buildSectionTestData(
   section: AdminSection,
   allQuestions: AdminQuestion[],
+  translationMap: Map<string, Record<string, string>>,
 ): { initialData: any; testConfig: TestConfig } {
   const questionSymbols = new Set(
     section.section_questions.map((sq) => sq.question_symbol),
   );
   const matchedQuestions = allQuestions.filter((q) => questionSymbols.has(q.question_symbol));
 
+  const formTitle = resolveTitle(section.translations, translationMap);
+
   const formDefinitions: FormDefinition[] = [
     {
       collection_id: section.collection_id,
-      form_symbol: `__test__`,
+      form_symbol: section.section_symbol,
       version: 1,
       form_sections: [
         {
@@ -180,7 +226,7 @@ function buildSectionTestData(
         },
       ],
       status: 'draft',
-      translations: {},
+      translations: formTitle,
     },
   ];
 
@@ -196,7 +242,7 @@ function buildSectionTestData(
       })),
       condition_formula_id: section.condition_formula_id,
       status: section.status,
-      translations: {},
+      translations: formTitle,
     },
   ];
 
@@ -206,7 +252,7 @@ function buildSectionTestData(
     type: q.type,
     parameters: q.parameters,
     condition_formula_id: q.condition_formula_id,
-    translations: {},
+    translations: resolveTitle(q.translations, translationMap),
   }));
 
   const formResponseGroup: FormResponseGroup = {
@@ -231,14 +277,16 @@ function buildSectionTestData(
 
 function buildQuestionTestData(
   question: AdminQuestion,
+  translationMap: Map<string, Record<string, string>>,
 ): { initialData: any; testConfig: TestConfig } {
   const sectionSymbol = `__test__`;
-  const formSymbol = `__test__`;
+
+  const questionTitle = resolveTitle(question.translations, translationMap);
 
   const formDefinitions: FormDefinition[] = [
     {
       collection_id: question.collection_id,
-      form_symbol: formSymbol,
+      form_symbol: sectionSymbol,
       version: 1,
       form_sections: [
         {
@@ -248,7 +296,7 @@ function buildQuestionTestData(
         },
       ],
       status: 'draft',
-      translations: {},
+      translations: questionTitle,
     },
   ];
 
@@ -265,7 +313,7 @@ function buildQuestionTestData(
         },
       ],
       status: 'draft',
-      translations: {},
+      translations: questionTitle,
     },
   ];
 
@@ -276,7 +324,7 @@ function buildQuestionTestData(
       type: question.type,
       parameters: question.parameters,
       condition_formula_id: question.condition_formula_id,
-      translations: {},
+      translations: questionTitle,
     },
   ];
 
