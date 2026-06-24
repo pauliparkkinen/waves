@@ -1504,15 +1504,13 @@ button {
 
 /* ── Form View ──────────────────────────────────────────────────────────────── */
 
-.form-view { display: flex; flex-wrap: wrap; min-height: 100%; }
+.form-view { display: flex; flex-direction: column; min-height: 100%; }
 .form-view__header { width: 100%; padding: 1rem; border-bottom: 1px solid #e5e7eb; }
 .form-view__progress { width: 100%; padding: 1rem; }
-.form-view__navigation { width: 280px; flex-shrink: 0; border-right: 1px solid #e5e7eb; padding: 1rem; overflow-y: auto; }
-.form-view__content { flex: 1; min-width: 0; padding: 1.5rem; overflow-y: auto; }
+.form-view__navigation { width: 100%; border-bottom: 1px solid #e5e7eb; padding: 1rem; overflow-y: auto; }
+.form-view__content { width: 100%; padding: 1.5rem; overflow-y: auto; }
 
 @media (max-width: 768px) {
-  .form-view { flex-direction: column; }
-  .form-view__navigation { width: 100%; border-right: none; border-bottom: 1px solid #e5e7eb; }
   .form-view__content { padding: 1rem; }
 }
 
@@ -1684,15 +1682,4 @@ button {
   margin-top: 1rem;
 }
 
-/* ── Modal Form-View Layout Override ────────────────────────────────── */
-/* Within the fullscreen modal, stack navigation above the content instead
-   of placing it as a sidebar, which looks cramped in a modal context. */
-.modal-content--fullscreen .form-view {
-  flex-direction: column;
-}
 
-.modal-content--fullscreen .form-view__navigation {
-  width: 100%;
-  border-right: none;
-  border-bottom: 1px solid #e5e7eb;
-}
