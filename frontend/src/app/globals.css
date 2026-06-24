@@ -1678,6 +1678,18 @@ button {
   font-size: 0.85em;
 }
 
+.test-mode-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.test-mode-nav-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
 .test-mode-controls {
   margin-top: 1rem;
 }

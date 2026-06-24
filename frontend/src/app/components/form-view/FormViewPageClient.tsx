@@ -7,6 +7,8 @@ import FormHeader from './FormHeader';
 import ProgressTracker from './ProgressTracker';
 import FormNavigation from './FormNavigation';
 import { SectionRenderer } from './SectionRenderer';
+import { SectionSummary } from './SectionSummary';
+import { QuestionRenderer } from './QuestionRenderer';
 import { FormCompletion } from './FormCompletion';
 import { SubmissionDialog } from './SubmissionDialog';
 import { PatientSelector } from './PatientSelector';
@@ -117,14 +119,21 @@ export default function FormViewPageClient({
       <FormViewLayout
         header={<FormHeader />}
         progress={<ProgressTracker />}
-        navigation={<FormNavigation />}
+        navigation={<FormNavigation hideButtons={interactive} />}
       >
-        <SectionRenderer disabled={isReadOnly} />
         {testConfig ? (
-          <TestFormContent testConfig={testConfig} accessToken={accessToken} locale={initialData.locale} />
-        ) : initialData.mode === 'fill' ? (
-          <FormCompletion onSubmit={handleOpenDialog} />
-        ) : null}
+          <TestModeSections
+            testConfig={testConfig}
+            accessToken={accessToken}
+            locale={initialData.locale}
+            disabled={isReadOnly}
+          />
+        ) : (
+          <>
+            <SectionRenderer disabled={isReadOnly} />
+            {initialData.mode === 'fill' && <FormCompletion onSubmit={handleOpenDialog} />}
+          </>
+        )}
       </FormViewLayout>
       {!testConfig && (
         <SubmissionDialog
@@ -140,19 +149,53 @@ export default function FormViewPageClient({
   );
 }
 
-function TestFormContent({
+/**
+ * Test-mode view: renders nav buttons above the sections, shows ALL sections
+ * simultaneously (active section with interactive questions, others as
+ * summaries), and provides the Run Test button with results.
+ */
+function TestModeSections({
   testConfig,
   accessToken,
   locale,
+  disabled,
 }: {
   testConfig: TestConfig;
   accessToken?: string;
   locale: string;
+  disabled: boolean;
 }) {
-  const { questionResponses } = useFormView();
+  const {
+    formOrder,
+    currentSectionSymbol,
+    completedSections,
+    questionResponses,
+    onAnswer,
+    openSection,
+    saveStatus,
+  } = useFormView();
   const [testResult, setTestResult] = useState<SandboxTestResult | null>(null);
   const [isTestRunning, setIsTestRunning] = useState(false);
   const [testError, setTestError] = useState<string | null>(null);
+  const strings = getFormViewStrings(locale);
+  const isSaving = saveStatus === 'saving';
+
+  const allSections = formOrder.flatMap((f) => f.sections);
+  const currentIndex = allSections.findIndex((s) => s.sectionSymbol === currentSectionSymbol);
+  const isFirst = currentIndex <= 0;
+  const isLast = currentIndex >= allSections.length - 1;
+
+  const handlePrevious = useCallback(() => {
+    if (currentIndex > 0) {
+      openSection(allSections[currentIndex - 1].sectionSymbol);
+    }
+  }, [currentIndex, allSections, openSection]);
+
+  const handleNext = useCallback(() => {
+    if (currentIndex < allSections.length - 1) {
+      openSection(allSections[currentIndex + 1].sectionSymbol);
+    }
+  }, [currentIndex, allSections, openSection]);
 
   const handleRunTest = useCallback(async () => {
     const answers: Record<string, string | number | boolean> = {};
@@ -190,26 +233,100 @@ function TestFormContent({
     }
   }, [questionResponses, testConfig, accessToken]);
 
+  if (allSections.length === 0) {
+    return <p className="empty-state">No sections to display.</p>;
+  }
+
   return (
-    <div className="test-mode-controls">
-      <div className="section__controls">
+    <div className="test-mode-content">
+      {/* ── Nav buttons above sections ── */}
+      <div className="test-mode-nav-buttons">
         <button
-          type="button"
-          className="btn-primary"
-          onClick={handleRunTest}
-          disabled={isTestRunning}
+          onClick={handlePrevious}
+          disabled={isFirst || isSaving}
+          aria-label={strings.navigation.previousSectionLabel}
+          className="btn-secondary"
         >
-          {isTestRunning ? 'Running Test...' : 'Run Test'}
+          {strings.navigation.previous}
+        </button>
+        <button
+          onClick={handleNext}
+          disabled={isLast || isSaving}
+          aria-label={strings.navigation.nextSectionLabel}
+          className="btn-primary"
+        >
+          {strings.navigation.next}
         </button>
       </div>
 
-      {testError && (
-        <div className="error-message" role="alert">
-          {testError}
-        </div>
-      )}
+      {/* ── All sections: active with questions, others as summaries ── */}
+      {allSections.map((section) => {
+        const isActive = section.sectionSymbol === currentSectionSymbol;
+        const isCompleted = completedSections.has(section.sectionSymbol);
 
-      {testResult && <TestResultsPanel result={testResult} locale={locale} />}
+        if (isActive && !isCompleted) {
+          // Active section — show questions interactively
+          return (
+            <div key={section.sectionSymbol} className="section">
+              <div className="section__header">
+                <h2 className="section__title">{section.sectionTitle}</h2>
+              </div>
+              <div className="section__questions">
+                {section.questions.map((question) => (
+                  <QuestionRenderer
+                    key={question.question_symbol}
+                    question={question}
+                    currentValue={questionResponses.get(question.question_symbol)}
+                    onAnswer={(_symbol, qValue) => {
+                      const simpleValue: string | number | boolean | string[] =
+                        qValue.response_value_number !== undefined ? qValue.response_value_number :
+                        qValue.response_value_boolean !== undefined ? qValue.response_value_boolean :
+                        qValue.response_value_text !== undefined ? qValue.response_value_text :
+                        '';
+                      onAnswer(question.question_symbol, simpleValue);
+                    }}
+                    locale={locale}
+                    disabled={disabled}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        // Non-active or completed section — show summary
+        return (
+          <SectionSummary
+            key={section.sectionSymbol}
+            section={section}
+            isIncomplete={section.isIncomplete}
+            onContinue={() => openSection(section.sectionSymbol)}
+            readOnly
+          />
+        );
+      })}
+
+      {/* ── Run Test button below all sections ── */}
+      <div className="test-mode-controls">
+        <div className="section__controls">
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={handleRunTest}
+            disabled={isTestRunning}
+          >
+            {isTestRunning ? 'Running Test...' : 'Run Test'}
+          </button>
+        </div>
+
+        {testError && (
+          <div className="error-message" role="alert">
+            {testError}
+          </div>
+        )}
+
+        {testResult && <TestResultsPanel result={testResult} locale={locale} />}
+      </div>
     </div>
   );
 }

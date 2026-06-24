@@ -6,9 +6,10 @@ import { getFormViewStrings } from '@/lib/translations/form-view';
 
 interface FormNavigationProps {
   onNavigate?: (sectionSymbol: string) => void;
+  hideButtons?: boolean;
 }
 
-export default function FormNavigation({ onNavigate }: FormNavigationProps) {
+export default function FormNavigation({ onNavigate, hideButtons }: FormNavigationProps) {
   const {
     formOrder,
     currentFormIndex,
@@ -157,24 +158,26 @@ export default function FormNavigation({ onNavigate }: FormNavigationProps) {
         );
       })}
 
-      <div className="form-view__nav-buttons">
-        <button
-          onClick={handlePrevious}
-          disabled={isFirst || isSaving}
-          aria-label={strings.navigation.previousSectionLabel}
-          className="btn-secondary"
-        >
-          {strings.navigation.previous}
-        </button>
-        <button
-          onClick={handleNext}
-          disabled={isLast || isSaving || !isSectionAccessible(currentIndex + 1)}
-          aria-label={strings.navigation.nextSectionLabel}
-          className="btn-primary"
-        >
-          {strings.navigation.next}
-        </button>
-      </div>
+      {!hideButtons && (
+        <div className="form-view__nav-buttons">
+          <button
+            onClick={handlePrevious}
+            disabled={isFirst || isSaving}
+            aria-label={strings.navigation.previousSectionLabel}
+            className="btn-secondary"
+          >
+            {strings.navigation.previous}
+          </button>
+          <button
+            onClick={handleNext}
+            disabled={isLast || isSaving || !isSectionAccessible(currentIndex + 1)}
+            aria-label={strings.navigation.nextSectionLabel}
+            className="btn-primary"
+          >
+            {strings.navigation.next}
+          </button>
+        </div>
+      )}
     </nav>
   );
 }
