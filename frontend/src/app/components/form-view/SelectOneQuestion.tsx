@@ -22,7 +22,12 @@ export function SelectOneQuestion({
   error,
 }: Props) {
   const strings = getFormViewStrings(locale);
-  const options = (question.parameters?.options as string[] | undefined) ?? [];
+  const rawOptions = (question.parameters?.options as unknown) ?? [];
+  // Options are stored as { label: string; value: string; order_index: number }[]
+  const options = (Array.isArray(rawOptions) ? rawOptions : []) as {
+    label: string;
+    value: string;
+  }[];
   const currentText = currentValue?.response_value_text ?? '';
   const legendText = question.translations?.[locale] ?? question.question_symbol;
 
@@ -46,20 +51,21 @@ export function SelectOneQuestion({
       <fieldset disabled={disabled} aria-invalid={!!error}>
         <legend className="sr-only">{legendText}</legend>
         {options.map((option) => {
-          const checked = currentText === option;
-          const id = `radio-${question.question_symbol}-${option}`;
+          const val = option.value ?? option.label;
+          const checked = currentText === val;
+          const id = `radio-${question.question_symbol}-${val}`;
           return (
-            <div key={option}>
+            <div key={val}>
               <input
                 type="radio"
                 id={id}
                 name={question.question_symbol}
-                value={option}
+                value={val}
                 checked={checked}
-                onChange={() => handleChange(option)}
+                onChange={() => handleChange(val)}
                 disabled={disabled}
               />
-              <label htmlFor={id}>{option}</label>
+              <label htmlFor={id}>{option.label ?? val}</label>
             </div>
           );
         })}
@@ -82,11 +88,14 @@ export function SelectOneQuestion({
         aria-invalid={!!error}
       >
         <option value="">{strings.general.selectPlaceholder}</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
+        {options.map((option) => {
+          const val = option.value ?? option.label;
+          return (
+            <option key={val} value={val}>
+              {option.label ?? val}
+            </option>
+          );
+        })}
       </select>
     </div>
   );

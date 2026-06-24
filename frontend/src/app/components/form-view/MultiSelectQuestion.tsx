@@ -20,7 +20,12 @@ export function MultiSelectQuestion({
   disabled,
   error,
 }: Props) {
-  const options = (question.parameters?.options as string[] | undefined) ?? [];
+  const rawOptions = (question.parameters?.options as unknown) ?? [];
+  // Options are stored as { label: string; value: string; order_index: number }[]
+  const options = (Array.isArray(rawOptions) ? rawOptions : []) as {
+    label: string;
+    value: string;
+  }[];
 
   const selectedValues = (() => {
     if (!currentValue) return [];
@@ -59,19 +64,20 @@ export function MultiSelectQuestion({
     <fieldset disabled={disabled} aria-invalid={!!error}>
       <legend className="sr-only">{legendText}</legend>
       {options.map((option) => {
-        const checked = selectedValues.includes(option);
-        const id = `multi-${question.question_symbol}-${option}`;
+        const val = option.value ?? option.label;
+        const checked = selectedValues.includes(val);
+        const id = `multi-${question.question_symbol}-${val}`;
         return (
-          <div key={option}>
+          <div key={val}>
             <input
               type="checkbox"
               id={id}
               checked={checked}
-              onChange={() => handleToggle(option)}
+              onChange={() => handleToggle(val)}
               aria-checked={checked}
               disabled={disabled}
             />
-            <label htmlFor={id}>{option}</label>
+            <label htmlFor={id}>{option.label ?? val}</label>
           </div>
         );
       })}
